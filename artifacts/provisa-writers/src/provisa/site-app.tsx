@@ -67,7 +67,13 @@ const services = [
     title: 'Global Opportunities Consulting',
     description:
       'We connect professionals to global opportunities including speaking engagements, grants, conferences, fellowships, awards, and more, alongside Global Skilled Worker Migration Consulting for professionals exploring international career and migration pathways.',
-    offerings: [],
+    offerings: [
+      'Global conferences',
+      'Memberships to Professional Associations',
+      'International Fellowships',
+      'Arts and Exhibition',
+      'International journal publication',
+    ],
   },
   {
     title: 'US Skilled Worker Migration',
@@ -94,12 +100,6 @@ const people = [
   ['Law, Policy & Professional Services', 'Lawyers, consultants, analysts, policy professionals, accountants and other specialized professional-services practitioners.'],
   ['Arts, Media, Communications & Creative Industries', 'Writers, journalists, artists, designers, media professionals, communicators and other creative professionals.'],
   ['Social Sciences & Public Impact', 'Social scientists, development professionals, NGO leaders, public-sector professionals, community leaders and specialists whose work creates broader social impact.'],
-];
-
-const approachStages = [
-  ['Discover', 'Identify relevant international opportunities.'],
-  ['Position', 'Present qualifications, achievements and professional value.'],
-  ['Pursue', 'Move forward independently or with Provisa support.'],
 ];
 
 const founderProfile = {
@@ -544,7 +544,7 @@ function Home() {
               <div>
                   <p className="section-kicker eyebrow text-accent">Our services</p>
                   <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From opportunity discovery to professional support.</h2>
-                  <p className="mt-5 max-w-xl leading-7 text-primary-foreground/70">We operate across two connected areas: helping people find relevant global opportunities, and helping them present their qualifications and contributions effectively.</p>
+                  <p className="mt-5 max-w-xl leading-7 text-primary-foreground/70">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities</p>
               </div>
               <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary-foreground/40 pb-2 text-sm font-bold transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
             </div>
@@ -568,7 +568,7 @@ function Home() {
                   ))}
                 </div>
                 <div className="mt-16 border-t border-primary-foreground/20 pt-10">
-                  <p className="section-kicker eyebrow text-accent">How we can help</p>
+                   <p className="section-kicker eyebrow text-accent">Who we can help</p>
                   <div className="mt-6 grid gap-3 md:grid-cols-3">
                     {people.map(([title, text]) => (
                       <article key={title} className="border border-primary-foreground/15 p-5 transition-colors hover:border-primary-foreground/40">
@@ -590,16 +590,12 @@ function Home() {
                   <div className="mt-7 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
                </div>
              </div>
-                <div className="mt-16 rounded-[1.75rem] border-t border-primary-foreground/20 pt-10">
-                  <p className="section-kicker eyebrow text-accent">Our approach</p>
-                  <div className="mt-7 grid gap-3 sm:grid-cols-3">{approachStages.map(([title, text], index) => <div key={title} className="glass-card min-h-[170px] rounded-[1rem] p-5"><span className="font-mono-ui text-xs text-accent">0{index + 1}</span><h3 className="mt-5 font-display text-2xl">{title}</h3><p className="mt-2 text-xs leading-6 text-primary-foreground/70">{text}</p></div>)}</div>
-              </div>
           </div>
         </section>
 
           <section id="testimonials" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
             <div className="mx-auto max-w-[1240px]">
-              <p className="section-kicker eyebrow text-accent">Testimonials</p>
+               <p className="section-kicker eyebrow text-accent">Testimonial</p>
               <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words from the people we support.</h2>
               {testimonials.length ? (
                 <div className="mt-12 grid gap-5 md:grid-cols-2">
@@ -645,9 +641,9 @@ function Home() {
 
           <section id="contact" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
-             <div><p className="section-kicker eyebrow text-accent">Contact the team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Bring us the question you are carrying.</h2><p className="mt-6 max-w-md leading-7 opacity-70">Tell us enough to begin a useful conversation. We work primarily with skilled professionals, experts, researchers and internationally minded people seeking mobility, recognition or further development.</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat to support on WhatsApp</a></div></div>
+              <div><p className="section-kicker eyebrow text-accent">Contact the team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat to support on WhatsApp</a></div></div>
             <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your email draft is ready.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Where can we reply?" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What would you like to make clearer?" /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Prepare an email <ArrowRight size={16} /></button><p className="text-[11px] leading-5 text-muted-foreground">This prototype opens your email app with a pre-filled request. A server-side mailing workflow can be connected later.</p></form>}
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your email draft is ready.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Where can we reply?" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What would you like to make clearer?" /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Prepare an email <ArrowRight size={16} /></button></form>}
             </div>
           </div>
         </section>
