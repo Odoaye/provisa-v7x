@@ -1,0 +1,23 @@
+kind = "web"
+previewPath = "/"
+title = "Provisa Writers"
+description = "A public website preview for Provisa Writers, presenting its visa, immigration, and professional writing services to prospective clients."
+version = "1.0.0"
+id = "artifacts/provisa-writers"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24132
+
+[services.development]
+run = "pnpm --filter @workspace/provisa-writers run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/provisa-writers", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/provisa-writers", "run", "start" ]
+
+[services.env]
+PORT = "24132"
+BASE_PATH = "/"
