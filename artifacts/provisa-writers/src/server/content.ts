@@ -1,4 +1,4 @@
-import { db } from "@workspace/db";
+import { getDb } from "@workspace/db";
 import {
   provisaFounderTable,
   provisaPostsTable,
@@ -37,6 +37,7 @@ export const defaultPost: InsertProvisaPost = {
 };
 
 export async function getContent() {
+  const db = getDb();
   const [posts, staff, founders] = await Promise.all([
     db.select().from(provisaPostsTable),
     db.select().from(provisaStaffTable),
@@ -48,6 +49,7 @@ export async function getContent() {
 export async function seedContent() {
   const existing = await getContent();
   if (!existing.founder) {
+    const db = getDb();
     if (!existing.posts.length) await db.insert(provisaPostsTable).values(defaultPost);
     if (!existing.staff.length) await db.insert(provisaStaffTable).values(defaultStaff);
     await db.insert(provisaFounderTable).values(defaultFounder);
@@ -56,6 +58,7 @@ export async function seedContent() {
 }
 
 export async function saveContent(payload: { posts?: InsertProvisaPost[]; staff?: InsertProvisaStaff[]; founder?: InsertProvisaFounder }) {
+  const db = getDb();
   if (payload.posts) {
     await db.delete(provisaPostsTable);
     if (payload.posts.length) await db.insert(provisaPostsTable).values(payload.posts);
