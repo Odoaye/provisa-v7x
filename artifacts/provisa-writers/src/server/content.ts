@@ -3,18 +3,21 @@ import {
   provisaFounderTable,
   provisaPostsTable,
   provisaStaffTable,
+  provisaTestimonialsTable,
   type InsertProvisaFounder,
   type InsertProvisaPost,
   type InsertProvisaStaff,
+  type InsertProvisaTestimonial,
 } from "@workspace/db";
+import { founderDescriptor, founderIntro, founderStory } from "../provisa/content-copy";
 
 export const defaultFounder: InsertProvisaFounder = {
   id: "founder",
   name: "Mercy Allison",
   role: "Global Master Strategist",
-  descriptor: "Legal Professional • Global Opportunities Strategist • Entrepreneur",
-  summary: "Mercy Allison is a Nigerian legal professional, entrepreneur, and professional documentation strategist who works with highly skilled professionals pursuing international opportunities.\n\nWith expertise in law, legal research, U.S. legal support, client advisory, professional writing, case strategy, and team management, she specializes in evaluating professional profiles, identifying their value, and translating expertise and achievements into clear, strategic, and compelling documentation.",
-  fullWriteup: "Mercy Allison is a Nigerian legal professional, entrepreneur, and professional documentation strategist with extensive experience supporting highly skilled professionals and experts pursuing international opportunities.\n\nSince 2023, she has worked with professionals across diverse fields, helping them assess their profiles, identify and organize evidence, strengthen their professional narratives, and develop compelling documentation for global migration and professional opportunities. Her experience spans legal research, U.S. legal support, client advisory, case strategy, professional writing, recommendation letters, petition documentation, supporting evidence, and quality control.\n\nThrough this work, Mercy has successfully supported numerous professional cases, developing a practical understanding of how expertise, achievements, evidence, and professional impact can be strategically presented to meet the requirements of significant international opportunities.\n\nShe founded Provisa Writers Ltd. to provide professionals with the research, strategic positioning, and professional documentation support needed to present their expertise effectively and pursue opportunities such as global skilled migration, conferences, fellowships, grants, speaking engagements, and other international opportunities.\n\nHer approach goes beyond writing. Mercy examines each professional’s experience and achievements, identifies the strongest elements of their profile, and translates them into clear, strategic, and persuasive documentation that strengthens how their expertise is presented.",
+  descriptor: founderDescriptor,
+  summary: founderIntro,
+  fullWriteup: founderStory,
   image: "/stock/founder-mercy.jpg",
 };
 
@@ -38,12 +41,13 @@ export const defaultPost: InsertProvisaPost = {
 
 export async function getContent() {
   const db = getDb();
-  const [posts, staff, founders] = await Promise.all([
+  const [posts, staff, founders, testimonials] = await Promise.all([
     db.select().from(provisaPostsTable),
     db.select().from(provisaStaffTable),
     db.select().from(provisaFounderTable),
+    db.select().from(provisaTestimonialsTable),
   ]);
-  return { posts, staff, founder: founders[0] ?? null };
+  return { posts, staff, founder: founders[0] ?? null, testimonials };
 }
 
 export async function seedContent() {
@@ -57,7 +61,7 @@ export async function seedContent() {
   return getContent();
 }
 
-export async function saveContent(payload: { posts?: InsertProvisaPost[]; staff?: InsertProvisaStaff[]; founder?: InsertProvisaFounder }) {
+export async function saveContent(payload: { posts?: InsertProvisaPost[]; staff?: InsertProvisaStaff[]; founder?: InsertProvisaFounder; testimonials?: InsertProvisaTestimonial[] }) {
   const db = getDb();
   if (payload.posts) {
     await db.delete(provisaPostsTable);
@@ -71,6 +75,14 @@ export async function saveContent(payload: { posts?: InsertProvisaPost[]; staff?
     await db.insert(provisaFounderTable).values(payload.founder).onConflictDoUpdate({
       target: provisaFounderTable.id,
       set: { ...payload.founder, updatedAt: new Date() },
+    });
+  }
+  if (payload.testimonials) {
+    await db.transaction(async (transaction) => {
+      await transaction.delete(provisaTestimonialsTable);
+      if (payload.testimonials!.length) {
+        await transaction.insert(provisaTestimonialsTable).values(payload.testimonials!);
+      }
     });
   }
   return getContent();

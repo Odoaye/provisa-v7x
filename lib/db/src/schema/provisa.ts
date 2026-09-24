@@ -33,6 +33,14 @@ export const provisaFounderTable = pgTable("provisa_founder", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const provisaTestimonialsTable = pgTable("provisa_testimonials", {
+  id: text("id").primaryKey(),
+  quote: text("quote").notNull().default(""),
+  image: text("image").notNull().default(""),
+  attribution: text("attribution").notNull().default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const insertProvisaPostSchema = createInsertSchema(provisaPostsTable).omit({
   createdAt: true,
 });
@@ -42,6 +50,9 @@ export const insertProvisaStaffSchema = createInsertSchema(provisaStaffTable).om
 export const insertProvisaFounderSchema = createInsertSchema(provisaFounderTable).omit({
   updatedAt: true,
 });
+export const insertProvisaTestimonialSchema = createInsertSchema(provisaTestimonialsTable).omit({
+  createdAt: true,
+});
 
 export type ProvisaPost = typeof provisaPostsTable.$inferSelect;
 export type InsertProvisaPost = z.infer<typeof insertProvisaPostSchema>;
@@ -49,3 +60,5 @@ export type ProvisaStaff = typeof provisaStaffTable.$inferSelect;
 export type InsertProvisaStaff = z.infer<typeof insertProvisaStaffSchema>;
 export type ProvisaFounder = typeof provisaFounderTable.$inferSelect;
 export type InsertProvisaFounder = z.infer<typeof insertProvisaFounderSchema>;
+export type ProvisaTestimonial = typeof provisaTestimonialsTable.$inferSelect;
+export type InsertProvisaTestimonial = z.infer<typeof insertProvisaTestimonialSchema>;

@@ -7,6 +7,7 @@ import {
   BookOpen,
   CalendarDays,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -30,6 +31,7 @@ import {
 import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
+import { founderDescriptor, founderIntro, founderStory } from './content-copy';
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
@@ -53,9 +55,22 @@ type BlogPost = {
   createdAt: string;
 };
 
+type Testimonial = {
+  id: string;
+  quote: string;
+  image: string;
+  attribution: string;
+};
+
 const services = [
   {
-    title: 'U.S. Skilled Worker Migration',
+    title: 'Global Opportunities Consulting',
+    description:
+      'We connect professionals to global opportunities including speaking engagements, grants, conferences, fellowships, awards, and more, alongside Global Skilled Worker Migration Consulting for professionals exploring international career and migration pathways.',
+    offerings: [],
+  },
+  {
+    title: 'US Skilled Worker Migration',
     description: 'Professional support for skilled workers exploring U.S. migration pathways.',
     offerings: [
       'Profile Assessment',
@@ -63,12 +78,6 @@ const services = [
       'EB-1A Application Support',
       'EB-2 NIW Application Support',
     ],
-  },
-  {
-    title: 'Global Opportunities Consulting',
-    description:
-      'We connect professionals to global opportunities including speaking engagements, grants, conferences, fellowships, awards, and more, alongside Global Skilled Worker Migration Consulting for professionals exploring international career and migration pathways.',
-    offerings: [],
   },
   {
     title: 'Visa Application Support',
@@ -81,7 +90,7 @@ const people = [
   ['Healthcare & Life Sciences', 'Physicians, dentists, pharmacists, nurses, public health professionals, biomedical professionals and other healthcare specialists.'],
   ['Science, Engineering & Technology', 'Scientists, researchers, engineers, software professionals, data scientists, technologists and innovators.'],
   ['Academia, Education & Research', 'Professors, lecturers, educators, academic researchers, scholars and education professionals.'],
-  ['Business, Finance & Entrepreneurship', 'Founders, entrepreneurs, executives, business leaders, economists, finance professionals and management professionals.'],
+  ['Business & Finance', 'Executives, business leaders, economists, finance professionals and management professionals.'],
   ['Law, Policy & Professional Services', 'Lawyers, consultants, analysts, policy professionals, accountants and other specialized professional-services practitioners.'],
   ['Arts, Media, Communications & Creative Industries', 'Writers, journalists, artists, designers, media professionals, communicators and other creative professionals.'],
   ['Social Sciences & Public Impact', 'Social scientists, development professionals, NGO leaders, public-sector professionals, community leaders and specialists whose work creates broader social impact.'],
@@ -96,28 +105,11 @@ const approachStages = [
 const founderProfile = {
   name: 'Mercy Allison',
   role: 'Global Master Strategist',
-  descriptor: 'Legal Professional • Global Opportunities Strategist • Entrepreneur',
+  descriptor: founderDescriptor,
   image: '/stock/founder-mercy.jpg',
-  summary: [
-    'Mercy Allison is a Nigerian legal professional, entrepreneur, and professional documentation strategist who works with highly skilled professionals pursuing international opportunities.',
-    'With expertise in law, legal research, U.S. legal support, client advisory, professional writing, case strategy, and team management, she specializes in evaluating professional profiles, identifying their value, and translating expertise and achievements into clear, strategic, and compelling documentation.',
-  ],
-  paragraphs: [
-    'Mercy Allison is a Nigerian legal professional, entrepreneur, and professional documentation strategist with extensive experience supporting highly skilled professionals and experts pursuing international opportunities.',
-    'Since 2023, she has worked with professionals across diverse fields, helping them assess their profiles, identify and organize evidence, strengthen their professional narratives, and develop compelling documentation for global migration and professional opportunities. Her experience spans legal research, U.S. legal support, client advisory, case strategy, professional writing, recommendation letters, petition documentation, supporting evidence, and quality control.',
-    'Through this work, Mercy has successfully supported numerous professional cases, developing a practical understanding of how expertise, achievements, evidence, and professional impact can be strategically presented to meet the requirements of significant international opportunities.',
-    'She founded Provisa Writers Ltd. to provide professionals with the research, strategic positioning, and professional documentation support needed to present their expertise effectively and pursue opportunities such as global skilled migration, conferences, fellowships, grants, speaking engagements, and other international opportunities.',
-    'Her approach goes beyond writing. Mercy examines each professional’s experience and achievements, identifies the strongest elements of their profile, and translates them into clear, strategic, and persuasive documentation that strengthens how their expertise is presented.',
-  ],
+  summary: [founderIntro],
+  paragraphs: founderStory.split('\n\n'),
 };
-
-const companyValues = [
-  ['Access', 'We make valuable global opportunities easier to discover, understand, and pursue.'],
-  ['Strategic Excellence', 'We combine research, insight, and strategy to deliver work that creates meaningful professional value.'],
-  ['Integrity', 'We operate with honesty, transparency, confidentiality, and accountability in every engagement.'],
-  ['Professional Impact', 'We help professionals communicate their expertise, achievements, and value with clarity and credibility.'],
-  ['Opportunity', 'We connect expertise with opportunities that enable professionals to grow, contribute, and advance globally.'],
-];
 
 const seedTeam = [
   {
@@ -145,12 +137,40 @@ const seedStaff: StaffMember[] = seedTeam.map((member, index) => ({
 }));
 
 const navItems = [
-  ['About Us', 'about'],
-  ['Meet the Team', 'team'],
-  ['Our Services', 'services'],
-  ['Results', 'results'],
-  ['Contact Us', 'contact'],
+  { label: 'About Us', href: '#about', children: [
+    { label: 'About Provisa', href: '#about' },
+    { label: 'Our team', href: '#team' },
+  ] },
+  { label: 'Our services', href: '#services', children: [
+    { label: 'Global opportunities consulting', href: '#global-opportunities-consulting' },
+    { label: 'US Skilled Worker Migration', href: '#us-skilled-worker-migration' },
+    { label: 'Visa Application Support', href: '#visa-application-support' },
+  ] },
+  { label: 'Testimonials', href: '#testimonials' },
+  { label: 'Blog', href: '#blog' },
+  { label: 'FAQ', href: '#faq' },
 ];
+
+function NavigationLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  return navItems.map((item) => item.children ? (
+    <details key={item.label} className={`nav-dropdown relative ${mobile ? 'border-b border-border' : ''}`}>
+      <summary className={`flex cursor-pointer items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'px-3 py-3 text-sm' : 'py-4 text-[11px]'}`}>
+        {item.label}<ChevronDown size={14} className="nav-chevron transition-transform" />
+      </summary>
+      <div className={mobile ? 'grid gap-1 pb-3 pl-4' : 'absolute left-0 top-full z-50 grid min-w-[240px] gap-1 rounded-xl border border-border bg-background p-2 shadow-xl'}>
+        {item.children.map((child) => (
+          <a key={child.href} href={child.href} onClick={onNavigate} className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary">
+            {child.label}
+          </a>
+        ))}
+      </div>
+    </details>
+  ) : (
+    <a key={item.href} href={item.href} onClick={onNavigate} className={`font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'rounded-xl px-3 py-3 text-sm hover:bg-muted' : 'text-[11px]'}`}>
+      {item.label}
+    </a>
+  ));
+}
 
 const seedPosts: BlogPost[] = [
   {
@@ -167,7 +187,7 @@ const seedPosts: BlogPost[] = [
 
 const faqs = [
   ['What is Provisa?', 'Provisa is a global professional services firm that helps accomplished professionals strategically present their expertise, achievements and impact for international opportunities, recognition and professional mobility.'],
-  ['Who is Provisa for?', 'We work with professionals, entrepreneurs, researchers, executives and other accomplished individuals seeking to expand their professional reach internationally.'],
+  ['Who is Provisa for?', 'We work with professionals, researchers, executives and other accomplished individuals seeking to expand their professional reach internationally.'],
   ['What kinds of opportunities can Provisa help me pursue?', 'Depending on your profile, we may help you pursue global career and mobility pathways, international conferences, fellowships, professional memberships, recognition opportunities and other international professional opportunities.'],
   ['Does Provisa only work on U.S. immigration?', 'No. U.S. immigration pathways are one area of our work. Our broader focus is helping professionals translate their achievements into credible global opportunities.'],
   ['Do I need to already be highly accomplished to work with Provisa?', 'Our services are designed primarily for professionals with meaningful education, expertise, achievements or professional impact. We assess your profile to determine which opportunities may be appropriate for you.'],
@@ -362,6 +382,7 @@ function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 520);
@@ -378,6 +399,7 @@ function Home() {
       const founder = content.founder;
       setTeam([{ id: 'founder', name: founder?.name || founderProfile.name, role: founder?.role || founderProfile.role, bio: firstParagraph(founder?.summary || founderProfile.summary.join('\n\n')), image: founder?.image || '/stock/founder-mercy.jpg' }, ...(content.staff || [])]);
       if (content.posts) setPosts(content.posts);
+      if (content.testimonials) setTestimonials(content.testimonials);
     }).catch(() => undefined);
     return () => window.removeEventListener('storage', syncTeam);
   }, []);
@@ -404,7 +426,7 @@ function Home() {
   const submitContact = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const subject = encodeURIComponent(`Assessment request from ${String(data.get('name') || 'website visitor')}`);
+    const subject = encodeURIComponent(`Consultation request from ${String(data.get('name') || 'website visitor')}`);
     const body = encodeURIComponent(
       `Name: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
     );
@@ -422,14 +444,11 @@ function Home() {
         <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
           <Logo />
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary navigation">
-            {navItems.map(([label, href]) => (
-              <a key={href} href={`#${href}`} className="text-[11px] font-semibold text-muted-foreground transition-colors hover:text-primary">{label}</a>
-            ))}
+            <NavigationLinks />
           </nav>
           <div className="hidden items-center gap-4 md:flex">
-            <button type="button" onClick={() => openSidebar('blog')} className="inline-flex items-center gap-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-primary"><BookOpen size={14} /> Field guide</button>
             <a href="#contact" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-5 text-[12px] font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">
-              Request an assessment <ArrowRight size={15} />
+              Book a consultation <ArrowRight size={15} />
             </a>
           </div>
           <button type="button" className="grid h-10 w-10 place-items-center rounded-full border border-border lg:hidden" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen}>
@@ -439,15 +458,9 @@ function Home() {
         {mobileOpen && (
           <nav className="border-t border-border bg-background px-5 py-5 lg:hidden" aria-label="Mobile navigation">
             <div className="grid gap-1">
-              {navItems.map(([label, href]) => (
-                <a onClick={closeMenu} key={href} href={`#${href}`} className="rounded-xl px-3 py-3 text-sm font-semibold transition-colors hover:bg-muted">{label}</a>
-              ))}
+              <NavigationLinks mobile onNavigate={closeMenu} />
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-primary"><BookOpen size={15} /> Blog</button>
-              <button type="button" onClick={() => openSidebar('faq')} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-primary">FAQ</button>
-            </div>
-            <a onClick={closeMenu} href="#contact" className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent text-sm font-bold text-accent-foreground">Request an assessment <ArrowRight size={15} /></a>
+            <a onClick={closeMenu} href="#contact" className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent text-sm font-bold text-accent-foreground">Book a consultation <ArrowRight size={15} /></a>
           </nav>
         )}
       </header>
@@ -476,33 +489,54 @@ function Home() {
           </div>
         </section>
 
-          <section id="about" className="section-reveal scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
-           <div className="grid gap-12 md:grid-cols-[.7fr_1.3fr]">
-             <div>
-                  <p className="section-kicker eyebrow text-accent">About us / purpose</p>
-                <h2 className="mt-4 font-display text-4xl leading-tight md:text-6xl">Global opportunities should be easier to see.</h2>
-                  <h3 className="mt-6 font-display text-2xl">Our mission</h3>
-                 <p className="mt-2 leading-7 text-muted-foreground">Our mission is to help talented professionals and ambitious individuals access global opportunities by strategically positioning their expertise, achievements, and professional credentials for opportunities beyond their home countries.</p>
-                 <div className="mt-9 border-t border-border pt-5">
-                   <span className="font-mono-ui text-xs text-accent">07</span>
-                   <h3 className="mt-5 font-display text-2xl">Our vision</h3>
-                    <p className="mt-2 text-sm leading-7 text-muted-foreground">To become the trusted global bridge between exceptional talent and exceptional opportunity. We envision a world where geography does not limit professional ambition, and where talented individuals can access the visibility, networks, recognition, and opportunities they need to thrive on the global stage.</p>
-                 </div>
-             </div>
-             <div>
-               <p className="eyebrow text-accent">Our values</p>
-               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                 {companyValues.map(([title, text], index) => (
-                   <div key={title} className={`border-t border-border pt-5 ${index === 1 ? 'sm:mt-12' : ''}`}>
-                     <span className="font-mono-ui text-xs text-accent">0{index + 1}</span>
-                     <h3 className="mt-5 font-display text-2xl">{title}</h3>
-                     <p className="mt-2 text-sm leading-7 text-muted-foreground">{text}</p>
-                   </div>
-                 ))}
+           <section id="about" className="section-reveal scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
+             <p className="section-kicker eyebrow text-accent">About Provisa</p>
+             <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global opportunities should be easier to see.</h2>
+             <div className="mt-12 grid gap-10 border-t border-border pt-8 md:grid-cols-2 md:gap-16">
+               <div>
+                 <h3 className="font-display text-3xl">Our mission</h3>
+                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">to help professionals access global opportunities by strategically  positioning their expertise, achievements and professional credentials for opportunities beyond their home countries</p>
+               </div>
+               <div>
+                 <h3 className="font-display text-3xl">Our vision</h3>
+                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">We envision a world where geography does not limit professional ambition, and where talented individuals can access the visibility, networks, recognition and opportunities they need to thrive on the global stage</p>
                </div>
              </div>
-           </div>
-        </section>
+           </section>
+
+          <section id="team" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
+            <div className="mx-auto max-w-[1240px]">
+              <p className="section-kicker eyebrow text-accent">Our team</p>
+              <div className="mt-8">
+                {team.length > 0 && (
+                  <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
+                    <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
+                      <img src={assetPath(team[teamIndex].image)} alt={`${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
+                      <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
+                        <div>
+                          <span className="font-mono-ui text-[10px] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
+                          <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
+                          <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
+                          {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
+                        </div>
+                        {team.length > 1 && <p className="mt-8 text-xs font-semibold text-muted-foreground">Swipe on mobile or use the arrows to explore the team.</p>}
+                      </div>
+                    </article>
+                    {team.length > 1 && <>
+                      <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Previous team member"><ChevronLeft size={18} /></button>
+                      <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Next team member"><ChevronRight size={18} /></button>
+                      <div className="mt-5 flex items-center justify-between gap-5">
+                        <div className="flex gap-2" aria-label="Team carousel pagination">{team.map((member, index) => <button key={member.id} type="button" onClick={() => setTeamIndex(index)} className={`h-2.5 rounded-full transition-all ${index === teamIndex ? 'w-9 bg-accent' : 'w-2.5 bg-border hover:bg-primary'}`} aria-label={`Show ${member.name}`} aria-current={index === teamIndex ? 'true' : undefined} />)}</div>
+                        <span className="text-xs font-semibold text-muted-foreground">{String(teamIndex + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}</span>
+                      </div>
+                      <div className="mt-7 flex justify-center"><a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">See more <ArrowRight size={16} /></a></div>
+                    </>}
+                  </div>
+                )}
+                {team.length === 0 && <p className="border border-border bg-background p-8 text-sm text-muted-foreground">No team members are listed yet. Please check back soon.</p>}
+              </div>
+            </div>
+          </section>
 
            <section id="services" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-24">
           <div className="mx-auto max-w-[1240px]">
@@ -516,7 +550,7 @@ function Home() {
             </div>
                 <div className="mt-14 grid gap-4 lg:grid-cols-3">
                   {services.map((service, index) => (
-                    <article key={service.title} className="glass-card rounded-[1.25rem] p-6 text-primary-foreground">
+                     <article key={service.title} id={['global-opportunities-consulting', 'us-skilled-worker-migration', 'visa-application-support'][index]} className="glass-card scroll-mt-28 rounded-[1.25rem] p-6 text-primary-foreground">
                       <span className="font-mono-ui text-xs text-accent">0{index + 1} / service</span>
                       <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
                       <p className="mt-4 text-sm leading-7 text-primary-foreground/70">{service.description}</p>
@@ -563,66 +597,51 @@ function Home() {
           </div>
         </section>
 
-          <section id="team" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
-          <div className="mx-auto max-w-[1240px]">
-             <p className="section-kicker eyebrow text-accent">Meet the team</p>
-                <div className="mt-8">
-                {team.length === 1 && team.map((member, index) => (
-                  <article key={member.id} className="grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]">
-                    <img src={assetPath(member.image)} alt={`${member.name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
-                    <div className="flex min-h-[270px] flex-col justify-center p-7 md:p-10">
-                      <span className="font-mono-ui text-[10px] text-accent">{String(index + 1).padStart(2, '0')} / {member.role}</span>
-                      <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{member.name}</h3>
-                      <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{member.id === 'founder' ? firstParagraph(member.bio) : member.bio}</p>
-                       {member.id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
-                    </div>
-                  </article>
-                ))}
-                {team.length > 1 && (
-                  <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
-                    <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
-                      <img src={assetPath(team[teamIndex].image)} alt={`${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
-                      <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
-                        <div>
-                          <span className="font-mono-ui text-[10px] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
-                          <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
-                          <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
-                           {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
-                        </div>
-                        <p className="mt-8 text-xs font-semibold text-muted-foreground">Swipe on mobile or use the arrows to explore the team.</p>
-                      </div>
+          <section id="testimonials" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
+            <div className="mx-auto max-w-[1240px]">
+              <p className="section-kicker eyebrow text-accent">Testimonials</p>
+              <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words from the people we support.</h2>
+              {testimonials.length ? (
+                <div className="mt-12 grid gap-5 md:grid-cols-2">
+                  {testimonials.map((testimonial) => (
+                    <article key={testimonial.id} className="rounded-[1.25rem] border border-border bg-background p-6 md:p-8">
+                      {testimonial.image && <img src={assetPath(testimonial.image)} alt={testimonial.attribution ? `Testimonial from ${testimonial.attribution}` : 'Client testimonial screenshot'} className="max-h-[560px] w-full rounded-lg object-contain" />}
+                      {testimonial.quote && <blockquote className="mt-5 whitespace-pre-line font-display text-xl leading-relaxed text-foreground">“{testimonial.quote}”</blockquote>}
+                      {testimonial.attribution && <p className="mt-5 text-sm font-semibold text-foreground">— {testimonial.attribution}</p>}
                     </article>
-                    <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Previous team member"><ChevronLeft size={18} /></button>
-                    <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Next team member"><ChevronRight size={18} /></button>
-                    <div className="mt-5 flex items-center justify-between gap-5">
-                      <div className="flex gap-2" aria-label="Team carousel pagination">{team.map((member, index) => <button key={member.id} type="button" onClick={() => setTeamIndex(index)} className={`h-2.5 rounded-full transition-all ${index === teamIndex ? 'w-9 bg-accent' : 'w-2.5 bg-border hover:bg-primary'}`} aria-label={`Show ${member.name}`} aria-current={index === teamIndex ? 'true' : undefined} />)}</div>
-                      <span className="text-xs font-semibold text-muted-foreground">{String(teamIndex + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}</span>
-                    </div>
-                  </div>
-                )}
-                {team.length === 0 && (
-                  <p className="border border-border bg-background p-8 text-sm leading-7 text-muted-foreground">
-                    No team members are listed yet. Please check back soon.
-                  </p>
-                )}
-                {team.length > 1 && (
-                  <div className="mt-7 flex justify-center">
-                    <a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
-                      See more <ArrowRight size={16} />
-                    </a>
-                  </div>
-                )}
-              </div>
-          </div>
-        </section>
+                  ))}
+                </div>
+              ) : <p className="mt-10 max-w-xl text-sm leading-7 text-muted-foreground">Client stories will appear here when they are available.</p>}
+            </div>
+          </section>
 
-          <section id="results" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
-          <div className="mx-auto max-w-[1240px]">
-              <p className="section-kicker eyebrow text-accent">Results</p>
-              <div className="mt-4"><h2 className="max-w-2xl font-display text-4xl md:text-6xl">Useful outcomes begin with honest expectations.</h2></div>
-            <div className="mt-16 grid gap-4 sm:grid-cols-3">{[['01', 'Clearer language', 'A record that lets the substance of your work travel.'], ['02', 'Better questions', 'A more useful conversation with the right specialist.'], ['03', 'A steady next step', 'Preparation that respects both ambition and uncertainty.']].map(([number, title, text]) => <div key={number} className="glass-card-light rounded-[1.25rem] p-6"><span className="font-mono-ui text-xs text-accent">{number}</span><h3 className="mt-4 font-display text-2xl text-primary">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></div>)}</div>
-          </div>
-        </section>
+          <section id="blog" className="section-reveal scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
+            <p className="section-kicker eyebrow text-accent">Blog</p>
+            <h2 className="mt-4 font-display text-4xl md:text-6xl">Notes for the next move.</h2>
+            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {posts.filter(isVisiblePost).map((post) => (
+                <article key={post.id} className="overflow-hidden rounded-[1.25rem] border border-border bg-background">
+                  <img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[1.7] w-full object-cover" />
+                  <div className="p-6">
+                    <h3 className="font-display text-2xl">{post.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
+                    <details className="mt-5 border-t border-border pt-4"><summary className="cursor-pointer text-sm font-bold">Read post</summary><p className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">{post.body}</p></details>
+                  </div>
+                </article>
+              ))}
+              {!posts.some(isVisiblePost) && <p className="text-sm text-muted-foreground">New blog posts are coming soon.</p>}
+            </div>
+          </section>
+
+          <section id="faq" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
+            <div className="mx-auto max-w-[1240px]">
+              <p className="section-kicker eyebrow text-accent">FAQ</p>
+              <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Frequently asked questions.</h2>
+              <div className="mt-10 divide-y divide-border border-y border-border">
+                {faqs.map(([question, answer]) => <details key={question} className="py-5"><summary className="cursor-pointer pr-4 font-semibold text-foreground">{question}</summary><p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground">{answer}</p></details>)}
+              </div>
+            </div>
+          </section>
 
           <section id="contact" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
@@ -638,10 +657,9 @@ function Home() {
        <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. Company details placeholder.</span></div>
-           <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
-             {navItems.map(([label, href]) => <a key={href} href={`#${href}`} className="transition-colors hover:text-primary-foreground">{label}</a>)}
-             <button type="button" onClick={() => openSidebar('blog')} className="transition-colors hover:text-primary-foreground">Blog</button>
-             <button type="button" onClick={() => openSidebar('faq')} className="transition-colors hover:text-primary-foreground">FAQ</button>
+             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
+              {navItems.map((item) => <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
+              <a href="#contact" className="transition-colors hover:text-primary-foreground">Book a consultation</a>
               <a href={routePath('/admin')} className="transition-colors hover:text-primary-foreground">Admin login</a>
            </div>
          </div>
@@ -717,15 +735,18 @@ function AdminPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'posts' | 'staff' | 'founder'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'staff' | 'founder' | 'testimonials'>('posts');
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [staff, setStaff] = useState<StaffMember[]>(readStaff);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState('');
   const [staffImagePreview, setStaffImagePreview] = useState('');
   const [postForm, setPostForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
   const [staffForm, setStaffForm] = useState({ name: '', role: '', bio: '' });
+  const [testimonialForm, setTestimonialForm] = useState({ quote: '', image: '', attribution: '' });
   const [founderForm, setFounderForm] = useState({ name: founderProfile.name, role: founderProfile.role, descriptor: founderProfile.descriptor, summary: founderProfile.summary[0], fullWriteup: founderProfile.paragraphs.join('\n\n'), image: '/stock/founder-mercy.jpg' });
 
   useEffect(() => {
@@ -742,6 +763,7 @@ function AdminPage() {
         if (!content) throw new Error('Content unavailable');
         if (content.posts) setPosts(content.posts);
         if (content.staff) setStaff(content.staff);
+        if (content.testimonials) setTestimonials(content.testimonials);
         if (content.founder) setFounderForm({ ...content.founder, summary: firstParagraph(content.founder.summary) });
         setContentReady(true);
       })
@@ -749,7 +771,7 @@ function AdminPage() {
       .finally(() => setContentLoading(false));
   }, []);
 
-  const saveChanges = async (payload: object, section: 'posts' | 'staff' | 'founder') => {
+  const saveChanges = async (payload: object, section: 'posts' | 'staff' | 'founder' | 'testimonials') => {
     if (saving || !contentReady) return false;
     setSaving(true);
     setSaveError('');
@@ -767,8 +789,9 @@ function AdminPage() {
       const content = await response.json();
       setPosts(content.posts);
       setStaff(content.staff);
+      setTestimonials(content.testimonials);
       setFounderForm({ ...content.founder, summary: firstParagraph(content.founder.summary) });
-      setSaveMessage(`${section === 'founder' ? 'Founder profile' : section === 'staff' ? 'Staff directory' : 'Blog posts'} saved. The public site will show the update on reload.`);
+      setSaveMessage(`${section === 'founder' ? 'Founder profile' : section === 'staff' ? 'Staff directory' : section === 'testimonials' ? 'Testimonials' : 'Blog posts'} saved. The public site will show the update on reload.`);
       return true;
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'Could not save changes. Please try again.');
@@ -786,6 +809,10 @@ function AdminPage() {
     setEditingStaffId(null);
     setStaffImagePreview('');
     setStaffForm({ name: '', role: '', bio: '' });
+  };
+  const resetTestimonialForm = () => {
+    setEditingTestimonialId(null);
+    setTestimonialForm({ quote: '', image: '', attribution: '' });
   };
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -822,6 +849,18 @@ function AdminPage() {
       image: staffImagePreview || assetPath('/stock/team-strategy.jpg'),
     };
     if (await saveChanges({ staff: editingStaffId ? staff.map((member) => member.id === editingStaffId ? next : member) : [next, ...staff] }, 'staff')) resetStaffForm();
+  };
+  const saveTestimonial = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!testimonialForm.quote.trim() && !testimonialForm.image.trim()) {
+      setSaveError('Add testimonial text or a screenshot URL before saving.');
+      return;
+    }
+    const next: Testimonial = { id: editingTestimonialId || `testimonial-${Date.now()}`, ...testimonialForm };
+    const updated = editingTestimonialId
+      ? testimonials.map((entry) => entry.id === editingTestimonialId ? next : entry)
+      : [next, ...testimonials];
+    if (await saveChanges({ testimonials: updated }, 'testimonials')) resetTestimonialForm();
   };
   const editPost = (post: BlogPost) => {
     setActiveTab('posts');
@@ -891,7 +930,7 @@ function AdminPage() {
           <div>
             <p className="eyebrow text-accent">PWADMIN / site administration</p>
             <h1 className="mt-4 font-display text-5xl md:text-7xl">The publishing desk.</h1>
-              <p className="mt-5 max-w-xl leading-7 text-muted-foreground">Manage field notes, the public team directory, and the founder profile. Changes are saved to the site database.</p>
+               <p className="mt-5 max-w-xl leading-7 text-muted-foreground">Manage blog posts, the public team directory, the founder profile, and testimonials. Changes are saved to the site database.</p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-bold text-primary"><Sparkles size={14} /> {posts.length} posts · {staff.length} staff</div>
         </div>
@@ -905,6 +944,7 @@ function AdminPage() {
           <button type="button" onClick={() => setActiveTab('posts')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'posts' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Pencil size={15} /> Blog posts</button>
            <button type="button" onClick={() => setActiveTab('staff')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'staff' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Users size={15} /> Staff directory</button>
            <button type="button" onClick={() => setActiveTab('founder')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'founder' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Pencil size={15} /> Founder</button>
+           <button type="button" onClick={() => setActiveTab('testimonials')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'testimonials' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><MessageCircle size={15} /> Testimonials</button>
         </div>
 
         {activeTab === 'posts' ? (
@@ -946,6 +986,44 @@ function AdminPage() {
             <section>
                <div className="mb-5 flex items-center justify-between"><h2 className="font-display text-3xl">Staff directory</h2><span className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">Site database</span></div>
                <div className="grid gap-4 sm:grid-cols-2">{staff.map((member) => <article key={member.id} className="border-t border-border pt-5"><div className="flex gap-4"><img src={assetPath(member.image || '/stock/team-strategy.jpg')} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" /><div className="min-w-0"><h3 className="font-display text-2xl">{member.name}</h3><p className="mt-1 text-xs font-bold uppercase tracking-[.1em] text-accent">{member.role}</p><p className="mt-3 text-xs leading-6 text-muted-foreground">{member.bio}</p></div></div><div className="mt-4 flex gap-2"><button type="button" onClick={() => editStaffMember(member)} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-bold text-primary hover:bg-secondary"><Pencil size={13} /> Edit</button><button type="button" disabled={saving} onClick={() => { if (window.confirm(`Delete ${member.name}?`)) void saveChanges({ staff: staff.filter((item) => item.id !== member.id) }, 'staff'); }} className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-xs font-bold text-accent hover:bg-secondary"><Trash2 size={13} /> Delete</button></div></article>)}</div>
+            </section>
+          </div>
+        ) : activeTab === 'testimonials' ? (
+          <div className="mt-8 grid gap-8 lg:grid-cols-[.85fr_1.15fr]">
+            <form onSubmit={saveTestimonial} className="admin-editor-card rounded-[1.75rem] bg-secondary/80 p-7 text-foreground md:p-9">
+              <h2 className="font-display text-3xl">{editingTestimonialId ? 'Edit testimonial' : 'Add testimonial'}</h2>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">Add a written testimonial, a screenshot, or both. Only share client feedback you have permission to publish.</p>
+              <div className="mt-8 grid gap-5">
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Testimonial text
+                  <textarea rows={5} value={testimonialForm.quote} onChange={(event) => setTestimonialForm({ ...testimonialForm, quote: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Paste the client's words here" />
+                </label>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Screenshot image URL
+                  <input type="url" value={testimonialForm.image} onChange={(event) => setTestimonialForm({ ...testimonialForm, image: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="https://example.com/client-feedback.png" />
+                </label>
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground">Paste a direct link to a screenshot already hosted online. Image uploads are not connected yet.</p>
+                {testimonialForm.image && <img src={testimonialForm.image} alt="Testimonial screenshot preview" className="max-h-72 w-full rounded-xl border border-border object-contain" />}
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Attribution (optional)
+                  <input value={testimonialForm.attribution} onChange={(event) => setTestimonialForm({ ...testimonialForm, attribution: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Client name or anonymous" />
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <button type="submit" disabled={saving || !contentReady} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : editingTestimonialId ? 'Save testimonial' : 'Add testimonial'}</button>
+                  {editingTestimonialId && <button type="button" onClick={resetTestimonialForm} className="text-sm font-semibold text-primary">Cancel</button>}
+                </div>
+              </div>
+            </form>
+            <section>
+              <h2 className="font-display text-3xl">Published testimonials</h2>
+              {testimonials.length ? <div className="mt-5 grid gap-4">
+                {testimonials.map((entry) => <article key={entry.id} className="border-t border-border py-5">
+                  {entry.image && <img src={entry.image} alt="Testimonial screenshot" className="mb-4 max-h-60 w-full rounded-xl object-contain" />}
+                  {entry.quote && <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{entry.quote}</p>}
+                  {entry.attribution && <p className="mt-2 text-xs font-semibold">{entry.attribution}</p>}
+                  <div className="mt-4 flex gap-2">
+                    <button type="button" onClick={() => { setEditingTestimonialId(entry.id); setTestimonialForm({ quote: entry.quote, image: entry.image, attribution: entry.attribution }); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-primary">Edit</button>
+                    <button type="button" disabled={saving} onClick={() => { if (window.confirm('Delete this testimonial?')) void saveChanges({ testimonials: testimonials.filter((item) => item.id !== entry.id) }, 'testimonials'); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-accent">Delete</button>
+                  </div>
+                </article>)}
+              </div> : <p className="mt-5 text-sm text-muted-foreground">No testimonials have been added yet.</p>}
             </section>
           </div>
         ) : (

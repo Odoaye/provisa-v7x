@@ -37,7 +37,7 @@
   --secondary: 33 68% 83%;
   --secondary-foreground: 198 31% 16%;
   --muted: 36 21% 91%;
-  --muted-foreground: 198 14% 43%;
+  --muted-foreground: 0 0% 10%;
   --accent: 13 63% 59%;
   --accent-foreground: 39 40% 96%;
   --input: 35 21% 83%;
@@ -129,6 +129,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 }
 details summary { list-style: none; }
 details summary::-webkit-details-marker { display: none; }
+.nav-dropdown[open] .nav-chevron { transform: rotate(180deg); }
 @keyframes rise-in {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
