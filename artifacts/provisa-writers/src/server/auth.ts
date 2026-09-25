@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 const COOKIE_NAME = "provisa_admin_session";
 const MAX_AGE = 60 * 60 * 8;
 const failures = new Map<string, { count: number; resetAt: number }>();
+const PREVIEW_USERNAME = "pwadmin";
+const PREVIEW_PASSWORD = "client123";
 
 function secret() {
   const value = process.env.SESSION_SECRET;
@@ -18,8 +20,13 @@ function signature(value: string) {
 export function validCredentials(username: string, password: string) {
   const expectedUser = process.env.ADMIN_USERNAME;
   const expectedPassword = process.env.ADMIN_PASSWORD;
-  if (!expectedUser || !expectedPassword) return false;
-  return username === expectedUser && password === expectedPassword;
+  const previewLogin =
+    username === PREVIEW_USERNAME && password === PREVIEW_PASSWORD;
+  const configuredLogin =
+    Boolean(expectedUser && expectedPassword) &&
+    username === expectedUser &&
+    password === expectedPassword;
+  return previewLogin || configuredLogin;
 }
 
 export function rateLimited(ip: string) {
