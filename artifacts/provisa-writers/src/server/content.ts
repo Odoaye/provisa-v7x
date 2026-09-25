@@ -9,7 +9,7 @@ import {
   type InsertProvisaStaff,
   type InsertProvisaTestimonial,
 } from "@workspace/db";
-import { founderDescriptor, founderIntro, founderStory, louisBio } from "../provisa/content-copy";
+import { founderDescriptor, founderIntro, founderStory, louisBio, needsLouisBio } from "../provisa/content-copy";
 
 export const defaultFounder: InsertProvisaFounder = {
   id: "founder",
@@ -60,7 +60,7 @@ export async function getContent() {
       if (member.id === "esther-youpele") {
         return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
       }
-      if (member.id === "louis-ebitari" && !member.bio.trim()) {
+      if (member.id === "louis-ebitari" && needsLouisBio(member.bio)) {
         return { ...member, bio: louisBio };
       }
       return member;

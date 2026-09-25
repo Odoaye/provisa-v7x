@@ -31,7 +31,7 @@ import {
 import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
-import { founderDescriptor, founderIntro, founderStory, louisBio } from './content-copy';
+import { founderDescriptor, founderIntro, founderStory, louisBio, needsLouisBio } from './content-copy';
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
@@ -135,7 +135,7 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
       if (member.id === 'esther-youpele') {
         return { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
       }
-      if (member.id === 'louis-ebitari' && !member.bio.trim()) {
+      if (member.id === 'louis-ebitari' && needsLouisBio(member.bio)) {
         return { ...member, bio: louisBio };
       }
       return member;
