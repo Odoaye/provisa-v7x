@@ -44,6 +44,27 @@ const assetPath = (path: string) => {
 const routePath = (path: string) => path.startsWith('/') ? path : `/${path}`;
 const firstParagraph = (text: string) => text.split(/\n\s*\n/)[0]?.trim() || '';
 
+async function requestAdminLogin(username: string, password: string): Promise<string | null> {
+  let response: Response;
+  try {
+    response = await fetch('/provisa-api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+  } catch {
+    return 'Unable to connect to the sign-in service. Check your connection and try again.';
+  }
+
+  const body = await response.json().catch(() => null) as { error?: string } | null;
+  if (response.ok) return null;
+  if (typeof body?.error === 'string') return body.error;
+  if (response.status >= 500) {
+    return 'The sign-in service is temporarily unavailable. Please try again shortly.';
+  }
+  return 'Unable to sign in. Please check the username and password.';
+}
+
 type BlogPost = {
   id: string;
   title: string;
@@ -673,13 +694,13 @@ function LegacyAdminPage() {
   };
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch('/provisa-api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
-    if (response.ok) {
-      setAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError((await response.json().catch(() => null))?.error || 'Unable to sign in.');
+    const error = await requestAdminLogin(username, password);
+    if (error) {
+      setLoginError(error);
+      return;
     }
+    setAuthenticated(true);
+    setLoginError('');
   };
   const savePost = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -799,13 +820,13 @@ function AdminPage() {
   };
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch('/provisa-api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
-    if (response.ok) {
-      setAuthenticated(true);
-      setLoginError('');
-    } else {
-      setLoginError((await response.json().catch(() => null))?.error || 'Unable to sign in.');
+    const error = await requestAdminLogin(username, password);
+    if (error) {
+      setLoginError(error);
+      return;
     }
+    setAuthenticated(true);
+    setLoginError('');
   };
   const handleLogout = async () => {
     await fetch('/provisa-api/auth/logout', { method: 'POST' }).catch(

@@ -6,11 +6,11 @@ const MAX_AGE = 60 * 60 * 8;
 const failures = new Map<string, { count: number; resetAt: number }>();
 const PREVIEW_USERNAME = "pwadmin";
 const PREVIEW_PASSWORD = "client123";
+const PREVIEW_SESSION_SECRET =
+  "provisa-preview-session-signing-key-rotate-before-launch";
 
 function secret() {
-  const value = process.env.SESSION_SECRET;
-  if (!value) throw new Error("SESSION_SECRET must be configured");
-  return value;
+  return PREVIEW_SESSION_SECRET;
 }
 
 function signature(value: string) {
@@ -18,15 +18,7 @@ function signature(value: string) {
 }
 
 export function validCredentials(username: string, password: string) {
-  const expectedUser = process.env.ADMIN_USERNAME;
-  const expectedPassword = process.env.ADMIN_PASSWORD;
-  const previewLogin =
-    username === PREVIEW_USERNAME && password === PREVIEW_PASSWORD;
-  const configuredLogin =
-    Boolean(expectedUser && expectedPassword) &&
-    username === expectedUser &&
-    password === expectedPassword;
-  return previewLogin || configuredLogin;
+  return username === PREVIEW_USERNAME && password === PREVIEW_PASSWORD;
 }
 
 export function rateLimited(ip: string) {
