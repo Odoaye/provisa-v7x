@@ -7,8 +7,3 @@ export const founderStory = [
 ].join("\n\n");
 
 export const founderIntro = founderStory.split("\n\n")[0];
-
-export const louisBio = "The operations anchor: bringing structure to daily work, keeping details aligned and helping every engagement move forward smoothly.";
-
-export const needsLouisBio = (bio: string) =>
-  !bio.trim() || bio.startsWith("Louis keeps the day-to-day work at Provisa organised and moving forward.");

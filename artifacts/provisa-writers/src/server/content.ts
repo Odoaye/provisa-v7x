@@ -9,7 +9,7 @@ import {
   type InsertProvisaStaff,
   type InsertProvisaTestimonial,
 } from "@workspace/db";
-import { founderDescriptor, founderIntro, founderStory, louisBio, needsLouisBio } from "../provisa/content-copy";
+import { founderDescriptor, founderIntro, founderStory } from "../provisa/content-copy";
 
 export const defaultFounder: InsertProvisaFounder = {
   id: "founder",
@@ -26,10 +26,10 @@ export const defaultStaff: InsertProvisaStaff[] = [
     id: "staff-1",
     name: "Esther Youpele",
     role: "Research & analysis",
-    bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
+    bio: "",
     image: "/stock/team-research-analysis.jpg",
   },
-  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: louisBio, image: "/no-profile-avatar.svg" },
+  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
 ];
 
 export const defaultPost: InsertProvisaPost = {
@@ -55,15 +55,12 @@ export async function getContent() {
     .filter((member) => !["staff-2", "staff-3", "staff-4"].includes(member.id) && !(hasLead && member.id === "esther-youpele"))
     .map((member) => {
       if (member.id === "staff-1") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
+        return { ...member, name: "Esther Youpele", role: "Research & analysis", bio: "", image: "/stock/team-research-analysis.jpg" };
       }
       if (member.id === "esther-youpele") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
+        return { ...member, name: "Esther Youpele", role: "Research & analysis", bio: "", image: "/stock/team-research-analysis.jpg" };
       }
-      if (member.id === "louis-ebitari" && needsLouisBio(member.bio)) {
-        return { ...member, bio: louisBio };
-      }
-      return member;
+      return { ...member, bio: "" };
     });
   return { posts, staff: currentStaff, founder: founders[0] ?? null, testimonials };
 }

@@ -31,7 +31,7 @@ import {
 import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
-import { founderDescriptor, founderIntro, founderStory, louisBio, needsLouisBio } from './content-copy';
+import { founderDescriptor, founderIntro, founderStory } from './content-copy';
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
@@ -141,8 +141,8 @@ type StaffMember = {
 };
 
 const seedStaff: StaffMember[] = [
-  { id: 'staff-1', name: 'Esther Youpele', role: 'Research & analysis', bio: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.', image: '/stock/team-research-analysis.jpg' },
-  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: louisBio, image: '/no-profile-avatar.svg' },
+  { id: 'staff-1', name: 'Esther Youpele', role: 'Research & analysis', bio: '', image: '/stock/team-research-analysis.jpg' },
+  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
 ];
 
 function normalizeStaff(staff: StaffMember[]): StaffMember[] {
@@ -150,16 +150,13 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
   return staff
     .filter((member) => !['staff-2', 'staff-3', 'staff-4'].includes(member.id) && !(hasLead && member.id === 'esther-youpele'))
     .map((member) => {
+      let normalized = member;
       if (member.id === 'staff-1') {
-        return { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
+        normalized = { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
+      } else if (member.id === 'esther-youpele') {
+        normalized = { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
       }
-      if (member.id === 'esther-youpele') {
-        return { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
-      }
-      if (member.id === 'louis-ebitari' && needsLouisBio(member.bio)) {
-        return { ...member, bio: louisBio };
-      }
-      return member;
+      return { ...normalized, bio: '' };
     });
 }
 
@@ -380,9 +377,8 @@ function FounderPage() {
                 <article key={member.id} className="grid gap-8 border-t border-border pt-8 md:grid-cols-[.8fr_1.2fr] md:items-start md:gap-12">
                   <img src={assetPath(member.image || '/no-profile-avatar.svg')} alt={member.image.includes('no-profile-avatar') ? `Default avatar for ${member.name}` : `${member.name} team portrait`} className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
                   <div>
-                   <p className="text-sm font-extrabold uppercase tracking-[.04em] text-primary">{member.role}</p>
-                    <h2 className="mt-3 font-display text-3xl md:text-5xl">{member.name}</h2>
-                    <p className="mt-5 whitespace-pre-line text-base leading-8 text-muted-foreground">{member.bio}</p>
+                    <p className="text-base font-extrabold uppercase tracking-[.04em] text-primary">{member.role}</p>
+                     <h2 className="mt-5 font-display text-3xl md:text-5xl">{member.name}</h2>
                   </div>
                 </article>
               ))}
@@ -506,7 +502,7 @@ function Home() {
             <div className="reveal">
               <p className="eyebrow text-accent">Field note / 01 · a professional record</p>
                 <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(3.25rem,7vw,7rem)] leading-[.94] tracking-[-.055em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
-               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Assess • Pursuit</p>
+               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Assess • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
               </div>
@@ -604,9 +600,9 @@ function Home() {
                        <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
                        <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
                          <div>
-                           <span className="text-sm font-extrabold tracking-[.01em] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
-                           <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
-                           <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
+                            <span className={team[teamIndex].id === 'founder' ? 'text-sm font-extrabold tracking-[.01em] text-accent' : 'text-base font-extrabold tracking-[.01em] text-accent md:text-lg'}>{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
+                            <h3 className={`${team[teamIndex].id === 'founder' ? 'mt-5' : 'mt-8 md:mt-10'} max-w-xl font-display text-4xl md:text-6xl`}>{team[teamIndex].name}</h3>
+                            {team[teamIndex].id === 'founder' && <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{firstParagraph(team[teamIndex].bio)}</p>}
                            {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
                          </div>
                        </div>
@@ -980,8 +976,7 @@ function AdminPage() {
               <div className="mt-8 grid gap-5">
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Name<input required value={staffForm.name} onChange={(event) => setStaffForm({ ...staffForm, name: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Team member name" /></label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Role / area of work<input required value={staffForm.role} onChange={(event) => setStaffForm({ ...staffForm, role: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="For example: Research & Analysis" /></label>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Full profile write-up<textarea required rows={7} value={staffForm.bio} onChange={(event) => setStaffForm({ ...staffForm, bio: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Enter the complete introduction to display on the team profile." /></label>
-                <p className="-mt-3 text-xs leading-5 text-muted-foreground">The role and full write-up appear on the public team profile.</p>
+                <p className="text-xs leading-5 text-muted-foreground">Public staff cards show the name, role and portrait only.</p>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Portrait</span><input type="file" accept="image/*" onChange={(event) => chooseImage(event, 'staff')} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>
                 {staffImagePreview && <img src={staffImagePreview} alt="Selected staff portrait preview" className="aspect-[.9] w-full rounded-xl object-cover" />}
                  <button type="submit" disabled={saving || !contentReady} className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{editingStaffId ? <Pencil size={16} /> : <UserPlus size={16} />}{saving ? 'Saving…' : editingStaffId ? 'Save staff changes' : 'Add staff member'}</button>
