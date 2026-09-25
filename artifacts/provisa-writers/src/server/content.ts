@@ -24,12 +24,11 @@ export const defaultFounder: InsertProvisaFounder = {
 export const defaultStaff: InsertProvisaStaff[] = [
   {
     id: "staff-1",
-    name: "Research Analysis Team Lead",
-    role: "Research & analysis",
+    name: "Esther Youpele",
+    role: "Research Analysis Team Lead",
     bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
-    image: "/stock/team-research-analysis.jpg",
+    image: "/no-profile-avatar.svg",
   },
-  { id: "esther-youpele", name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/no-profile-avatar.svg" },
   { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
 ];
 
@@ -51,7 +50,19 @@ export async function getContent() {
     db.select().from(provisaFounderTable),
     db.select().from(provisaTestimonialsTable),
   ]);
-  return { posts, staff, founder: founders[0] ?? null, testimonials };
+  const hasOldLead = staff.some((member) => member.id === "staff-1" && member.name === "Research Analysis Team Lead");
+  const currentStaff = staff
+    .filter((member) => !(hasOldLead && member.id === "esther-youpele"))
+    .map((member) => {
+      if (member.id === "staff-1" && member.name === "Research Analysis Team Lead") {
+        return { ...member, name: "Esther Youpele", role: "Research Analysis Team Lead", image: "/no-profile-avatar.svg" };
+      }
+      if (member.id === "esther-youpele" && member.role === "Research Analyst") {
+        return { ...member, role: "Research Analysis Team Lead" };
+      }
+      return member;
+    });
+  return { posts, staff: currentStaff, founder: founders[0] ?? null, testimonials };
 }
 
 export async function seedContent() {
@@ -64,7 +75,6 @@ export async function seedContent() {
   if (!existing.staff.length) {
     await db.insert(provisaStaffTable).values(defaultStaff);
   } else if (existing.staff.length === 1 && existing.staff[0].id === "staff-1") {
-    // Bring the original seeded directory up to date without replacing client edits.
     await db.insert(provisaStaffTable).values(defaultStaff.slice(1)).onConflictDoNothing();
   }
   return getContent();
