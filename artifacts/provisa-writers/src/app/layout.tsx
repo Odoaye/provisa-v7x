@@ -4,6 +4,10 @@ import "@/provisa/globals.css";
 export const metadata: Metadata = {
   title: "Provisa Writers",
   description: "Connecting professionals to global opportunities.",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "Provisa Writers",
     description: "Connecting professionals to global opportunities.",
