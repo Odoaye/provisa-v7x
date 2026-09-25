@@ -9,7 +9,7 @@ import {
   type InsertProvisaStaff,
   type InsertProvisaTestimonial,
 } from "@workspace/db";
-import { founderDescriptor, founderIntro, founderStory } from "../provisa/content-copy";
+import { founderDescriptor, founderIntro, founderStory, louisBio } from "../provisa/content-copy";
 
 export const defaultFounder: InsertProvisaFounder = {
   id: "founder",
@@ -29,7 +29,7 @@ export const defaultStaff: InsertProvisaStaff[] = [
     bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
     image: "/stock/team-research-analysis.jpg",
   },
-  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
+  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: louisBio, image: "/no-profile-avatar.svg" },
 ];
 
 export const defaultPost: InsertProvisaPost = {
@@ -59,6 +59,9 @@ export async function getContent() {
       }
       if (member.id === "esther-youpele") {
         return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
+      }
+      if (member.id === "louis-ebitari" && !member.bio.trim()) {
+        return { ...member, bio: louisBio };
       }
       return member;
     });

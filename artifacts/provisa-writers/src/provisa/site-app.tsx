@@ -31,7 +31,7 @@ import {
 import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
-import { founderDescriptor, founderIntro, founderStory } from './content-copy';
+import { founderDescriptor, founderIntro, founderStory, louisBio } from './content-copy';
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
@@ -121,7 +121,7 @@ type StaffMember = {
 
 const seedStaff: StaffMember[] = [
   { id: 'staff-1', name: 'Esther Youpele', role: 'Research & analysis', bio: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.', image: '/stock/team-research-analysis.jpg' },
-  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
+  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: louisBio, image: '/no-profile-avatar.svg' },
 ];
 
 function normalizeStaff(staff: StaffMember[]): StaffMember[] {
@@ -134,6 +134,9 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
       }
       if (member.id === 'esther-youpele') {
         return { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
+      }
+      if (member.id === 'louis-ebitari' && !member.bio.trim()) {
+        return { ...member, bio: louisBio };
       }
       return member;
     });

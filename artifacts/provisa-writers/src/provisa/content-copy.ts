@@ -7,3 +7,5 @@ export const founderStory = [
 ].join("\n\n");
 
 export const founderIntro = founderStory.split("\n\n")[0];
+
+export const louisBio = "Louis keeps the day-to-day work at Provisa organised and moving forward. He coordinates the details behind each engagement, helping the team deliver a consistent and thoughtful experience for clients.";
