@@ -111,15 +111,6 @@ const founderProfile = {
   paragraphs: founderStory.split('\n\n'),
 };
 
-const seedTeam = [
-  {
-    name: 'Research Analysis Team Lead',
-    role: 'Research & analysis',
-    image: '/stock/team-research-analysis.jpg',
-    text: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.',
-  },
-];
-
 type StaffMember = {
   id: string;
   name: string;
@@ -128,13 +119,11 @@ type StaffMember = {
   image: string;
 };
 
-const seedStaff: StaffMember[] = seedTeam.map((member, index) => ({
-  id: `staff-${index + 1}`,
-  name: member.name,
-  role: member.role,
-  bio: member.text,
-  image: member.image,
-}));
+const seedStaff: StaffMember[] = [
+  { id: 'staff-1', name: 'Research Analysis Team Lead', role: 'Research & analysis', bio: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.', image: '/stock/team-research-analysis.jpg' },
+  { id: 'esther-youpele', name: 'Esther Youpele', role: 'Research Analyst', bio: '', image: '/no-profile-avatar.svg' },
+  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
+];
 
 const navItems = [
   { label: 'About Us', href: '#about', children: [
@@ -151,8 +140,12 @@ const navItems = [
   { label: 'FAQ', href: '#faq' },
 ];
 
-function NavigationLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
-  return navItems.map((item) => item.children ? (
+function NavigationLinks({ mobile = false, onNavigate, onOpenSidebar }: { mobile?: boolean; onNavigate?: () => void; onOpenSidebar: (tab: 'blog' | 'faq') => void }) {
+  return navItems.map((item) => item.href === '#blog' || item.href === '#faq' ? (
+    <button key={item.href} type="button" onClick={() => onOpenSidebar(item.href === '#blog' ? 'blog' : 'faq')} className={`text-left font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'rounded-xl px-3 py-3 text-sm hover:bg-muted' : 'text-[11px]'}`}>
+      {item.label}
+    </button>
+  ) : item.children ? (
     <details key={item.label} className={`nav-dropdown relative ${mobile ? 'border-b border-border' : ''}`}>
       <summary className={`flex cursor-pointer items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'px-3 py-3 text-sm' : 'py-4 text-[11px]'}`}>
         {item.label}<ChevronDown size={14} className="nav-chevron transition-transform" />
@@ -227,6 +220,10 @@ function readStaff(): StaffMember[] {
     if (currentStaff.length !== parsed.length) {
       window.localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(currentStaff));
     }
+    if (currentStaff.length === 1 && currentStaff[0].id === 'staff-1') {
+      window.localStorage.setItem(STAFF_STORAGE_KEY, JSON.stringify(seedStaff));
+      return seedStaff;
+    }
     return currentStaff;
   } catch {
     return seedStaff;
@@ -279,7 +276,7 @@ function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: b
           <div className="mt-9">
             <p className="eyebrow text-accent">Frequently asked</p>
             <h2 className="mt-4 font-display text-4xl leading-tight">The questions worth asking before you begin.</h2>
-            <div className="mt-8 divide-y divide-border border-y border-border">{faqs.map(([question, answer]) => <details key={question} className="py-5"><summary className="cursor-pointer pr-4 text-base font-bold">{question}</summary><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">{answer}</p></details>)}</div>
+            <div className="mt-8 divide-y divide-border border-y border-border">{faqs.map(([question, answer]) => <details key={question} className="group py-5"><summary className="flex cursor-pointer items-center justify-between gap-4 text-base font-bold"><span>{question}</span><ChevronDown size={18} className="shrink-0 text-primary transition-transform group-open:rotate-180" aria-hidden="true" /></summary><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">{answer}</p></details>)}</div>
           </div>
         )}
         <a href="#contact" onClick={onClose} className="mt-10 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">Talk to the team <ArrowRight size={16} /></a>
@@ -343,7 +340,7 @@ function FounderPage() {
             <div className="mt-8 grid gap-8">
               {staff.map((member) => (
                 <article key={member.id} className="grid gap-8 border-t border-border pt-8 md:grid-cols-[.8fr_1.2fr] md:items-start md:gap-12">
-                  <img src={assetPath(member.image || '/stock/team-strategy.jpg')} alt={`${member.name} team portrait`} className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
+                  <img src={assetPath(member.image || '/no-profile-avatar.svg')} alt={member.image.includes('no-profile-avatar') ? `Default avatar for ${member.name}` : `${member.name} team portrait`} className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
                   <div>
                     <p className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-accent">{member.role}</p>
                     <h2 className="mt-3 font-display text-3xl md:text-5xl">{member.name}</h2>
@@ -444,7 +441,7 @@ function Home() {
         <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
           <Logo />
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Primary navigation">
-            <NavigationLinks />
+            <NavigationLinks onOpenSidebar={openSidebar} />
           </nav>
           <div className="hidden items-center gap-4 md:flex">
             <a href="#contact" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-5 text-[12px] font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">
@@ -458,7 +455,7 @@ function Home() {
         {mobileOpen && (
           <nav className="border-t border-border bg-background px-5 py-5 lg:hidden" aria-label="Mobile navigation">
             <div className="grid gap-1">
-              <NavigationLinks mobile onNavigate={closeMenu} />
+               <NavigationLinks mobile onNavigate={closeMenu} onOpenSidebar={openSidebar} />
             </div>
             <a onClick={closeMenu} href="#contact" className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-accent text-sm font-bold text-accent-foreground">Book a consultation <ArrowRight size={15} /></a>
           </nav>
@@ -503,40 +500,6 @@ function Home() {
                </div>
              </div>
            </section>
-
-          <section id="team" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
-            <div className="mx-auto max-w-[1240px]">
-              <p className="section-kicker eyebrow text-accent">Our team</p>
-              <div className="mt-8">
-                {team.length > 0 && (
-                  <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
-                    <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
-                      <img src={assetPath(team[teamIndex].image)} alt={`${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
-                      <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
-                        <div>
-                          <span className="font-mono-ui text-[10px] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
-                          <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
-                          <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
-                          {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
-                        </div>
-                        {team.length > 1 && <p className="mt-8 text-xs font-semibold text-muted-foreground">Swipe on mobile or use the arrows to explore the team.</p>}
-                      </div>
-                    </article>
-                    {team.length > 1 && <>
-                      <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Previous team member"><ChevronLeft size={18} /></button>
-                      <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Next team member"><ChevronRight size={18} /></button>
-                      <div className="mt-5 flex items-center justify-between gap-5">
-                        <div className="flex gap-2" aria-label="Team carousel pagination">{team.map((member, index) => <button key={member.id} type="button" onClick={() => setTeamIndex(index)} className={`h-2.5 rounded-full transition-all ${index === teamIndex ? 'w-9 bg-accent' : 'w-2.5 bg-border hover:bg-primary'}`} aria-label={`Show ${member.name}`} aria-current={index === teamIndex ? 'true' : undefined} />)}</div>
-                        <span className="text-xs font-semibold text-muted-foreground">{String(teamIndex + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}</span>
-                      </div>
-                      <div className="mt-7 flex justify-center"><a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">See more <ArrowRight size={16} /></a></div>
-                    </>}
-                  </div>
-                )}
-                {team.length === 0 && <p className="border border-border bg-background p-8 text-sm text-muted-foreground">No team members are listed yet. Please check back soon.</p>}
-              </div>
-            </div>
-          </section>
 
            <section id="services" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-24">
           <div className="mx-auto max-w-[1240px]">
@@ -593,6 +556,40 @@ function Home() {
           </div>
         </section>
 
+          <section id="team" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
+             <div className="mx-auto max-w-[1240px]">
+               <p className="section-kicker eyebrow text-accent">Our team</p>
+               <div className="mt-8">
+                 {team.length > 0 && (
+                   <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
+                     <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
+                       <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
+                       <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
+                         <div>
+                           <span className="font-mono-ui text-[10px] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
+                           <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
+                           <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
+                           {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
+                         </div>
+                         {team.length > 1 && <p className="mt-8 text-xs font-semibold text-muted-foreground">Swipe on mobile or use the arrows to explore the team.</p>}
+                       </div>
+                     </article>
+                     {team.length > 1 && <>
+                       <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Previous team member"><ChevronLeft size={18} /></button>
+                       <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Next team member"><ChevronRight size={18} /></button>
+                       <div className="mt-5 flex items-center justify-between gap-5">
+                         <div className="flex gap-2" aria-label="Team carousel pagination">{team.map((member, index) => <button key={member.id} type="button" onClick={() => setTeamIndex(index)} className={`h-2.5 rounded-full transition-all ${index === teamIndex ? 'w-9 bg-accent' : 'w-2.5 bg-border hover:bg-primary'}`} aria-label={`Show ${member.name}`} aria-current={index === teamIndex ? 'true' : undefined} />)}</div>
+                         <span className="text-xs font-semibold text-muted-foreground">{String(teamIndex + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}</span>
+                       </div>
+                       <div className="mt-7 flex justify-center"><a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">See more <ArrowRight size={16} /></a></div>
+                     </>}
+                   </div>
+                 )}
+                 {team.length === 0 && <p className="border border-border bg-background p-8 text-sm text-muted-foreground">No team members are listed yet. Please check back soon.</p>}
+               </div>
+             </div>
+           </section>
+
           <section id="testimonials" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
             <div className="mx-auto max-w-[1240px]">
                <p className="section-kicker eyebrow text-accent">Testimonial</p>
@@ -611,34 +608,6 @@ function Home() {
             </div>
           </section>
 
-          <section id="blog" className="section-reveal scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
-            <p className="section-kicker eyebrow text-accent">Blog</p>
-            <h2 className="mt-4 font-display text-4xl md:text-6xl">Notes for the next move.</h2>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {posts.filter(isVisiblePost).map((post) => (
-                <article key={post.id} className="overflow-hidden rounded-[1.25rem] border border-border bg-background">
-                  <img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[1.7] w-full object-cover" />
-                  <div className="p-6">
-                    <h3 className="font-display text-2xl">{post.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
-                    <details className="mt-5 border-t border-border pt-4"><summary className="cursor-pointer text-sm font-bold">Read post</summary><p className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">{post.body}</p></details>
-                  </div>
-                </article>
-              ))}
-              {!posts.some(isVisiblePost) && <p className="text-sm text-muted-foreground">New blog posts are coming soon.</p>}
-            </div>
-          </section>
-
-          <section id="faq" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
-            <div className="mx-auto max-w-[1240px]">
-              <p className="section-kicker eyebrow text-accent">FAQ</p>
-              <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Frequently asked questions.</h2>
-              <div className="mt-10 divide-y divide-border border-y border-border">
-                {faqs.map(([question, answer]) => <details key={question} className="py-5"><summary className="cursor-pointer pr-4 font-semibold text-foreground">{question}</summary><p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground">{answer}</p></details>)}
-              </div>
-            </div>
-          </section>
-
           <section id="contact" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
               <div><p className="section-kicker eyebrow text-accent">Contact the team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat to support on WhatsApp</a></div></div>
@@ -654,7 +623,9 @@ function Home() {
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. Company details placeholder.</span></div>
              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
-              {navItems.map((item) => <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
+              {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
+                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
+                : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
               <a href="#contact" className="transition-colors hover:text-primary-foreground">Book a consultation</a>
               <a href={routePath('/admin')} className="transition-colors hover:text-primary-foreground">Admin login</a>
            </div>
@@ -842,7 +813,7 @@ function AdminPage() {
     const next: StaffMember = {
       id: editingStaffId || `staff-${Date.now()}`,
       ...staffForm,
-      image: staffImagePreview || assetPath('/stock/team-strategy.jpg'),
+      image: staffImagePreview || assetPath('/no-profile-avatar.svg'),
     };
     if (await saveChanges({ staff: editingStaffId ? staff.map((member) => member.id === editingStaffId ? next : member) : [next, ...staff] }, 'staff')) resetStaffForm();
   };

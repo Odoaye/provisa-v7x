@@ -21,13 +21,17 @@ export const defaultFounder: InsertProvisaFounder = {
   image: "/stock/founder-mercy.jpg",
 };
 
-export const defaultStaff: InsertProvisaStaff = {
-  id: "staff-1",
-  name: "Research Analysis Team Lead",
-  role: "Research & analysis",
-  bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
-  image: "/stock/team-research-analysis.jpg",
-};
+export const defaultStaff: InsertProvisaStaff[] = [
+  {
+    id: "staff-1",
+    name: "Research Analysis Team Lead",
+    role: "Research & analysis",
+    bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
+    image: "/stock/team-research-analysis.jpg",
+  },
+  { id: "esther-youpele", name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/no-profile-avatar.svg" },
+  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
+];
 
 export const defaultPost: InsertProvisaPost = {
   id: "first-field-note",
@@ -52,11 +56,16 @@ export async function getContent() {
 
 export async function seedContent() {
   const existing = await getContent();
+  const db = getDb();
   if (!existing.founder) {
-    const db = getDb();
     if (!existing.posts.length) await db.insert(provisaPostsTable).values(defaultPost);
-    if (!existing.staff.length) await db.insert(provisaStaffTable).values(defaultStaff);
     await db.insert(provisaFounderTable).values(defaultFounder);
+  }
+  if (!existing.staff.length) {
+    await db.insert(provisaStaffTable).values(defaultStaff);
+  } else if (existing.staff.length === 1 && existing.staff[0].id === "staff-1") {
+    // Bring the original seeded directory up to date without replacing client edits.
+    await db.insert(provisaStaffTable).values(defaultStaff.slice(1)).onConflictDoNothing();
   }
   return getContent();
 }
