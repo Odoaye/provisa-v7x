@@ -120,20 +120,20 @@ type StaffMember = {
 };
 
 const seedStaff: StaffMember[] = [
-  { id: 'staff-1', name: 'Esther Youpele', role: 'Research Analysis Team Lead', bio: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.', image: '/no-profile-avatar.svg' },
+  { id: 'staff-1', name: 'Esther Youpele', role: 'Research & analysis', bio: 'The research lens: turning complex information into clear findings, useful context and stronger decisions.', image: '/no-profile-avatar.svg' },
   { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
 ];
 
 function normalizeStaff(staff: StaffMember[]): StaffMember[] {
-  const hasOldLead = staff.some((member) => member.id === 'staff-1' && member.name === 'Research Analysis Team Lead');
+  const hasLead = staff.some((member) => member.id === 'staff-1');
   return staff
-    .filter((member) => !(hasOldLead && member.id === 'esther-youpele'))
+    .filter((member) => !['staff-2', 'staff-3', 'staff-4'].includes(member.id) && !(hasLead && member.id === 'esther-youpele'))
     .map((member) => {
-      if (member.id === 'staff-1' && member.name === 'Research Analysis Team Lead') {
-        return { ...member, name: 'Esther Youpele', role: 'Research Analysis Team Lead', image: '/no-profile-avatar.svg' };
+      if (member.id === 'staff-1') {
+        return { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/no-profile-avatar.svg' };
       }
-      if (member.id === 'esther-youpele' && member.role === 'Research Analyst') {
-        return { ...member, role: 'Research Analysis Team Lead' };
+      if (member.id === 'esther-youpele') {
+        return { ...member, name: 'Esther Youpele', role: 'Research & analysis' };
       }
       return member;
     });
@@ -408,7 +408,7 @@ function Home() {
     void fetch('/provisa-api/content').then((response) => response.ok ? response.json() : null).then((content) => {
       if (!content) return;
       const founder = content.founder;
-      setTeam([{ id: 'founder', name: founder?.name || founderProfile.name, role: founder?.role || founderProfile.role, bio: firstParagraph(founder?.summary || founderProfile.summary.join('\n\n')), image: founder?.image || '/stock/founder-mercy.jpg' }, ...(content.staff || [])]);
+      setTeam([{ id: 'founder', name: founder?.name || founderProfile.name, role: founder?.role || founderProfile.role, bio: firstParagraph(founder?.summary || founderProfile.summary.join('\n\n')), image: founder?.image || '/stock/founder-mercy.jpg' }, ...normalizeStaff(content.staff || [])]);
       if (content.posts) setPosts(content.posts);
       if (content.testimonials) setTestimonials(content.testimonials);
     }).catch(() => undefined);
@@ -482,7 +482,7 @@ function Home() {
             <div className="reveal">
               <p className="eyebrow text-accent">Field note / 01 · a professional record</p>
                 <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(3.25rem,7vw,7rem)] leading-[.94] tracking-[-.055em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
-               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover. Access. Pursue.</p>
+               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Assess • Pursuit</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
               </div>
@@ -580,7 +580,7 @@ function Home() {
                        <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
                        <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
                          <div>
-                           <span className="text-sm font-extrabold tracking-[.01em] text-primary">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
+                           <span className="text-sm font-extrabold tracking-[.01em] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
                            <h3 className="mt-5 max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
                            <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{team[teamIndex].id === 'founder' ? firstParagraph(team[teamIndex].bio) : team[teamIndex].bio}</p>
                            {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}

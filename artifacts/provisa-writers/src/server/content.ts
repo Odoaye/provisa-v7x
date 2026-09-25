@@ -25,7 +25,7 @@ export const defaultStaff: InsertProvisaStaff[] = [
   {
     id: "staff-1",
     name: "Esther Youpele",
-    role: "Research Analysis Team Lead",
+    role: "Research & analysis",
     bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
     image: "/no-profile-avatar.svg",
   },
@@ -50,15 +50,15 @@ export async function getContent() {
     db.select().from(provisaFounderTable),
     db.select().from(provisaTestimonialsTable),
   ]);
-  const hasOldLead = staff.some((member) => member.id === "staff-1" && member.name === "Research Analysis Team Lead");
+  const hasLead = staff.some((member) => member.id === "staff-1");
   const currentStaff = staff
-    .filter((member) => !(hasOldLead && member.id === "esther-youpele"))
+    .filter((member) => !["staff-2", "staff-3", "staff-4"].includes(member.id) && !(hasLead && member.id === "esther-youpele"))
     .map((member) => {
-      if (member.id === "staff-1" && member.name === "Research Analysis Team Lead") {
-        return { ...member, name: "Esther Youpele", role: "Research Analysis Team Lead", image: "/no-profile-avatar.svg" };
+      if (member.id === "staff-1") {
+        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/no-profile-avatar.svg" };
       }
-      if (member.id === "esther-youpele" && member.role === "Research Analyst") {
-        return { ...member, role: "Research Analysis Team Lead" };
+      if (member.id === "esther-youpele") {
+        return { ...member, name: "Esther Youpele", role: "Research & analysis" };
       }
       return member;
     });
