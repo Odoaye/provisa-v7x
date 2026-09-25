@@ -27,7 +27,7 @@ export const defaultStaff: InsertProvisaStaff[] = [
     name: "Esther Youpele",
     role: "Research & analysis",
     bio: "The research lens: turning complex information into clear findings, useful context and stronger decisions.",
-    image: "/no-profile-avatar.svg",
+    image: "/stock/team-research-analysis.jpg",
   },
   { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
 ];
@@ -55,10 +55,10 @@ export async function getContent() {
     .filter((member) => !["staff-2", "staff-3", "staff-4"].includes(member.id) && !(hasLead && member.id === "esther-youpele"))
     .map((member) => {
       if (member.id === "staff-1") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/no-profile-avatar.svg" };
+        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
       }
       if (member.id === "esther-youpele") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis" };
+        return { ...member, name: "Esther Youpele", role: "Research & analysis", image: "/stock/team-research-analysis.jpg" };
       }
       return member;
     });
