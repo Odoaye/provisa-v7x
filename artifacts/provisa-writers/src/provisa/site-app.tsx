@@ -1,5 +1,6 @@
 'use client';
 
+import { upload } from '@vercel/blob/client';
 import { type ChangeEvent, type FormEvent, type ReactNode, type TouchEvent, useEffect, useState } from 'react';
 import {
   ArrowRight,
@@ -43,6 +44,32 @@ const assetPath = (path: string) => {
 
 const routePath = (path: string) => path.startsWith('/') ? path : `/${path}`;
 const firstParagraph = (text: string) => text.split(/\n\s*\n/)[0]?.trim() || '';
+
+function useScrollReveals() {
+  useEffect(() => {
+    document.documentElement.classList.add('js');
+    const targets = Array.from(
+      document.querySelectorAll<HTMLElement>('.section-reveal, .reveal'),
+    );
+    if (!targets.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      targets.forEach((target) => target.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries, activeObserver) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        activeObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '0px 0px -48px 0px', threshold: 0.08 });
+
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, []);
+}
 
 async function requestAdminLogin(username: string, password: string): Promise<string | null> {
   let response: Response;
@@ -176,13 +203,34 @@ const navItems = [
 ];
 
 function NavigationLinks({ mobile = false, onNavigate, onOpenSidebar }: { mobile?: boolean; onNavigate?: () => void; onOpenSidebar: (tab: 'blog' | 'faq') => void }) {
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  useEffect(() => {
+    const closeDropdowns = () => setOpenDropdown(null);
+    window.addEventListener('scroll', closeDropdowns, { passive: true });
+    return () => window.removeEventListener('scroll', closeDropdowns);
+  }, []);
+
   return navItems.map((item) => item.href === '#blog' || item.href === '#faq' ? (
     <button key={item.href} type="button" onClick={() => onOpenSidebar(item.href === '#blog' ? 'blog' : 'faq')} className={`text-left font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'rounded-xl px-3 py-3 text-sm hover:bg-muted' : 'text-[11px]'}`}>
       {item.label}
     </button>
   ) : item.children ? (
-    <details key={item.label} className={`nav-dropdown relative ${mobile ? 'border-b border-border' : ''}`}>
-      <summary className={`flex cursor-pointer items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'px-3 py-3 text-sm' : 'py-4 text-[11px]'}`}>
+    <details
+      key={item.label}
+      open={openDropdown === item.label}
+      onMouseEnter={() => { if (!mobile) setOpenDropdown(item.label); }}
+      onMouseLeave={() => { if (!mobile) setOpenDropdown((current) => current === item.label ? null : current); }}
+      className={`nav-dropdown relative ${mobile ? 'border-b border-border' : ''}`}
+    >
+      <summary
+        aria-expanded={openDropdown === item.label}
+        onClick={(event) => {
+          event.preventDefault();
+          setOpenDropdown((current) => current === item.label ? null : item.label);
+        }}
+        className={`flex cursor-pointer items-center gap-1.5 font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'px-3 py-3 text-sm' : 'py-4 text-[11px]'}`}
+      >
         {item.label}<ChevronDown size={14} className="nav-chevron transition-transform" />
       </summary>
       <div className={mobile ? 'grid gap-1 pb-3 pl-4' : 'absolute left-0 top-full z-50 grid min-w-[240px] gap-1 rounded-xl border border-border bg-background p-2 shadow-xl'}>
@@ -321,6 +369,7 @@ function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: b
 }
 
 function FounderPage() {
+  useScrollReveals();
   const [staff, setStaff] = useState<StaffMember[]>(readStaff);
   const [profile, setProfile] = useState(founderProfile);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -398,6 +447,7 @@ function FounderPage() {
 }
 
 function Home() {
+  useScrollReveals();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<'blog' | 'faq'>('blog');
@@ -631,9 +681,9 @@ function Home() {
                 <div className="mt-12 grid gap-5 md:grid-cols-2">
                   {testimonials.map((testimonial) => (
                     <article key={testimonial.id} className="rounded-[1.25rem] border border-border bg-background p-6 md:p-8">
-                      {testimonial.image && <img src={assetPath(testimonial.image)} alt={testimonial.attribution ? `Testimonial from ${testimonial.attribution}` : 'Client testimonial screenshot'} className="max-h-[560px] w-full rounded-lg object-contain" />}
+                      {testimonial.attribution && <h3 className="mb-5 font-display text-xl leading-snug md:text-2xl">{testimonial.attribution}</h3>}
+                      {testimonial.image && <img src={assetPath(testimonial.image)} alt={testimonial.attribution ? `Testimonial screenshot: ${testimonial.attribution}` : 'Client testimonial screenshot'} className="max-h-[560px] w-full rounded-lg object-contain" />}
                       {testimonial.quote && <blockquote className="mt-5 whitespace-pre-line font-display text-xl leading-relaxed text-foreground">“{testimonial.quote}”</blockquote>}
-                      {testimonial.attribution && <p className="mt-5 text-sm font-semibold text-foreground">— {testimonial.attribution}</p>}
                     </article>
                   ))}
                 </div>
@@ -747,6 +797,8 @@ function AdminPage() {
   const [postForm, setPostForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
   const [staffForm, setStaffForm] = useState({ name: '', role: '', bio: '' });
   const [testimonialForm, setTestimonialForm] = useState({ quote: '', image: '', attribution: '' });
+  const [testimonialImageUploading, setTestimonialImageUploading] = useState(false);
+  const [testimonialUploadError, setTestimonialUploadError] = useState('');
   const [founderForm, setFounderForm] = useState({ name: founderProfile.name, role: founderProfile.role, descriptor: founderProfile.descriptor, summary: founderProfile.summary[0], fullWriteup: founderProfile.paragraphs.join('\n\n'), image: '/stock/founder-mercy.jpg' });
 
   useEffect(() => {
@@ -813,6 +865,7 @@ function AdminPage() {
   const resetTestimonialForm = () => {
     setEditingTestimonialId(null);
     setTestimonialForm({ quote: '', image: '', attribution: '' });
+    setTestimonialUploadError('');
   };
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -853,7 +906,7 @@ function AdminPage() {
   const saveTestimonial = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!testimonialForm.quote.trim() && !testimonialForm.image.trim()) {
-      setSaveError('Add testimonial text or a screenshot URL before saving.');
+      setSaveError('Add testimonial text or upload a screenshot before saving.');
       return;
     }
     const next: Testimonial = { id: editingTestimonialId || `testimonial-${Date.now()}`, ...testimonialForm };
@@ -861,6 +914,38 @@ function AdminPage() {
       ? testimonials.map((entry) => entry.id === editingTestimonialId ? next : entry)
       : [next, ...testimonials];
     if (await saveChanges({ testimonials: updated }, 'testimonials')) resetTestimonialForm();
+  };
+  const chooseTestimonialImage = async (event: ChangeEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    setTestimonialUploadError('');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setTestimonialUploadError('Choose a PNG, JPG, WEBP, or GIF screenshot.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setTestimonialUploadError('The screenshot must be 10 MB or smaller.');
+      return;
+    }
+
+    setTestimonialImageUploading(true);
+    try {
+      const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100) || 'screenshot';
+      const blob = await upload(`testimonials/${Date.now()}-${filename}`, file, {
+        access: 'public',
+        handleUploadUrl: '/provisa-api/testimonial-upload',
+        contentType: file.type,
+      });
+      setTestimonialForm((current) => ({ ...current, image: blob.url }));
+    } catch (error) {
+      setTestimonialUploadError(error instanceof Error ? error.message : 'Screenshot upload failed. Please try again.');
+    } finally {
+      setTestimonialImageUploading(false);
+    }
   };
   const editPost = (post: BlogPost) => {
     setActiveTab('posts');
@@ -993,20 +1078,22 @@ function AdminPage() {
               <h2 className="font-display text-3xl">{editingTestimonialId ? 'Edit testimonial' : 'Add testimonial'}</h2>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">Add a written testimonial, a screenshot, or both. Only share client feedback you have permission to publish.</p>
               <div className="mt-8 grid gap-5">
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Title / client name (optional)
+                  <input value={testimonialForm.attribution} onChange={(event) => setTestimonialForm({ ...testimonialForm, attribution: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="A short title or client name" />
+                </label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Testimonial text
                   <textarea rows={5} value={testimonialForm.quote} onChange={(event) => setTestimonialForm({ ...testimonialForm, quote: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Paste the client's words here" />
                 </label>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Screenshot image URL
-                  <input type="url" value={testimonialForm.image} onChange={(event) => setTestimonialForm({ ...testimonialForm, image: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="https://example.com/client-feedback.png" />
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                  <span className="flex items-center gap-2"><ImagePlus size={13} /> Upload screenshot</span>
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={chooseTestimonialImage} disabled={testimonialImageUploading} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground disabled:opacity-50" />
                 </label>
-                <p className="-mt-3 text-xs leading-5 text-muted-foreground">Paste a direct link to a screenshot already hosted online. Image uploads are not connected yet.</p>
-                {testimonialForm.image && <img src={testimonialForm.image} alt="Testimonial screenshot preview" className="max-h-72 w-full rounded-xl border border-border object-contain" />}
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Attribution (optional)
-                  <input value={testimonialForm.attribution} onChange={(event) => setTestimonialForm({ ...testimonialForm, attribution: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Client name or anonymous" />
-                </label>
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{testimonialImageUploading ? 'Uploading screenshot…' : 'PNG, JPG, WEBP, or GIF. Maximum file size: 10 MB.'}</p>
+                {testimonialUploadError && <p role="alert" className="-mt-3 text-xs leading-5 text-accent">{testimonialUploadError}</p>}
+                {testimonialForm.image && <div className="grid gap-2"><img src={testimonialForm.image} alt="Testimonial screenshot preview" className="max-h-72 w-full rounded-xl border border-border object-contain" /><button type="button" onClick={() => setTestimonialForm((current) => ({ ...current, image: '' }))} className="w-fit text-xs font-semibold text-accent">Remove screenshot</button></div>}
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" disabled={saving || !contentReady} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : editingTestimonialId ? 'Save testimonial' : 'Add testimonial'}</button>
-                  {editingTestimonialId && <button type="button" onClick={resetTestimonialForm} className="text-sm font-semibold text-primary">Cancel</button>}
+                  <button type="submit" disabled={saving || !contentReady || testimonialImageUploading} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : editingTestimonialId ? 'Save testimonial' : 'Add testimonial'}</button>
+                  {editingTestimonialId && <button type="button" disabled={testimonialImageUploading} onClick={resetTestimonialForm} className="text-sm font-semibold text-primary disabled:opacity-50">Cancel</button>}
                 </div>
               </div>
             </form>
@@ -1014,9 +1101,9 @@ function AdminPage() {
               <h2 className="font-display text-3xl">Published testimonials</h2>
               {testimonials.length ? <div className="mt-5 grid gap-4">
                 {testimonials.map((entry) => <article key={entry.id} className="border-t border-border py-5">
-                  {entry.image && <img src={entry.image} alt="Testimonial screenshot" className="mb-4 max-h-60 w-full rounded-xl object-contain" />}
+                  {entry.attribution && <h3 className="mb-3 font-display text-lg">{entry.attribution}</h3>}
+                  {entry.image && <img src={entry.image} alt={entry.attribution ? `Testimonial screenshot: ${entry.attribution}` : 'Testimonial screenshot'} className="mb-4 max-h-60 w-full rounded-xl object-contain" />}
                   {entry.quote && <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{entry.quote}</p>}
-                  {entry.attribution && <p className="mt-2 text-xs font-semibold">{entry.attribution}</p>}
                   <div className="mt-4 flex gap-2">
                     <button type="button" onClick={() => { setEditingTestimonialId(entry.id); setTestimonialForm({ quote: entry.quote, image: entry.image, attribution: entry.attribution }); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-primary">Edit</button>
                     <button type="button" disabled={saving} onClick={() => { if (window.confirm('Delete this testimonial?')) void saveChanges({ testimonials: testimonials.filter((item) => item.id !== entry.id) }, 'testimonials'); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-accent">Delete</button>

@@ -110,16 +110,17 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .section-kicker { font-size: .76rem; font-weight: 700; letter-spacing: .14em; }
 .template-two section h2, .template-two section h3, .template-two section h4 { font-weight: 600; }
 .template-two section h2 { letter-spacing: -.035em; }
-.section-reveal { animation: section-in .8s cubic-bezier(.2,.75,.25,1) both; }
+.section-reveal, .reveal { transition: opacity .75s cubic-bezier(.2,.75,.25,1), transform .75s cubic-bezier(.2,.75,.25,1); }
+html.js .section-reveal:not(.is-visible), html.js .reveal:not(.is-visible) { opacity: 0; transform: translateY(22px); }
+.section-reveal.is-visible, .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .admin-shell { background: hsl(var(--background)); }
 .admin-editor-card { box-shadow: 0 18px 50px hsl(var(--primary) / .08); }
 .sidebar-panel { animation: sidebar-in .32s cubic-bezier(.2,.75,.25,1) both; }
 .team-slide { animation: team-in .45s cubic-bezier(.2,.75,.25,1) both; }
 
-.reveal { animation: rise-in .8s cubic-bezier(.2,.75,.25,1) both; }
-.reveal-delay-1 { animation-delay: .12s; }
-.reveal-delay-2 { animation-delay: .24s; }
-.reveal-delay-3 { animation-delay: .36s; }
+.reveal-delay-1 { transition-delay: .12s; }
+.reveal-delay-2 { transition-delay: .24s; }
+.reveal-delay-3 { transition-delay: .36s; }
 .grain::after {
   content: '';
   position: fixed;
@@ -151,6 +152,7 @@ details summary::-webkit-details-marker { display: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  html.js .section-reveal:not(.is-visible), html.js .reveal:not(.is-visible) { opacity: 1; transform: none; }
 }
 @media (max-width: 640px) {
   .hero-record-label { bottom: .75rem; right: .75rem; max-width: 165px; padding: .65rem .75rem; }
