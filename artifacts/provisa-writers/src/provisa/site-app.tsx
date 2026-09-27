@@ -33,12 +33,23 @@ import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { founderDescriptor, founderIntro, founderStory } from './content-copy';
+import {
+  DEMO_TESTIMONIALS_STORAGE_KEY,
+  readDemoTestimonials,
+  releaseDemoTestimonialUrls,
+  saveDemoTestimonialImage,
+  writeDemoTestimonials,
+  type DemoTestimonial,
+} from './testimonial-demo-storage';
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
+const TESTIMONIAL_DEMO_MODE =
+  process.env.NODE_ENV !== 'production' ||
+  process.env.NEXT_PUBLIC_TESTIMONIAL_DEMO_MODE === 'true';
 
 const assetPath = (path: string) => {
-  if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('/')) return path;
+  if (path.startsWith('data:') || path.startsWith('http') || path.startsWith('blob:') || path.startsWith('/')) return path;
   return `/${path.replace(/^\/+/, '')}`;
 };
 
@@ -103,12 +114,8 @@ type BlogPost = {
   createdAt: string;
 };
 
-type Testimonial = {
-  id: string;
-  quote: string;
-  image: string;
-  attribution: string;
-};
+type Testimonial = DemoTestimonial;
+type TestimonialForm = Omit<Testimonial, 'id'>;
 
 const services = [
   {
@@ -464,6 +471,7 @@ function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialStorageError, setTestimonialStorageError] = useState('');
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 520);
@@ -473,16 +481,58 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    let demoTestimonials: Testimonial[] = [];
     const syncTeam = () => setTeam([{ id: 'founder', name: founderProfile.name, role: founderProfile.role, bio: founderProfile.summary[0], image: '/stock/founder-mercy.jpg' }, ...readStaff()]);
+    const syncDemoTestimonials = (event?: StorageEvent) => {
+      if (
+        event &&
+        event.key !== null &&
+        event.key !== DEMO_TESTIMONIALS_STORAGE_KEY
+      ) {
+        return;
+      }
+      void readDemoTestimonials()
+        .then((saved) => {
+          if (!active) {
+            releaseDemoTestimonialUrls(saved);
+            return;
+          }
+          releaseDemoTestimonialUrls(demoTestimonials);
+          demoTestimonials = saved;
+          setTestimonials(saved);
+          setTestimonialStorageError('');
+        })
+        .catch((error) => {
+          if (active) {
+            setTestimonialStorageError(
+              error instanceof Error
+                ? error.message
+                : 'Demo testimonials could not be loaded from this browser.',
+            );
+          }
+        });
+    };
     window.addEventListener('storage', syncTeam);
+    if (TESTIMONIAL_DEMO_MODE) {
+      syncDemoTestimonials();
+      window.addEventListener('storage', syncDemoTestimonials);
+    }
     void fetch('/provisa-api/content').then((response) => response.ok ? response.json() : null).then((content) => {
       if (!content) return;
       const founder = content.founder;
       setTeam([{ id: 'founder', name: founder?.name || founderProfile.name, role: founder?.role || founderProfile.role, bio: firstParagraph(founder?.summary || founderProfile.summary.join('\n\n')), image: founder?.image || '/stock/founder-mercy.jpg' }, ...normalizeStaff(content.staff || [])]);
       if (content.posts) setPosts(content.posts);
-      if (content.testimonials) setTestimonials(content.testimonials);
+      if (content.testimonials && !TESTIMONIAL_DEMO_MODE) {
+        setTestimonials(content.testimonials);
+      }
     }).catch(() => undefined);
-    return () => window.removeEventListener('storage', syncTeam);
+    return () => {
+      active = false;
+      releaseDemoTestimonialUrls(demoTestimonials);
+      window.removeEventListener('storage', syncTeam);
+      window.removeEventListener('storage', syncDemoTestimonials);
+    };
   }, []);
 
   useEffect(() => {
@@ -676,7 +726,9 @@ function Home() {
           <section id="testimonials" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
             <div className="mx-auto max-w-[1240px]">
                <p className="section-kicker eyebrow text-accent">Testimonial</p>
+              {TESTIMONIAL_DEMO_MODE && <p className="mt-2 text-xs font-semibold text-muted-foreground">Preview only · stored in this browser</p>}
               <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words from the people we support.</h2>
+              {testimonialStorageError && <p role="status" className="mt-5 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{testimonialStorageError}</p>}
               {testimonials.length ? (
                 <div className="mt-12 grid gap-5 md:grid-cols-2">
                   {testimonials.map((testimonial) => (
@@ -796,12 +848,28 @@ function AdminPage() {
   const [staffImagePreview, setStaffImagePreview] = useState('');
   const [postForm, setPostForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
   const [staffForm, setStaffForm] = useState({ name: '', role: '', bio: '' });
-  const [testimonialForm, setTestimonialForm] = useState({ quote: '', image: '', attribution: '' });
+  const [testimonialForm, setTestimonialForm] = useState<TestimonialForm>({ quote: '', image: '', attribution: '' });
   const [testimonialImageUploading, setTestimonialImageUploading] = useState(false);
   const [testimonialUploadError, setTestimonialUploadError] = useState('');
+  const [demoTestimonialsReady, setDemoTestimonialsReady] = useState(!TESTIMONIAL_DEMO_MODE);
   const [founderForm, setFounderForm] = useState({ name: founderProfile.name, role: founderProfile.role, descriptor: founderProfile.descriptor, summary: founderProfile.summary[0], fullWriteup: founderProfile.paragraphs.join('\n\n'), image: '/stock/founder-mercy.jpg' });
 
   useEffect(() => {
+    if (TESTIMONIAL_DEMO_MODE) {
+      void readDemoTestimonials()
+        .then((saved) => {
+          setTestimonials(saved);
+          setDemoTestimonialsReady(true);
+        })
+        .catch((error) => {
+          setSaveError(
+            error instanceof Error
+              ? error.message
+              : 'Demo testimonials could not be loaded from this browser.',
+          );
+        });
+    }
+
     void Promise.all([
       fetch('/provisa-api/auth/session').then((response) =>
         response.ok ? response.json() : null,
@@ -815,11 +883,21 @@ function AdminPage() {
         if (!content) throw new Error('Content unavailable');
         if (content.posts) setPosts(content.posts);
         if (content.staff) setStaff(content.staff);
-        if (content.testimonials) setTestimonials(content.testimonials);
+        if (content.testimonials && !TESTIMONIAL_DEMO_MODE) {
+          setTestimonials(content.testimonials);
+        }
         if (content.founder) setFounderForm({ ...content.founder, summary: firstParagraph(content.founder.summary) });
         setContentReady(true);
       })
-      .catch(() => setSaveError('Unable to load the current site content. Please reload before editing.'))
+      .catch(() => {
+        if (TESTIMONIAL_DEMO_MODE) {
+          setSaveMessage(
+            'Demo mode: testimonial changes stay in this browser and do not reach the live site.',
+          );
+        } else {
+          setSaveError('Unable to load the current site content. Please reload before editing.');
+        }
+      })
       .finally(() => setContentLoading(false));
   }, []);
 
@@ -905,15 +983,59 @@ function AdminPage() {
   };
   const saveTestimonial = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!testimonialForm.quote.trim() && !testimonialForm.image.trim()) {
-      setSaveError('Add testimonial text or upload a screenshot before saving.');
+    if (!testimonialForm.quote.trim()) {
+      setSaveError('Testimonial text is required.');
       return;
     }
     const next: Testimonial = { id: editingTestimonialId || `testimonial-${Date.now()}`, ...testimonialForm };
     const updated = editingTestimonialId
       ? testimonials.map((entry) => entry.id === editingTestimonialId ? next : entry)
       : [next, ...testimonials];
+    if (TESTIMONIAL_DEMO_MODE) {
+      setSaving(true);
+      try {
+        await writeDemoTestimonials(updated);
+        setTestimonials(updated);
+        setSaveError('');
+        setSaveMessage(
+          'Demo testimonial saved in this browser. Open the public preview in this browser to view it.',
+        );
+        resetTestimonialForm();
+      } catch (error) {
+        setSaveError(
+          error instanceof Error
+            ? error.message
+            : 'Could not save the demo testimonial in this browser.',
+        );
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     if (await saveChanges({ testimonials: updated }, 'testimonials')) resetTestimonialForm();
+  };
+  const deleteTestimonial = async (id: string) => {
+    const updated = testimonials.filter((entry) => entry.id !== id);
+    if (!TESTIMONIAL_DEMO_MODE) {
+      await saveChanges({ testimonials: updated }, 'testimonials');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await writeDemoTestimonials(updated);
+      setTestimonials(updated);
+      setSaveError('');
+      setSaveMessage('Demo testimonial removed from this browser.');
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : 'Could not remove the demo testimonial from this browser.',
+      );
+    } finally {
+      setSaving(false);
+    }
   };
   const chooseTestimonialImage = async (event: ChangeEvent<HTMLInputElement>) => {
     const input = event.currentTarget;
@@ -934,13 +1056,27 @@ function AdminPage() {
 
     setTestimonialImageUploading(true);
     try {
+      if (TESTIMONIAL_DEMO_MODE) {
+        const savedImage = await saveDemoTestimonialImage(file);
+        setTestimonialForm((current) => ({
+          ...current,
+          image: savedImage.previewUrl,
+          demoImageKey: savedImage.key,
+        }));
+        return;
+      }
+
       const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100) || 'screenshot';
       const blob = await upload(`testimonials/${Date.now()}-${filename}`, file, {
         access: 'public',
         handleUploadUrl: '/provisa-api/testimonial-upload',
         contentType: file.type,
       });
-      setTestimonialForm((current) => ({ ...current, image: blob.url }));
+      setTestimonialForm((current) => ({
+        ...current,
+        image: blob.url,
+        demoImageKey: undefined,
+      }));
     } catch (error) {
       setTestimonialUploadError(error instanceof Error ? error.message : 'Screenshot upload failed. Please try again.');
     } finally {
@@ -1015,7 +1151,7 @@ function AdminPage() {
           <div>
             <p className="eyebrow text-accent">PWADMIN / site administration</p>
             <h1 className="mt-4 font-display text-5xl md:text-7xl">The publishing desk.</h1>
-               <p className="mt-5 max-w-xl leading-7 text-muted-foreground">Manage blog posts, the public team directory, the founder profile, and testimonials. Changes are saved to the site database.</p>
+            <p className="mt-5 max-w-xl leading-7 text-muted-foreground">{TESTIMONIAL_DEMO_MODE ? 'Demo mode: testimonials and screenshots are saved in this browser and appear in the public preview only.' : 'Manage blog posts, the public team directory, the founder profile, and testimonials. Changes are saved to the site database.'}</p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-bold text-primary"><Sparkles size={14} /> {posts.length} posts · {staff.length} staff</div>
         </div>
@@ -1082,7 +1218,7 @@ function AdminPage() {
                   <input value={testimonialForm.attribution} onChange={(event) => setTestimonialForm({ ...testimonialForm, attribution: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="A short title or client name" />
                 </label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Testimonial text
-                  <textarea rows={5} value={testimonialForm.quote} onChange={(event) => setTestimonialForm({ ...testimonialForm, quote: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Paste the client's words here" />
+                  <textarea required rows={5} value={testimonialForm.quote} onChange={(event) => setTestimonialForm({ ...testimonialForm, quote: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Paste the client's words here" />
                 </label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
                   <span className="flex items-center gap-2"><ImagePlus size={13} /> Upload screenshot</span>
@@ -1090,23 +1226,23 @@ function AdminPage() {
                 </label>
                 <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{testimonialImageUploading ? 'Uploading screenshot…' : 'PNG, JPG, WEBP, or GIF. Maximum file size: 10 MB.'}</p>
                 {testimonialUploadError && <p role="alert" className="-mt-3 text-xs leading-5 text-accent">{testimonialUploadError}</p>}
-                {testimonialForm.image && <div className="grid gap-2"><img src={testimonialForm.image} alt="Testimonial screenshot preview" className="max-h-72 w-full rounded-xl border border-border object-contain" /><button type="button" onClick={() => setTestimonialForm((current) => ({ ...current, image: '' }))} className="w-fit text-xs font-semibold text-accent">Remove screenshot</button></div>}
+                  {testimonialForm.image && <div className="grid gap-2"><img src={testimonialForm.image} alt="Testimonial screenshot preview" className="max-h-72 w-full rounded-xl border border-border object-contain" /><button type="button" onClick={() => setTestimonialForm((current) => ({ ...current, image: '', demoImageKey: undefined }))} className="w-fit text-xs font-semibold text-accent">Remove screenshot</button></div>}
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" disabled={saving || !contentReady || testimonialImageUploading} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : editingTestimonialId ? 'Save testimonial' : 'Add testimonial'}</button>
+                  <button type="submit" disabled={saving || (TESTIMONIAL_DEMO_MODE ? !demoTestimonialsReady : !contentReady) || testimonialImageUploading} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:opacity-50">{saving ? 'Saving…' : editingTestimonialId ? 'Save testimonial' : 'Add testimonial'}</button>
                   {editingTestimonialId && <button type="button" disabled={testimonialImageUploading} onClick={resetTestimonialForm} className="text-sm font-semibold text-primary disabled:opacity-50">Cancel</button>}
                 </div>
               </div>
             </form>
             <section>
-              <h2 className="font-display text-3xl">Published testimonials</h2>
+              <h2 className="font-display text-3xl">{TESTIMONIAL_DEMO_MODE ? 'Demo testimonials in this browser' : 'Published testimonials'}</h2>
               {testimonials.length ? <div className="mt-5 grid gap-4">
                 {testimonials.map((entry) => <article key={entry.id} className="border-t border-border py-5">
                   {entry.attribution && <h3 className="mb-3 font-display text-lg">{entry.attribution}</h3>}
                   {entry.image && <img src={entry.image} alt={entry.attribution ? `Testimonial screenshot: ${entry.attribution}` : 'Testimonial screenshot'} className="mb-4 max-h-60 w-full rounded-xl object-contain" />}
                   {entry.quote && <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{entry.quote}</p>}
                   <div className="mt-4 flex gap-2">
-                    <button type="button" onClick={() => { setEditingTestimonialId(entry.id); setTestimonialForm({ quote: entry.quote, image: entry.image, attribution: entry.attribution }); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-primary">Edit</button>
-                    <button type="button" disabled={saving} onClick={() => { if (window.confirm('Delete this testimonial?')) void saveChanges({ testimonials: testimonials.filter((item) => item.id !== entry.id) }, 'testimonials'); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-accent">Delete</button>
+                    <button type="button" onClick={() => { setEditingTestimonialId(entry.id); setTestimonialForm({ quote: entry.quote, image: entry.image, attribution: entry.attribution, demoImageKey: entry.demoImageKey }); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-primary">Edit</button>
+                    <button type="button" disabled={saving} onClick={() => { if (window.confirm('Delete this testimonial?')) void deleteTestimonial(entry.id); }} className="rounded-full border border-border px-3 py-2 text-xs font-bold text-accent">Delete</button>
                   </div>
                 </article>)}
               </div> : <p className="mt-5 text-sm text-muted-foreground">No testimonials have been added yet.</p>}
