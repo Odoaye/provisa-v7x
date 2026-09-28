@@ -155,13 +155,13 @@ const services = [
 ];
 
 const people = [
-  ['Healthcare & Life Sciences', 'Physicians, dentists, pharmacists, nurses, public health professionals, biomedical professionals and other healthcare specialists.'],
-  ['Science, Engineering & Technology', 'Scientists, researchers, engineers, software professionals, data scientists, technologists and innovators.'],
-  ['Academia, Education & Research', 'Professors, lecturers, educators, academic researchers, scholars and education professionals.'],
-  ['Business & Finance', 'Executives, business leaders, economists, finance professionals and management professionals.'],
-  ['Law, Policy & Professional Services', 'Lawyers, consultants, analysts, policy professionals, accountants and other specialized professional-services practitioners.'],
-  ['Arts, Media, Communications & Creative Industries', 'Writers, journalists, artists, designers, media professionals, communicators and other creative professionals.'],
-  ['Social Sciences & Public Impact', 'Social scientists, development professionals, NGO leaders, public-sector professionals, community leaders and specialists whose work creates broader social impact.'],
+  { title: 'Healthcare & Life Sciences', text: 'Physicians, dentists, pharmacists, nurses, public health professionals, biomedical professionals and other healthcare specialists.', image: '/stock/who-we-can-help/healthcare.webp', imageAlt: 'Portrait of a professional woman in business attire' },
+  { title: 'Science, Engineering & Technology', text: 'Scientists, researchers, engineers, software professionals, data scientists, technologists and innovators.', image: '/stock/who-we-can-help/science-technology.webp', imageAlt: 'Professionals collaborating around laptops' },
+  { title: 'Academia, Education & Research', text: 'Professors, lecturers, educators, academic researchers, scholars and education professionals.', image: '/stock/who-we-can-help/academia.webp', imageAlt: 'Colleagues reviewing notes around a table' },
+  { title: 'Business & Finance', text: 'Executives, business leaders, economists, finance professionals and management professionals.', image: '/stock/who-we-can-help/business-finance.webp', imageAlt: 'Portrait of a professional man' },
+  { title: 'Law, Policy & Professional Services', text: 'Lawyers, consultants, analysts, policy professionals, accountants and other specialized professional-services practitioners.', image: '/stock/who-we-can-help/law-policy.webp', imageAlt: 'Portrait of Provisa founder Mercy Allison' },
+  { title: 'Arts, Media, Communications & Creative Industries', text: 'Writers, journalists, artists, designers, media professionals, communicators and other creative professionals.', image: '/stock/who-we-can-help/arts-media.webp', imageAlt: 'Notebook, pen and professional documents on a desk' },
+  { title: 'Social Sciences & Public Impact', text: 'Social scientists, development professionals, NGO leaders, public-sector professionals, community leaders and specialists whose work creates broader social impact.', image: '/stock/who-we-can-help/social-impact.webp', imageAlt: 'A group sitting together outdoors by the water' },
 ];
 
 const founderProfile = {
@@ -670,10 +670,13 @@ function Home() {
                 <div className="mt-16 border-t border-primary-foreground/20 pt-10">
                    <p className="section-kicker eyebrow text-accent">Who we can help</p>
                   <div className="mt-6 grid gap-3 md:grid-cols-3">
-                    {people.map(([title, text]) => (
-                      <article key={title} className="border border-primary-foreground/15 p-5 transition-colors hover:border-primary-foreground/40">
-                        <h3 className="text-sm font-bold">{title}</h3>
-                        <p className="mt-3 text-xs leading-6 opacity-70">{text}</p>
+                     {people.map(({ title, text, image, imageAlt }, index) => (
+                       <article key={title} className={`grid min-h-[124px] grid-cols-[88px_minmax(0,1fr)] items-center gap-4 border border-primary-foreground/15 p-3 transition-colors hover:border-primary-foreground/40 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                        <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-[88px] w-[88px] rounded-md object-cover md:h-24 md:w-24" />
+                        <div>
+                          <h3 className="text-sm font-bold">{title}</h3>
+                          <p className="mt-3 text-xs leading-6 opacity-70">{text}</p>
+                        </div>
                       </article>
                     ))}
                   </div>
