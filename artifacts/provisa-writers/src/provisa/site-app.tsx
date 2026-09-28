@@ -698,14 +698,13 @@ function Home() {
                    <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
                      <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
                        <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
-                       <div className={`flex min-h-[270px] flex-col p-7 md:p-10 ${team[teamIndex].id === 'founder' ? 'justify-between' : 'items-center justify-center text-center md:items-start md:justify-start md:text-left'}`}>
+                       <div className={`flex min-h-[270px] flex-col p-7 md:p-10 ${team[teamIndex].id === 'founder' ? '' : 'items-center justify-center text-center md:text-left'}`}>
                          <div className={team[teamIndex].id === 'founder' ? '' : 'w-full'}>
                            <h3 className="max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
-                           {team[teamIndex].id !== 'founder' && <p className="mt-3 text-sm font-extrabold uppercase tracking-[.04em] text-accent md:text-base">{team[teamIndex].role}</p>}
+                           <p className="mt-3 text-sm font-extrabold uppercase tracking-[.04em] text-accent md:text-base">{team[teamIndex].role}</p>
                            {team[teamIndex].id === 'founder' && <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{firstParagraph(team[teamIndex].bio)}</p>}
                            {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
                          </div>
-                         {team[teamIndex].id === 'founder' && <p className="mt-5 text-sm font-extrabold uppercase tracking-[.04em] text-accent md:text-base">{team[teamIndex].role}</p>}
                        </div>
                      </article>
                      {team.length > 1 && <>
