@@ -120,14 +120,12 @@ type TestimonialForm = Omit<Testimonial, 'id'>;
 const services = [
   {
     title: 'Global Opportunities Consulting',
-    description:
-      'We connect professionals to global opportunities, such as memberships in international associations, arts and exhibition showcases, scholarships and grants, fellowships, and international journal publication.',
+    description: 'We connect professionals to global opportunities, such as:',
     offerings: [
       'Membership in international associations',
-      'International Fellowships',
       'Arts and exhibition showcases',
       'Scholarships and grants',
-      'International journal publication',
+      'Fellowships',
     ],
   },
   {
@@ -765,7 +763,6 @@ function Home() {
                 ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
                 : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
               <a href="#contact" className="transition-colors hover:text-primary-foreground">Book a consultation</a>
-              <a href={routePath('/admin')} className="transition-colors hover:text-primary-foreground">Admin login</a>
            </div>
          </div>
       </footer>
