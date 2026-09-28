@@ -617,10 +617,6 @@ function Home() {
               <div className="absolute -left-3 top-8 z-10 max-w-[190px] rotate-[-3deg] bg-accent p-4 text-xs font-bold leading-5 text-accent-foreground shadow-quiet sm:-left-5">Good work leaves clues. We help you connect them.</div>
                <div className="hero-record-frame">
                   <img src={assetPath('/provisa-global-opportunities.webp')} alt="A globe and passport on a desk overlooking international landmarks as an airplane flies overhead" className="aspect-[1.05] w-full rounded-[1rem] object-cover md:rotate-2" />
-                  <div className="hero-record-label">
-                   <span className="font-mono-ui text-[9px] tracking-[.18em]">PROVISA / FIELD RECORD</span>
-                   <span className="mt-1 block text-[10px] font-semibold leading-4 text-primary-foreground/70">A global perspective on professional opportunity</span>
-                 </div>
                </div>
             </div>
           </div>
