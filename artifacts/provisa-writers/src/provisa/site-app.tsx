@@ -122,10 +122,13 @@ const services = [
     title: 'Global Opportunities Consulting',
     description: 'We connect professionals to global opportunities, such as:',
     offerings: [
-      'Membership in international associations',
-      'Arts and exhibition showcases',
-      'Scholarships and grants',
-      'Fellowships',
+      'Global conferences',
+      'Memberships in professional associations',
+      'International fellowship',
+      'International journal publication',
+      'Grants and research funding',
+      'Arts and exhibition showcase',
+      'Scholarship',
     ],
   },
   {
