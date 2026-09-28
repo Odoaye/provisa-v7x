@@ -25,7 +25,7 @@ export const defaultStaff: InsertProvisaStaff[] = [
   {
     id: "staff-1",
     name: "Esther Youpele",
-    role: "Research & analysis",
+    role: "Research Analyst",
     bio: "",
     image: "/stock/team-research-analysis.jpg",
   },
@@ -55,10 +55,10 @@ export async function getContent() {
     .filter((member) => !["staff-2", "staff-3", "staff-4"].includes(member.id) && !(hasLead && member.id === "esther-youpele"))
     .map((member) => {
       if (member.id === "staff-1") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis", bio: "", image: "/stock/team-research-analysis.jpg" };
+        return { ...member, name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/stock/team-research-analysis.jpg" };
       }
       if (member.id === "esther-youpele") {
-        return { ...member, name: "Esther Youpele", role: "Research & analysis", bio: "", image: "/stock/team-research-analysis.jpg" };
+        return { ...member, name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/stock/team-research-analysis.jpg" };
       }
       return { ...member, bio: "" };
     });

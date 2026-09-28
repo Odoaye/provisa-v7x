@@ -121,12 +121,12 @@ const services = [
   {
     title: 'Global Opportunities Consulting',
     description:
-      'We connect professionals to global opportunities including speaking engagements, grants, conferences, fellowships, awards, and more, alongside Global Skilled Worker Migration Consulting for professionals exploring international career and migration pathways.',
+      'We connect professionals to global opportunities, such as memberships in international associations, arts and exhibition showcases, scholarships and grants, fellowships, and international journal publication.',
     offerings: [
-      'Global conferences',
-      'Memberships to Professional Associations',
+      'Membership in international associations',
       'International Fellowships',
-      'Arts and Exhibition',
+      'Arts and exhibition showcases',
+      'Scholarships and grants',
       'International journal publication',
     ],
   },
@@ -142,8 +142,14 @@ const services = [
   },
   {
     title: 'Visa Application Support',
-    description: 'Professional support with preparing visa applications.',
-    offerings: [],
+    description: 'Professional support for visa applications, such as:',
+    offerings: [
+      'UK visitor visa',
+      'US visitor visa (B-1 and B-2)',
+      'UK student visa',
+      'Canada visitor visa',
+      'Visa interview preparation',
+    ],
   },
 ];
 
@@ -175,7 +181,7 @@ type StaffMember = {
 };
 
 const seedStaff: StaffMember[] = [
-  { id: 'staff-1', name: 'Esther Youpele', role: 'Research & analysis', bio: '', image: '/stock/team-research-analysis.jpg' },
+  { id: 'staff-1', name: 'Esther Youpele', role: 'Research Analyst', bio: '', image: '/stock/team-research-analysis.jpg' },
   { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
 ];
 
@@ -186,9 +192,9 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
     .map((member) => {
       let normalized = member;
       if (member.id === 'staff-1') {
-        normalized = { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
+        normalized = { ...member, name: 'Esther Youpele', role: 'Research Analyst', image: '/stock/team-research-analysis.jpg' };
       } else if (member.id === 'esther-youpele') {
-        normalized = { ...member, name: 'Esther Youpele', role: 'Research & analysis', image: '/stock/team-research-analysis.jpg' };
+        normalized = { ...member, name: 'Esther Youpele', role: 'Research Analyst', image: '/stock/team-research-analysis.jpg' };
       }
       return { ...normalized, bio: '' };
     });
@@ -196,7 +202,7 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
 
 const navItems = [
   { label: 'About Us', href: '#about', children: [
-    { label: 'About Provisa', href: '#about' },
+    { label: 'About Provisa Writers Ltd.', href: '#about' },
     { label: 'Our team', href: '#team' },
   ] },
   { label: 'Our services', href: '#services', children: [
@@ -433,8 +439,8 @@ function FounderPage() {
                 <article key={member.id} className="grid gap-8 border-t border-border pt-8 md:grid-cols-[.8fr_1.2fr] md:items-start md:gap-12">
                   <img src={assetPath(member.image || '/no-profile-avatar.svg')} alt={member.image.includes('no-profile-avatar') ? `Default avatar for ${member.name}` : `${member.name} team portrait`} className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
                   <div>
-                    <p className="text-base font-extrabold uppercase tracking-[.04em] text-primary">{member.role}</p>
-                     <h2 className="mt-5 font-display text-3xl md:text-5xl">{member.name}</h2>
+                    <h2 className="font-display text-3xl md:text-5xl">{member.name}</h2>
+                    <p className="mt-3 text-base font-extrabold uppercase tracking-[.04em] text-primary">{member.role}</p>
                   </div>
                 </article>
               ))}
@@ -602,7 +608,7 @@ function Home() {
             <div className="reveal">
               <p className="eyebrow text-accent">Field note / 01 · a professional record</p>
                 <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(3.25rem,7vw,7rem)] leading-[.94] tracking-[-.055em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
-               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Assess • Pursue</p>
+               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
               </div>
@@ -610,10 +616,10 @@ function Home() {
              <div className="reveal reveal-delay-2 relative">
               <div className="absolute -left-3 top-8 z-10 max-w-[190px] rotate-[-3deg] bg-accent p-4 text-xs font-bold leading-5 text-accent-foreground shadow-quiet sm:-left-5">Good work leaves clues. We help you connect them.</div>
                <div className="hero-record-frame">
-                  <img src={assetPath('/provisa-record.jpg')} alt="Printed professional documents and a green editorial record book arranged for careful review" className="aspect-[1.05] w-full rounded-[1rem] object-cover md:rotate-2" />
+                  <img src={assetPath('/provisa-global-opportunities.webp')} alt="A globe and passport on a desk overlooking international landmarks as an airplane flies overhead" className="aspect-[1.05] w-full rounded-[1rem] object-cover md:rotate-2" />
                   <div className="hero-record-label">
                    <span className="font-mono-ui text-[9px] tracking-[.18em]">PROVISA / FIELD RECORD</span>
-                   <span className="mt-1 block text-[10px] font-semibold leading-4 text-primary-foreground/70">Editorial object · not a government document</span>
+                   <span className="mt-1 block text-[10px] font-semibold leading-4 text-primary-foreground/70">A global perspective on professional opportunity</span>
                  </div>
                </div>
             </div>
@@ -625,12 +631,12 @@ function Home() {
              <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global opportunities should be easier to see.</h2>
              <div className="mt-12 grid gap-10 border-t border-border pt-8 md:grid-cols-2 md:gap-16">
                <div>
-                 <h3 className="font-display text-3xl">Our mission</h3>
-                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">to help professionals access global opportunities by strategically  positioning their expertise, achievements and professional credentials for opportunities beyond their home countries</p>
+                 <h3 className="font-display text-3xl">Our Mission.</h3>
+                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">To help professionals access global opportunities by strategically positioning their expertise, achievements and professional credentials for opportunities beyond their home countries.</p>
                </div>
                <div>
-                 <h3 className="font-display text-3xl">Our vision</h3>
-                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">We envision a world where geography does not limit professional ambition, and where talented individuals can access the visibility, networks, recognition and opportunities they need to thrive on the global stage</p>
+                 <h3 className="font-display text-3xl">Our Vision.</h3>
+                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">We envision a world where geography does not limit professional ambition, and where talented individuals can access the visibility, networks, recognition and opportunities they need to thrive on the global stage.</p>
                </div>
              </div>
            </section>
@@ -700,8 +706,9 @@ function Home() {
                        <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
                        <div className="flex min-h-[270px] flex-col justify-between p-7 md:p-10">
                          <div>
-                            <span className={team[teamIndex].id === 'founder' ? 'text-sm font-extrabold tracking-[.01em] text-accent' : 'text-base font-extrabold tracking-[.01em] text-accent md:text-lg'}>{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>
-                            <h3 className={`${team[teamIndex].id === 'founder' ? 'mt-5' : 'mt-8 md:mt-10'} max-w-xl font-display text-4xl md:text-6xl`}>{team[teamIndex].name}</h3>
+                            {team[teamIndex].id === 'founder' && <span className="text-sm font-extrabold tracking-[.01em] text-accent">{String(teamIndex + 1).padStart(2, '0')} / {team[teamIndex].role}</span>}
+                            <h3 className={`${team[teamIndex].id === 'founder' ? 'mt-5' : ''} max-w-xl font-display text-4xl md:text-6xl`}>{team[teamIndex].name}</h3>
+                            {team[teamIndex].id !== 'founder' && <p className="mt-3 text-sm font-extrabold uppercase tracking-[.04em] text-accent md:text-base">{team[teamIndex].role}</p>}
                             {team[teamIndex].id === 'founder' && <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{firstParagraph(team[teamIndex].bio)}</p>}
                            {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
                          </div>
@@ -747,7 +754,7 @@ function Home() {
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
               <div><p className="section-kicker eyebrow text-accent">Contact the team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat to support on WhatsApp</a></div></div>
             <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your email draft is ready.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Where can we reply?" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What would you like to make clearer?" /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Prepare an email <ArrowRight size={16} /></button></form>}
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your email is ready to send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Where can we reply?" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What would you like to make clearer?" /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
             </div>
           </div>
         </section>
@@ -1196,7 +1203,7 @@ function AdminPage() {
               <div className="flex items-center justify-between"><h2 className="font-display text-3xl">{editingStaffId ? 'Edit staff member' : 'Add staff member'}</h2>{editingStaffId && <button type="button" onClick={resetStaffForm} className="text-xs font-bold text-primary">Cancel</button>}</div>
               <div className="mt-8 grid gap-5">
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Name<input required value={staffForm.name} onChange={(event) => setStaffForm({ ...staffForm, name: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Team member name" /></label>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Role / area of work<input required value={staffForm.role} onChange={(event) => setStaffForm({ ...staffForm, role: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="For example: Research & Analysis" /></label>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Role / area of work<input required value={staffForm.role} onChange={(event) => setStaffForm({ ...staffForm, role: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="For example: Research Analyst" /></label>
                 <p className="text-xs leading-5 text-muted-foreground">Public staff cards show the name, role and portrait only.</p>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Portrait</span><input type="file" accept="image/*" onChange={(event) => chooseImage(event, 'staff')} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>
                 {staffImagePreview && <img src={staffImagePreview} alt="Selected staff portrait preview" className="aspect-[.9] w-full rounded-xl object-cover" />}
