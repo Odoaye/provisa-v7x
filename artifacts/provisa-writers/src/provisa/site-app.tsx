@@ -200,6 +200,7 @@ const navItems = [
     { label: 'Our Team', href: '#team' },
   ] },
   { label: 'Our Services', href: '#services', children: [
+    { label: 'All Services', href: '/services' },
     { label: 'Global Opportunities Consulting', href: '#global-opportunities-consulting' },
     { label: 'US Skilled Worker Migration', href: '#us-skilled-worker-migration' },
     { label: 'Visa Application Support', href: '#visa-application-support' },
@@ -499,6 +500,7 @@ function Home() {
   }, ...readStaff()]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [questionExpanded, setQuestionExpanded] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -623,6 +625,7 @@ function Home() {
       `Service of interest: ${String(data.get('service') || '')}\nName: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
     );
     window.location.href = `mailto:info@provisawriters.com?subject=${subject}&body=${body}`;
+    setQuestionExpanded(false);
     setSubmitted(true);
   };
 
@@ -662,7 +665,7 @@ function Home() {
           <div className="mx-auto grid max-w-[1240px] items-end gap-12 md:grid-cols-[.95fr_1.05fr]">
             <div className="reveal">
               <p className="eyebrow text-accent">Field Note / 01 · A Professional Record</p>
-                <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
+                <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(2.5rem,4.25vw,4.25rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
                <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
@@ -718,18 +721,16 @@ function Home() {
                           ))}
                         </ul>
                       )}
-                       <div className="mt-auto pt-7">
-                         {service.slug === 'visa-application-support' && (
-                           <div className="mb-5 border-t border-primary-foreground/15 pt-5">
-                             <p className="text-sm leading-7 text-primary-foreground/85">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities</p>
-                             <a href="#contact" className="mt-4 inline-flex items-center gap-2 border-b border-primary-foreground/40 pb-2 text-sm font-bold transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
-                           </div>
-                         )}
-                         <a href={routePath(`/services/${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
-                       </div>
+                        <div className="mt-auto pt-7">
+                          <a href={routePath(`/services#${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
+                        </div>
                     </article>
                   ))}
                 </div>
+                 <div className="mt-7 flex flex-wrap items-end justify-between gap-5 border-l-2 border-accent pl-5 text-primary-foreground reveal">
+                   <p className="max-w-3xl text-sm leading-7 text-primary-foreground/85">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
+                   <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary-foreground/40 pb-2 text-sm font-bold transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
+                 </div>
                 <div className="mt-16 border-t border-primary-foreground/20 pt-10">
                      <p className="section-kicker eyebrow text-primary-foreground reveal">Who We Can Help</p>
                   <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -796,7 +797,6 @@ function Home() {
             <div className="mx-auto max-w-[1240px]">
               <div className="reveal">
                 <p className="section-kicker eyebrow text-accent">Testimonials</p>
-              {TESTIMONIAL_DEMO_MODE && <p className="mt-2 text-xs font-semibold text-muted-foreground">Preview only · stored in this browser</p>}
                <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words From the People We Support.</h2>
               {testimonialStorageError && <p role="status" className="mt-5 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{testimonialStorageError}</p>}
               </div>
@@ -815,9 +815,9 @@ function Home() {
 
           <section id="contact" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
-              <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram / @provisa_writers</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn / provisa-writers-ltd-086111367</a></div></div>
+              <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a></div></div>
             <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9 reveal reveal-delay-1">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Brief description of what you need." /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Brief description of what you need." /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
             </div>
           </div>
         </section>
@@ -845,6 +845,91 @@ function Home() {
   );
 }
 
+function ServicesOverviewPage() {
+  useScrollReveals();
+
+  return (
+    <div className="template-two grain min-h-[100dvh]">
+      <header className="border-b border-border bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
+          <Logo />
+          <a href={routePath('/')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">
+            <ArrowRight className="rotate-180" size={16} /> Back to Provisa
+          </a>
+        </div>
+      </header>
+      <main>
+        <section className="border-b border-border bg-secondary/35 px-5 py-16 md:px-10 md:py-24">
+          <div className="mx-auto max-w-[1240px]">
+            <p className="section-kicker eyebrow text-accent">Our Services</p>
+            <h1 className="mt-5 max-w-4xl font-display text-4xl leading-[1.02] tracking-[-.04em] md:text-6xl">Support for each step toward a global opportunity.</h1>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">Explore our three areas of support, from finding opportunities that fit your professional goals to preparing application materials and next steps.</p>
+            <nav aria-label="Jump to a service" className="mt-9 flex flex-wrap gap-3">
+              {serviceCatalog.map((service) => (
+                <a key={service.slug} href={`#${service.slug}`} className="rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:border-accent hover:text-accent">
+                  {service.title}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </section>
+        {serviceCatalog.map((service, index) => (
+          <section key={service.slug} id={service.slug} className={`scroll-mt-8 border-b border-border px-5 py-16 md:px-10 md:py-24 ${index % 2 === 1 ? 'bg-secondary/25' : ''}`}>
+            <div className="mx-auto grid max-w-[1240px] gap-10 md:grid-cols-[.75fr_1.25fr] md:gap-16">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">Service 0{index + 1}</p>
+                <h2 className="mt-4 font-display text-3xl leading-tight md:text-5xl">{service.title}</h2>
+                <p className="mt-5 text-sm leading-7 text-muted-foreground md:text-base">{service.description}</p>
+                <a href={routePath('/#contact')} className="mt-7 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+                  Ask about this service <ArrowRight size={16} />
+                </a>
+              </div>
+              <div className="reveal reveal-delay-1">
+                <div className="space-y-5 text-sm leading-8 text-muted-foreground md:text-base">
+                  {service.overview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                </div>
+                <div className="mt-8 border-t border-border pt-6">
+                  <h3 className="font-display text-2xl">Ways we can support you</h3>
+                  <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {service.offerings.map((offering) => (
+                      <li key={offering} className="flex items-start gap-3 border-b border-border/70 py-3 text-sm leading-6">
+                        <Check size={16} className="mt-1 shrink-0 text-accent" />
+                        <span>{offering}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+        ))}
+        <section className="bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
+          <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-8">
+            <div>
+              <p className="section-kicker eyebrow text-accent">Start a Conversation</p>
+              <h2 className="mt-4 max-w-2xl font-display text-3xl md:text-5xl">Not sure which service fits your goals?</h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/75">Tell us what you are working toward, and we can discuss a suitable next step.</p>
+            </div>
+            <a href={routePath('/#contact')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">
+              Contact the team <ArrowRight size={16} />
+            </a>
+          </div>
+        </section>
+      </main>
+      <footer className="bg-primary px-5 py-8 text-primary-foreground/80 md:px-10">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
+          <span>© 2026 Provisa Writers Ltd.</span>
+          <nav aria-label="Legal information" className="flex flex-wrap gap-x-5 gap-y-3">
+            {legalDocuments.map((document) => (
+              <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">{document.title}</a>
+            ))}
+          </nav>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
 function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
   useScrollReveals();
   const service = getServiceBySlug(serviceSlug);
@@ -857,7 +942,7 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
       <header className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
           <Logo />
-          <a href={routePath('/#services')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">
+          <a href={routePath('/services')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">
             <ArrowRight className="rotate-180" size={16} /> Back to Services
           </a>
         </div>
@@ -872,7 +957,7 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
               <a href={routePath('/#contact')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
                 Discuss this service <ArrowRight size={16} />
               </a>
-              <a href={routePath('/#services')} className="inline-flex min-h-12 items-center gap-2 border-b border-border px-1 text-sm font-bold text-primary transition-colors hover:text-accent">
+              <a href={routePath('/services')} className="inline-flex min-h-12 items-center gap-2 border-b border-border px-1 text-sm font-bold text-primary transition-colors hover:text-accent">
                 All services
               </a>
             </div>
@@ -1062,9 +1147,6 @@ function TestimonialsPage() {
             <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
               Browse the testimonials shared by professionals who have worked with Provisa.
             </p>
-            {TESTIMONIAL_DEMO_MODE && (
-              <p className="mt-4 text-xs font-semibold text-muted-foreground">Preview only · stored in this browser</p>
-            )}
           </div>
         </section>
         <section id="testimonials" className="scroll-mt-24 px-5 py-14 md:px-10 md:py-20">
@@ -1665,7 +1747,7 @@ function AdminPage() {
 }
 
 function Router() {
-  return <RoutedErrorBoundary><Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch></RoutedErrorBoundary>;
+  return <RoutedErrorBoundary><Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services" component={ServicesOverviewPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch></RoutedErrorBoundary>;
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
@@ -1681,6 +1763,10 @@ function App({ initialPath = '/' }: { initialPath?: string }) {
 
     if (initialPath === '/testimonials') {
       return <TestimonialsPage />;
+    }
+
+    if (initialPath === '/services') {
+      return <ServicesOverviewPage />;
     }
 
     if (initialPath === '/pwadmin' || initialPath === '/admin') {
