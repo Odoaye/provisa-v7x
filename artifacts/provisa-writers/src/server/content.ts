@@ -14,7 +14,7 @@ import { founderDescriptor, founderIntro, founderStory } from "../provisa/conten
 export const defaultFounder: InsertProvisaFounder = {
   id: "founder",
   name: "Mercy Allison",
-  role: "Global Master Strategist",
+  role: "Founder and Lead Consultant",
   descriptor: founderDescriptor,
   summary: founderIntro,
   fullWriteup: founderStory,
@@ -26,10 +26,16 @@ export const defaultStaff: InsertProvisaStaff[] = [
     id: "staff-1",
     name: "Esther Youpele",
     role: "Research Analyst",
-    bio: "",
+    bio: "Supports focused research and analysis for clear, well-positioned professional profiles.",
     image: "/stock/team-research-analysis.jpg",
   },
-  { id: "louis-ebitari", name: "Louis Ebitari", role: "Operations Manager", bio: "", image: "/no-profile-avatar.svg" },
+  {
+    id: "louis-ebitari",
+    name: "Louis Ebitari",
+    role: "Operations Manager",
+    bio: "Coordinates day-to-day operations to support an organized client experience.",
+    image: "/no-profile-avatar.svg",
+  },
 ];
 
 export const defaultPost: InsertProvisaPost = {
@@ -55,14 +61,37 @@ export async function getContent() {
     .filter((member) => !["staff-2", "staff-3", "staff-4"].includes(member.id) && !(hasLead && member.id === "esther-youpele"))
     .map((member) => {
       if (member.id === "staff-1") {
-        return { ...member, name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/stock/team-research-analysis.jpg" };
+        return {
+          ...member,
+          name: "Esther Youpele",
+          role: "Research Analyst",
+          bio: member.bio?.trim() || defaultStaff[0].bio,
+          image: "/stock/team-research-analysis.jpg",
+        };
       }
       if (member.id === "esther-youpele") {
-        return { ...member, name: "Esther Youpele", role: "Research Analyst", bio: "", image: "/stock/team-research-analysis.jpg" };
+        return {
+          ...member,
+          name: "Esther Youpele",
+          role: "Research Analyst",
+          bio: member.bio?.trim() || defaultStaff[0].bio,
+          image: "/stock/team-research-analysis.jpg",
+        };
       }
-      return { ...member, bio: "" };
+      return {
+        ...member,
+        bio:
+          member.bio?.trim() ||
+          defaultStaff.find((entry) => entry.role === member.role)?.bio ||
+          "",
+      };
     });
-  return { posts, staff: currentStaff, founder: founders[0] ?? null, testimonials };
+  const storedFounder = founders[0] ?? null;
+  const founder =
+    storedFounder?.role === "Global Master Strategist"
+      ? { ...storedFounder, role: defaultFounder.role }
+      : storedFounder;
+  return { posts, staff: currentStaff, founder, testimonials };
 }
 
 export async function seedContent() {
