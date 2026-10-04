@@ -659,9 +659,8 @@ function Home() {
               </div>
             </div>
               <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-[560px] md:mx-0 md:ml-auto">
-              <div className="absolute -left-3 top-8 z-10 max-w-[190px] rotate-[-3deg] bg-accent p-4 text-xs font-bold leading-5 text-accent-foreground shadow-quiet sm:-left-5">Good work leaves clues. We help you connect them.</div>
                <div className="hero-record-frame">
-                    <img src={assetPath('/provisa-global-opportunities.webp')} alt="A globe and passport on a desk overlooking international landmarks as an airplane flies overhead" className="aspect-[1.12] w-full rounded-[1rem] object-cover md:rotate-2" />
+                    <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="aspect-[1.12] w-full rounded-[1rem] object-cover md:rotate-2" />
                </div>
             </div>
           </div>
