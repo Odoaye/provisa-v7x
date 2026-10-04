@@ -16,9 +16,9 @@ import {
   Eye,
   EyeOff,
   Globe2,
+  ImagePlus,
   Instagram,
   Linkedin,
-  ImagePlus,
   LogOut,
   Mail,
   Menu,
@@ -62,27 +62,42 @@ const firstParagraph = (text: string) => text.split(/\n\s*\n/)[0]?.trim() || '';
 
 function useScrollReveals() {
   useEffect(() => {
-    document.documentElement.classList.add('js');
-    const targets = Array.from(
-      document.querySelectorAll<HTMLElement>('.section-reveal, .reveal'),
-    );
-    if (!targets.length) return;
-
     if (!('IntersectionObserver' in window)) {
-      targets.forEach((target) => target.classList.add('is-visible'));
+      document.documentElement.classList.remove('js');
       return;
     }
 
-    const observer = new IntersectionObserver((entries, activeObserver) => {
+    document.documentElement.classList.add('js');
+    const observedTargets = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        activeObserver.unobserve(entry.target);
+        entry.target.classList.toggle('is-visible', entry.isIntersecting);
       });
-    }, { rootMargin: '0px 0px -48px 0px', threshold: 0.08 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
 
-    targets.forEach((target) => observer.observe(target));
-    return () => observer.disconnect();
+    const observeTarget = (target: Element) => {
+      if (!(target instanceof HTMLElement) || observedTargets.has(target)) return;
+      observedTargets.add(target);
+      observer.observe(target);
+    };
+    const observeTree = (node: Node) => {
+      if (!(node instanceof HTMLElement)) return;
+      if (node.matches('.reveal')) observeTarget(node);
+      node.querySelectorAll('.reveal').forEach(observeTarget);
+    };
+
+    observeTree(document.documentElement);
+    const mutations = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach(observeTree);
+      });
+    });
+    mutations.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+    };
   }, []);
 }
 
@@ -120,8 +135,11 @@ type BlogPost = {
 
 type Testimonial = DemoTestimonial;
 type TestimonialForm = Omit<Testimonial, 'id'>;
+const MAX_HOME_TESTIMONIALS = 4;
 
-const services = serviceCatalog;const people = [
+const services = serviceCatalog;
+
+const people = [
   { title: 'Healthcare & Life Sciences', text: 'Physicians, dentists, pharmacists, nurses, public health professionals, biomedical professionals and other healthcare specialists.', image: '/stock/who-we-can-help/healthcare.webp', imageAlt: 'Portrait of a professional woman in business attire' },
   { title: 'Science, Engineering & Technology', text: 'Scientists, researchers, engineers, software professionals, data scientists, technologists and innovators.', image: '/stock/who-we-can-help/science-technology.webp', imageAlt: 'Professionals collaborating around laptops' },
   { title: 'Academia, Education & Research', text: 'Professors, lecturers, educators, academic researchers, scholars and education professionals.', image: '/stock/who-we-can-help/academia.webp', imageAlt: 'Colleagues reviewing notes around a table' },
@@ -148,9 +166,14 @@ type StaffMember = {
   image: string;
 };
 
+const defaultStaffBios: Record<string, string> = {
+  'Research Analyst': 'Supports focused research and analysis for clear, well-positioned professional profiles.',
+  'Operations Manager': 'Coordinates day-to-day operations to support an organized client experience.',
+};
+
 const seedStaff: StaffMember[] = [
-  { id: 'staff-1', name: 'Esther Youpele', role: 'Research Analyst', bio: '', image: '/stock/team-research-analysis.jpg' },
-  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: '', image: '/no-profile-avatar.svg' },
+  { id: 'staff-1', name: 'Esther Youpele', role: 'Research Analyst', bio: defaultStaffBios['Research Analyst'], image: '/stock/team-research-analysis.jpg' },
+  { id: 'louis-ebitari', name: 'Louis Ebitari', role: 'Operations Manager', bio: defaultStaffBios['Operations Manager'], image: '/no-profile-avatar.svg' },
 ];
 
 function normalizeStaff(staff: StaffMember[]): StaffMember[] {
@@ -164,17 +187,20 @@ function normalizeStaff(staff: StaffMember[]): StaffMember[] {
       } else if (member.id === 'esther-youpele') {
         normalized = { ...member, name: 'Esther Youpele', role: 'Research Analyst', image: '/stock/team-research-analysis.jpg' };
       }
-      return { ...normalized, bio: '' };
+      return {
+        ...normalized,
+        bio: normalized.bio?.trim() || defaultStaffBios[normalized.role] || '',
+      };
     });
 }
 
 const navItems = [
   { label: 'About Us', href: '#about', children: [
     { label: 'About Provisa Writers Ltd.', href: '#about' },
-    { label: 'Our team', href: '#team' },
+    { label: 'Our Team', href: '#team' },
   ] },
-  { label: 'Our services', href: '#services', children: [
-    { label: 'Global opportunities consulting', href: '#global-opportunities-consulting' },
+  { label: 'Our Services', href: '#services', children: [
+    { label: 'Global Opportunities Consulting', href: '#global-opportunities-consulting' },
     { label: 'US Skilled Worker Migration', href: '#us-skilled-worker-migration' },
     { label: 'Visa Application Support', href: '#visa-application-support' },
   ] },
@@ -323,7 +349,7 @@ function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: b
       <button type="button" onClick={onClose} className="absolute inset-0 cursor-default bg-primary/35 backdrop-blur-sm" aria-label="Close field guide" />
       <aside className="sidebar-panel absolute right-0 top-0 flex h-full w-full max-w-[560px] flex-col overflow-y-auto bg-background px-5 py-6 shadow-2xl sm:px-8 md:px-10">
         <div className="flex items-center justify-between border-b border-border pb-5">
-          <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground"><BookOpen size={16} /></span><div><p className="eyebrow text-accent">Provisa field guide</p><p className="mt-1 text-xs text-muted-foreground">Notes and useful answers</p></div></div>
+          <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground"><BookOpen size={16} /></span><div><p className="eyebrow text-accent">Provisa Field Guide</p><p className="mt-1 text-xs text-muted-foreground">Notes and useful answers</p></div></div>
           <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full border border-border text-primary" aria-label="Close field guide"><X size={18} /></button>
         </div>
         <div className="mt-7 flex gap-2">
@@ -332,20 +358,50 @@ function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: b
         </div>
         {tab === 'blog' ? (
           <div className="mt-9">
-            <p className="eyebrow text-accent">From the field notes</p>
-            <h2 className="mt-4 font-display text-4xl leading-tight">Notes for the next move.</h2>
+            <p className="eyebrow text-accent">From the Field Notes</p>
+            <h2 className="mt-4 font-display text-4xl leading-tight">Notes for the Next Move.</h2>
             {visiblePosts.length ? <div className="mt-8 grid gap-5">{visiblePosts.map((post) => <article key={post.id} className="overflow-hidden border border-border bg-secondary/40"><img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[1.7] w-full object-cover" /><div className="p-5"><div className="flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.12em] text-accent"><CalendarDays size={13} /> Field note</div><h3 className="mt-4 font-display text-2xl">{post.title}</h3><p className="mt-2 text-sm leading-7 text-muted-foreground">{post.excerpt}</p><details className="mt-4 border-t border-border pt-4"><summary className="cursor-pointer text-sm font-bold">Read the note</summary><p className="mt-4 text-sm leading-7 text-muted-foreground">{post.body}</p></details></div></article>)}</div> : <p className="mt-8 border-y border-border py-8 text-sm text-muted-foreground">New field notes are being prepared.</p>}
           </div>
         ) : (
           <div className="mt-9">
-            <p className="eyebrow text-accent">Frequently asked</p>
-            <h2 className="mt-4 font-display text-4xl leading-tight">The questions worth asking before you begin.</h2>
+            <p className="eyebrow text-accent">Frequently Asked</p>
+            <h2 className="mt-4 font-display text-4xl leading-tight">The Questions Worth Asking Before You Begin.</h2>
             <div className="mt-8 divide-y divide-border border-y border-border">{faqs.map(([question, answer]) => <details key={question} className="group py-5"><summary className="flex cursor-pointer items-center justify-between gap-4 text-base font-bold"><span>{question}</span><ChevronDown size={18} className="shrink-0 text-primary transition-transform group-open:rotate-180" aria-hidden="true" /></summary><p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">{answer}</p></details>)}</div>
           </div>
         )}
-        <a href="#contact" onClick={onClose} className="mt-10 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">Talk to the team <ArrowRight size={16} /></a>
+        <a href="#contact" onClick={onClose} className="mt-10 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">Talk to the Team <ArrowRight size={16} /></a>
       </aside>
     </div>
+  );
+}
+
+function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; index: number }) {
+  const delayClass = index % 3 === 1
+    ? 'reveal-delay-1'
+    : index % 3 === 2
+      ? 'reveal-delay-2'
+      : '';
+
+  return (
+    <article className={`rounded-[1.25rem] border border-border bg-background p-6 md:p-8 reveal ${delayClass}`}>
+      {testimonial.image && (
+        <img
+          src={assetPath(testimonial.image)}
+          alt={testimonial.attribution ? `Testimonial screenshot: ${testimonial.attribution}` : 'Client testimonial screenshot'}
+          loading="lazy"
+          decoding="async"
+          className="mx-auto mb-5 max-h-48 w-full rounded-lg bg-secondary/30 object-contain"
+        />
+      )}
+      {testimonial.attribution && (
+        <h3 className="font-display text-lg leading-snug md:text-xl">{testimonial.attribution}</h3>
+      )}
+      {testimonial.quote && (
+        <blockquote className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground md:text-base">
+          “{testimonial.quote}”
+        </blockquote>
+      )}
+    </article>
   );
 }
 
@@ -380,14 +436,14 @@ function FounderPage() {
       <header className="border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
           <Logo />
-          <a href={routePath('/#team')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent"><ArrowRight className="rotate-180" size={16} /> Back to Meet the team</a>
+          <a href={routePath('/#team')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent"><ArrowRight className="rotate-180" size={16} /> Back to Meet the Team</a>
         </div>
       </header>
       <main>
         <section className="border-b border-border bg-secondary/35 px-5 py-16 md:px-10 md:py-24">
           <article className="mx-auto flow-root max-w-[1240px] text-base leading-8 text-muted-foreground md:text-lg">
-            <img src={assetPath(profile.image)} alt="Professional portrait representing Mercy Allison, founder of Provisa Writers" className="founder-portrait mb-8 w-full rounded-[1.5rem] object-cover md:float-right md:mb-8 md:ml-12 md:w-[42%]" />
-            <div>
+            <img src={assetPath(profile.image)} alt="Professional portrait representing Mercy Allison, founder of Provisa Writers" className="founder-portrait reveal mb-8 w-full rounded-[1.5rem] object-cover md:float-right md:mb-8 md:ml-12 md:w-[42%]" />
+            <div className="reveal reveal-delay-1">
               <p className="section-kicker eyebrow text-accent">Founder / Provisa</p>
                <h1 className="mt-5 max-w-3xl font-display text-5xl leading-[.98] tracking-[-.04em] text-foreground md:text-7xl">{profile.name}</h1>
                <p className="mt-5 text-base font-semibold text-primary md:text-lg">{profile.role}</p>
@@ -401,16 +457,16 @@ function FounderPage() {
         </section>
         <section id="team-directory" className="scroll-mt-24 px-5 py-16 md:px-10 md:py-24">
           <div className="mx-auto max-w-[1240px]">
-            <p className="section-kicker eyebrow text-accent">Meet the team</p>
+            <p className="section-kicker eyebrow text-accent reveal">Meet the Team</p>
             <div className="mt-8 grid gap-8">
               {staff.map((member) => (
-                <article key={member.id} className="grid gap-8 border-t border-border pt-8 md:grid-cols-[1.2fr_.8fr] md:items-start md:gap-12">
+                <article key={member.id} className="grid gap-8 border-t border-border pt-8 md:grid-cols-[1.2fr_.8fr] md:items-start md:gap-12 reveal">
                   <div className="md:py-3">
                     <h2 className="font-display text-3xl md:text-5xl">{member.name}</h2>
                     <p className="mt-2 text-xs font-extrabold uppercase tracking-[.04em] text-primary md:text-sm">{member.role}</p>
                     {member.bio && <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground">{firstParagraph(member.bio)}</p>}
                   </div>
-                  <img src={assetPath(member.image || '/no-profile-avatar.svg')} alt={member.image.includes('no-profile-avatar') ? 'Default avatar for ' + member.name : member.name + ' team portrait'} loading="lazy" decoding="async" className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
+                  <img src={assetPath(member.image || '/no-profile-avatar.svg')} alt={member.image.includes('no-profile-avatar') ? `Default avatar for ${member.name}` : `${member.name} team portrait`} loading="lazy" decoding="async" className="aspect-[1.25] w-full rounded-[1rem] object-cover" />
                 </article>
               ))}
             </div>
@@ -420,12 +476,7 @@ function FounderPage() {
       <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
         <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-5 border-t border-primary-foreground/15 pt-8 text-xs">
           <span>© 2026 Provisa Writers Ltd. Company details placeholder.</span>
-          <nav aria-label="Legal information" className="flex flex-wrap items-center gap-x-5 gap-y-3">
-            <span className="font-bold text-primary-foreground">Legal</span>
-            {legalDocuments.map((document) => (
-              <a key={document.slug} href={routePath('/legal/' + document.slug)} className="transition-colors hover:text-primary-foreground">{document.title}</a>
-            ))}
-          </nav>
+          <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to site</a>
         </div>
       </footer>
       {showScrollTop && <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-5 right-5 z-30 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1" aria-label="Back to top"><ArrowUp size={18} /></button>}
@@ -519,6 +570,36 @@ function Home() {
     setTeamIndex((current) => Math.min(current, Math.max(team.length - 1, 0)));
   }, [team.length]);
 
+  useEffect(() => {
+    const teamSection = document.getElementById('team');
+    if (!teamSection) return;
+
+    const preloadStaffPortraits = () => {
+      team
+        .filter((member) => member.id !== 'founder' && member.image)
+        .forEach((member) => {
+          const image = new window.Image();
+          image.decoding = 'async';
+          image.fetchPriority = 'low';
+          image.src = assetPath(member.image);
+          void image.decode().catch(() => undefined);
+        });
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      preloadStaffPortraits();
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      preloadStaffPortraits();
+      observer.disconnect();
+    }, { rootMargin: '360px 0px' });
+    observer.observe(teamSection);
+    return () => observer.disconnect();
+  }, [team]);
+
   const closeMenu = () => setMobileOpen(false);
   const openSidebar = (tab: 'blog' | 'faq') => {
     setSidebarTab(tab);
@@ -580,49 +661,51 @@ function Home() {
          <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] items-end gap-12 md:grid-cols-[.95fr_1.05fr]">
             <div className="reveal">
-              <p className="eyebrow text-accent">Field note / 01 · a professional record</p>
-                <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.94] tracking-[-.055em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
+              <p className="eyebrow text-accent">Field Note / 01 · A Professional Record</p>
+                <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(2.8rem,5vw,5rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
                <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
               </div>
             </div>
-             <div className="reveal reveal-delay-2 relative">
+              <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-[560px] md:mx-0 md:ml-auto">
               <div className="absolute -left-3 top-8 z-10 max-w-[190px] rotate-[-3deg] bg-accent p-4 text-xs font-bold leading-5 text-accent-foreground shadow-quiet sm:-left-5">Good work leaves clues. We help you connect them.</div>
                <div className="hero-record-frame">
-                  <img src={assetPath('/provisa-global-opportunities.webp')} alt="A globe and passport on a desk overlooking international landmarks as an airplane flies overhead" className="aspect-[1.05] w-full rounded-[1rem] object-cover md:rotate-2" />
+                    <img src={assetPath('/provisa-global-opportunities.webp')} alt="A globe and passport on a desk overlooking international landmarks as an airplane flies overhead" className="aspect-[1.12] w-full rounded-[1rem] object-cover md:rotate-2" />
                </div>
             </div>
           </div>
         </section>
 
-           <section id="about" className="section-reveal scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
-             <p className="section-kicker eyebrow text-accent">About Provisa</p>
-             <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global opportunities should be easier to see.</h2>
+            <section id="about" className="scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">About Provisa</p>
+                <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global Opportunities Should Be Easier to See.</h2>
+              </div>
              <div className="mt-12 grid gap-10 border-t border-border pt-8 md:grid-cols-2 md:gap-16">
-               <div>
-                 <h3 className="font-display text-3xl">Our Mission.</h3>
-                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">To help professionals access global opportunities by strategically positioning their expertise, achievements and professional credentials for opportunities beyond their home countries.</p>
+                <div className="reveal">
+                  <h3 className="font-display text-3xl">Our Mission.</h3>
+                  <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">To help professionals access global opportunities by strategically positioning their expertise, achievements and professional credentials for opportunities beyond their home countries.</p>
                </div>
-               <div>
-                 <h3 className="font-display text-3xl">Our Vision.</h3>
-                 <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">A world where geography does not limit professional ambition and talented individuals can access the opportunities, networks, and recognition they need to thrive globally.</p>
+                <div className="reveal reveal-delay-1">
+                  <h3 className="font-display text-3xl">Our Vision.</h3>
+                  <p className="mt-4 text-sm leading-8 text-muted-foreground md:text-base">We envision a world where geography does not limit professional ambition, and where talented individuals can access the visibility, networks, recognition and opportunities they need to thrive on the global stage.</p>
                </div>
              </div>
            </section>
 
-           <section id="services" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-24">
+            <section id="services" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-24">
           <div className="mx-auto max-w-[1240px]">
-            <div className="flex flex-wrap items-end justify-between gap-8">
-              <div>
-                  <p className="section-kicker eyebrow text-accent">Our services</p>
-                  <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From opportunity discovery to professional support.</h2>
+             <div className="flex flex-wrap items-end justify-between gap-8">
+               <div className="reveal">
+                  <p className="section-kicker eyebrow text-accent">Our Services</p>
+                  <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From Opportunity Discovery to Professional Support.</h2>
               </div>
             </div>
                 <div className="mt-14 grid gap-4 lg:grid-cols-3">
                   {services.map((service, index) => (
-                      <article key={service.slug} id={service.slug} className="glass-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-primary-foreground">
-                      <span className="font-mono-ui text-xs text-accent">0{index + 1} / Service</span>
+                      <article key={service.slug} id={service.slug} className={`glass-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-primary-foreground reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                       <span className="font-mono-ui text-xs text-accent">0{index + 1} / Service</span>
                       <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
                       <p className="mt-4 text-sm leading-7 text-primary-foreground/70">{service.description}</p>
                       {service.offerings.length > 0 && (
@@ -642,33 +725,33 @@ function Home() {
                              <a href="#contact" className="mt-4 inline-flex items-center gap-2 border-b border-primary-foreground/40 pb-2 text-sm font-bold transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
                            </div>
                          )}
-                         <a href={routePath('/services/' + service.slug)} aria-label={'Learn more about ' + service.title} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
+                         <a href={routePath(`/services/${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
                        </div>
                     </article>
                   ))}
                 </div>
                 <div className="mt-16 border-t border-primary-foreground/20 pt-10">
-                   <p className="section-kicker eyebrow text-primary-foreground">Who We Can Help</p>
-                  <div className="mt-6 grid gap-3 md:grid-cols-3">
+                     <p className="section-kicker eyebrow text-primary-foreground reveal">Who We Can Help</p>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                      {people.map(({ title, text, image, imageAlt }, index) => (
-                       <article key={title} className={`grid min-h-[124px] grid-cols-[88px_minmax(0,1fr)] items-center gap-4 border border-primary-foreground/15 p-3 transition-colors hover:border-primary-foreground/40 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                        <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-[88px] w-[88px] rounded-md object-cover md:h-24 md:w-24" />
-                        <div className="text-primary-foreground">
-                          <h3 className="text-sm font-bold leading-snug">{title}</h3>
-                          <p className="mt-2 text-xs leading-5">{text}</p>
+                       <article key={title} className={`grid min-h-[152px] grid-cols-[38%_minmax(0,1fr)] items-stretch overflow-hidden border border-primary-foreground/15 transition-colors hover:border-primary-foreground/40 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                        <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-full min-h-[152px] w-full object-cover" />
+                         <div className="flex min-w-0 flex-col justify-center p-4 text-primary-foreground">
+                           <h3 className="text-sm font-bold leading-snug">{title}</h3>
+                           <p className="mt-2 text-xs leading-5">{text}</p>
                         </div>
                       </article>
                     ))}
                   </div>
-                  <p className="mt-6 max-w-3xl text-sm leading-7 text-primary-foreground">
+                   <p className="mt-6 max-w-3xl text-sm leading-7 text-primary-foreground">
                     If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
                   </p>
                 </div>
              <div className="mt-20 grid gap-8 border-t border-primary-foreground/20 pt-10 md:grid-cols-[.7fr_1.3fr] md:items-center">
-                <div><p className="section-kicker eyebrow text-accent">How we begin</p><h3 className="mt-4 font-display text-4xl">No grand promises. Just a better next conversation.</h3></div>
-                <div className="glass-card rounded-[1.75rem] p-7 text-primary-foreground md:p-9">
+                 <div className="reveal"><p className="section-kicker eyebrow text-accent">How We Begin</p><h3 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h3></div>
+                 <div className="glass-card rounded-[1.75rem] p-7 text-primary-foreground md:p-9 reveal reveal-delay-1">
                   <ClipboardCheck className="text-accent" size={28} />
-                 <h3 className="mt-6 font-display text-3xl">The profile assessment</h3>
+                  <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
                   <p className="mt-4 max-w-lg leading-7 text-primary-foreground/70">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
                   <div className="mt-7 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
                </div>
@@ -676,31 +759,31 @@ function Home() {
           </div>
         </section>
 
-          <section id="team" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
+          <section id="team" className="scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
              <div className="mx-auto max-w-[1240px]">
-               <p className="section-kicker eyebrow text-accent">Our team</p>
-               <div className="mt-8">
+               <p className="section-kicker eyebrow text-accent reveal">Our Team</p>
+               <div className="mt-8 reveal reveal-delay-1">
                  {team.length > 0 && (
                    <div className="team-carousel relative" onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)} onTouchEnd={handleTeamTouchEnd}>
                      <article key={team[teamIndex].id} className="team-slide grid overflow-hidden border border-border bg-background md:h-[420px] md:grid-cols-[.72fr_1.28fr]" aria-live="polite">
-                       <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} className="h-[300px] w-full object-cover md:h-full" />
-                       <div className={`flex min-h-[270px] flex-col p-7 md:p-10 ${team[teamIndex].id === 'founder' ? '' : 'items-center justify-center text-center md:text-left'}`}>
-                         <div className={team[teamIndex].id === 'founder' ? '' : 'w-full'}>
-                           <h3 className="max-w-xl font-display text-4xl md:text-6xl">{team[teamIndex].name}</h3>
-                           <p className="mt-3 text-sm font-extrabold uppercase tracking-[.04em] text-accent md:text-base">{team[teamIndex].role}</p>
-                           {team[teamIndex].id === 'founder' && <p className="mt-5 max-w-lg whitespace-pre-line leading-7 text-muted-foreground">{firstParagraph(team[teamIndex].bio)}</p>}
-                           {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s story <ArrowRight size={16} /></a>}
-                         </div>
-                       </div>
+                        <img src={assetPath(team[teamIndex].image)} alt={team[teamIndex].image.includes('no-profile-avatar') ? `Default avatar for ${team[teamIndex].name}` : `${team[teamIndex].name} team portrait`} loading="lazy" decoding="async" fetchPriority="high" className="h-[300px] w-full object-cover md:h-full" />
+                         <div className="flex min-h-[270px] flex-col items-start justify-start p-7 text-left md:p-10">
+                           <div className="w-full">
+                             <h3 className="max-w-xl font-display text-3xl md:text-5xl">{team[teamIndex].name}</h3>
+                             <p className="mt-2 text-xs font-extrabold uppercase tracking-[.04em] text-accent md:text-sm">{team[teamIndex].role}</p>
+                             {team[teamIndex].bio && <p className="mt-5 max-w-lg whitespace-pre-line text-sm leading-7 text-muted-foreground">{firstParagraph(team[teamIndex].bio)}</p>}
+                             {team[teamIndex].id === 'founder' && <a href={routePath('/founder')} className="mt-6 inline-flex items-center gap-2 border-b border-primary/30 pb-2 text-sm font-bold text-primary transition-colors hover:border-accent hover:text-accent">Read Mercy&apos;s Story <ArrowRight size={16} /></a>}
+                          </div>
+                        </div>
                      </article>
                      {team.length > 1 && <>
-                       <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Previous team member"><ChevronLeft size={18} /></button>
-                       <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105" aria-label="Next team member"><ChevronRight size={18} /></button>
+                        <button type="button" onClick={() => moveTeam(-1)} className="absolute left-3 top-[150px] z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105 md:top-[210px]" aria-label="Previous team member"><ChevronLeft size={18} /></button>
+                        <button type="button" onClick={() => moveTeam(1)} className="absolute right-3 top-[150px] z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-background/95 text-primary shadow-lg transition-transform hover:scale-105 md:top-[210px]" aria-label="Next team member"><ChevronRight size={18} /></button>
                        <div className="mt-5 flex items-center justify-between gap-5">
                          <div className="flex gap-2" aria-label="Team carousel pagination">{team.map((member, index) => <button key={member.id} type="button" onClick={() => setTeamIndex(index)} className={`h-2.5 rounded-full transition-all ${index === teamIndex ? 'w-9 bg-accent' : 'w-2.5 bg-border hover:bg-primary'}`} aria-label={`Show ${member.name}`} aria-current={index === teamIndex ? 'true' : undefined} />)}</div>
                          <span className="text-xs font-semibold text-muted-foreground">{String(teamIndex + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}</span>
                        </div>
-                       <div className="mt-7 flex justify-center"><a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">See more <ArrowRight size={16} /></a></div>
+                        <div className="mt-7 flex justify-center"><a href={routePath('/founder#team-directory')} className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">See More <ArrowRight size={16} /></a></div>
                      </>}
                    </div>
                  )}
@@ -709,31 +792,32 @@ function Home() {
              </div>
            </section>
 
-          <section id="testimonials" className="section-reveal scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
+          <section id="testimonials" className="scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-20">
             <div className="mx-auto max-w-[1240px]">
-               <p className="section-kicker eyebrow text-accent">Testimonial</p>
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">Testimonials</p>
               {TESTIMONIAL_DEMO_MODE && <p className="mt-2 text-xs font-semibold text-muted-foreground">Preview only · stored in this browser</p>}
-              <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words from the people we support.</h2>
+               <h2 className="mt-4 max-w-2xl font-display text-4xl md:text-6xl">Words From the People We Support.</h2>
               {testimonialStorageError && <p role="status" className="mt-5 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{testimonialStorageError}</p>}
+              </div>
               {testimonials.length ? (
                 <div className="mt-12 grid gap-5 md:grid-cols-2">
-                  {testimonials.map((testimonial) => (
-                    <article key={testimonial.id} className="rounded-[1.25rem] border border-border bg-background p-6 md:p-8">
-                      {testimonial.attribution && <h3 className="mb-5 font-display text-xl leading-snug md:text-2xl">{testimonial.attribution}</h3>}
-                      {testimonial.image && <img src={assetPath(testimonial.image)} alt={testimonial.attribution ? `Testimonial screenshot: ${testimonial.attribution}` : 'Client testimonial screenshot'} className="max-h-[560px] w-full rounded-lg object-contain" />}
-                      {testimonial.quote && <blockquote className="mt-5 whitespace-pre-line font-display text-xl leading-relaxed text-foreground">“{testimonial.quote}”</blockquote>}
-                    </article>
+                  {testimonials.slice(0, MAX_HOME_TESTIMONIALS).map((testimonial, index) => (
+                    <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
                   ))}
                 </div>
-              ) : <p className="mt-10 max-w-xl text-sm leading-7 text-muted-foreground">Client stories will appear here when they are available.</p>}
+              ) : <p className="mt-10 max-w-xl text-sm leading-7 text-muted-foreground reveal">Client stories will appear here when they are available.</p>}
+              <div className="mt-9 flex justify-center reveal">
+                <a href={routePath('/testimonials')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">See More <ArrowRight size={16} /></a>
+              </div>
             </div>
           </section>
 
-          <section id="contact" className="section-reveal scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
+          <section id="contact" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
-              <div><p className="section-kicker eyebrow text-accent">Contact the team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram / @provisa_writers</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn / provisa-writers-ltd-086111367</a></div></div>
-            <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your email is ready to send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Brief description of what you need." /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
+              <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram / @provisa_writers</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn / provisa-writers-ltd-086111367</a></div></div>
+            <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9 reveal reveal-delay-1">
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={3} className="mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="Brief description of what you need." /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
             </div>
           </div>
         </section>
@@ -747,68 +831,18 @@ function Home() {
               {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
                 ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
                 : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
-              <a href="#contact" className="transition-colors hover:text-primary-foreground">Book a consultation</a>
+              <span className="font-bold text-primary-foreground">Legal</span>
+              {legalDocuments.map((document) => (
+                <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">
+                  {document.title === 'Privacy Policy' ? 'Privacy Policy' : document.title === 'Terms of Use' ? 'Terms of Use' : 'Disclaimer'}
+                </a>
+              ))}
            </div>
          </div>
       </footer>
        {showScrollTop && <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-5 right-5 z-30 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1" aria-label="Back to top"><ArrowUp size={18} /></button>}
     </div>
   );
-}
-
-function LegacyAdminPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-  const [posts, setPosts] = useState<BlogPost[]>(readPosts);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [form, setForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
-
-  const persist = (nextPosts: BlogPost[]) => {
-    setPosts(nextPosts);
-    window.localStorage.setItem(BLOG_STORAGE_KEY, JSON.stringify(nextPosts));
-  };
-  const resetForm = () => {
-    setEditingId(null);
-    setImagePreview('');
-    setForm({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
-  };
-  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const error = await requestAdminLogin(username, password);
-    if (error) {
-      setLoginError(error);
-      return;
-    }
-    setAuthenticated(true);
-    setLoginError('');
-  };
-  const savePost = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const next: BlogPost = { id: editingId || `${Date.now()}`, ...form, image: imagePreview || assetPath('/provisa-record.jpg'), createdAt: new Date().toISOString() };
-    persist(editingId ? posts.map((post) => post.id === editingId ? next : post) : [next, ...posts]);
-    resetForm();
-  };
-  const editPost = (post: BlogPost) => {
-    setEditingId(post.id);
-    setImagePreview(post.image);
-    setForm({ title: post.title, excerpt: post.excerpt, body: post.body, publishAt: post.publishAt, expiresAt: post.expiresAt });
-  };
-  const chooseImage = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setImagePreview(String(reader.result));
-    reader.readAsDataURL(file);
-  };
-
-  if (!authenticated) {
-   return <div className="admin-shell grain min-h-[100dvh]"><div className="mx-auto flex min-h-[100dvh] max-w-[560px] items-center px-5 py-12"><form onSubmit={handleLogin} className="w-full rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-2xl md:p-12"><Logo /><p className="eyebrow mt-16 text-accent">Private field notes</p><h1 className="mt-4 font-display text-5xl">Team desk login.</h1><p className="mt-5 text-sm leading-7 text-primary-foreground/70">Sign in to manage Provisa content.</p><div className="mt-10 grid gap-5"><label className="grid gap-2 text-sm font-semibold">Username<input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 outline-none" placeholder="Admin username" /></label><label className="grid gap-2 text-sm font-semibold">Password<input autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 outline-none" placeholder="Admin password" /></label></div>{loginError && <p className="mt-4 text-sm text-accent">{loginError}</p>}<button className="mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground" type="submit">Enter the desk <ArrowRight size={16} /></button><a href="/" className="mt-6 inline-flex text-sm text-primary-foreground/70 hover:text-primary-foreground">← Return to site</a></form></div></div>;
-  }
-
-  return <div className="admin-shell grain min-h-[100dvh]"><header className="border-b border-border bg-background/90"><div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8"><Logo /><div className="flex items-center gap-4"><span className="hidden font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground sm:inline">Local prototype desk</span><button type="button" onClick={() => setAuthenticated(false)} className="inline-flex items-center gap-2 text-sm font-bold text-primary"><LogOut size={15} /> Sign out</button></div></div></header><main className="mx-auto max-w-[1240px] px-5 py-12 md:px-10 md:py-20"><div className="flex flex-wrap items-end justify-between gap-6"><div><p className="eyebrow text-accent">PW admin / blog publishing</p><h1 className="mt-4 font-display text-5xl md:text-7xl">Field notes desk.</h1><p className="mt-5 max-w-xl leading-7 text-muted-foreground">Create, edit, schedule and remove posts. Changes are saved in this browser until a database is connected.</p></div><div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-bold text-primary"><Sparkles size={14} /> {posts.length} {posts.length === 1 ? 'post' : 'posts'}</div></div><div className="mt-14 grid gap-8 lg:grid-cols-[.85fr_1.15fr]"><form onSubmit={savePost} className="rounded-[1.75rem] bg-primary p-7 text-primary-foreground md:p-9"><div className="flex items-center justify-between"><h2 className="font-display text-3xl">{editingId ? 'Edit a post' : 'Add a post'}</h2>{editingId && <button type="button" onClick={resetForm} className="text-xs font-bold text-primary-foreground/70 hover:text-primary-foreground">Cancel</button>}</div><div className="mt-8 grid gap-5"><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Title<input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Short excerpt<textarea required rows={3} value={form.excerpt} onChange={(event) => setForm({ ...form, excerpt: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Full note<textarea required rows={6} value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><div className="grid gap-5 sm:grid-cols-2"><label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Publish from</span><input type="datetime-local" value={form.publishAt} onChange={(event) => setForm({ ...form, publishAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-3 text-xs outline-none" /></label><label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Remove after</span><input type="datetime-local" value={form.expiresAt} onChange={(event) => setForm({ ...form, expiresAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-3 text-xs outline-none" /></label></div><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Feature image</span><input type="file" accept="image/*" onChange={chooseImage} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>{imagePreview && <img src={imagePreview} alt="Selected feature preview" className="aspect-[1.8] w-full rounded-xl object-cover" />}<button type="submit" className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">{editingId ? <Pencil size={16} /> : <Plus size={16} />}{editingId ? 'Save changes' : 'Publish post'}</button></div></form><section><div className="mb-5 flex items-center justify-between"><h2 className="font-display text-3xl">Your posts</h2><span className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">Browser storage</span></div><div className="grid gap-4">{posts.map((post) => <article key={post.id} className="flex gap-4 border-t border-border py-5"><img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="h-24 w-28 shrink-0 rounded-xl object-cover" /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground"><span className={isVisiblePost(post) ? 'text-accent' : 'text-primary'}>{isVisiblePost(post) ? 'Visible' : 'Scheduled / expired'}</span>{post.expiresAt && <span>Until {new Date(post.expiresAt).toLocaleDateString()}</span>}</div><h3 className="mt-2 font-display text-2xl">{post.title}</h3><p className="mt-1 line-clamp-2 text-xs leading-6 text-muted-foreground">{post.excerpt}</p></div><div className="flex shrink-0 items-start gap-2"><button type="button" onClick={() => editPost(post)} className="grid h-9 w-9 place-items-center rounded-full border border-border text-primary hover:bg-secondary" aria-label={`Edit ${post.title}`}><Pencil size={14} /></button><button type="button" onClick={() => persist(posts.filter((item) => item.id !== post.id))} className="grid h-9 w-9 place-items-center rounded-full border border-border text-accent hover:bg-secondary" aria-label={`Delete ${post.title}`}><Trash2 size={14} /></button></div></article>)}</div></section></div><div className="mt-12 grid gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:grid-cols-3"><p className="flex gap-2"><Users size={15} className="shrink-0 text-accent" /> This editor is a visual prototype for the future admin workflow.</p><p className="flex gap-2"><Clock3 size={15} className="shrink-0 text-accent" /> Posts can be set to appear and disappear at specific times.</p><p className="flex gap-2"><Globe2 size={15} className="shrink-0 text-accent" /> The public Blog section only shows currently visible posts.</p></div></main></div>;
 }
 
 function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
@@ -948,6 +982,177 @@ function DisclaimerRoute() {
   return <LegalPage documentSlug="disclaimer" />;
 }
 
+function TestimonialsPage() {
+  useScrollReveals();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    let demoTestimonials: Testimonial[] = [];
+
+    const syncDemoTestimonials = (event?: StorageEvent) => {
+      if (event && event.key !== null && event.key !== DEMO_TESTIMONIALS_STORAGE_KEY) return;
+      void readDemoTestimonials()
+        .then((saved) => {
+          if (!active) {
+            releaseDemoTestimonialUrls(saved);
+            return;
+          }
+          releaseDemoTestimonialUrls(demoTestimonials);
+          demoTestimonials = saved;
+          setTestimonials(saved);
+          setLoadError('');
+          setLoading(false);
+        })
+        .catch((error) => {
+          if (!active) return;
+          setLoadError(error instanceof Error ? error.message : 'Testimonials could not be loaded.');
+          setLoading(false);
+        });
+    };
+
+    if (TESTIMONIAL_DEMO_MODE) {
+      window.addEventListener('storage', syncDemoTestimonials);
+      syncDemoTestimonials();
+    } else {
+      void fetch('/provisa-api/content')
+        .then(async (response) => {
+          if (!response.ok) throw new Error('Testimonials could not be loaded. Please try again.');
+          return response.json();
+        })
+        .then((content) => {
+          if (!active) return;
+          setTestimonials(Array.isArray(content?.testimonials) ? content.testimonials : []);
+          setLoadError('');
+        })
+        .catch((error) => {
+          if (active) {
+            setLoadError(error instanceof Error ? error.message : 'Testimonials could not be loaded.');
+          }
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    }
+
+    return () => {
+      active = false;
+      releaseDemoTestimonialUrls(demoTestimonials);
+      window.removeEventListener('storage', syncDemoTestimonials);
+    };
+  }, []);
+
+  return (
+    <div className="template-two grain min-h-[100dvh]">
+      <header className="border-b border-border bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
+          <Logo />
+          <a href={routePath('/')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">
+            <ArrowRight className="rotate-180" size={16} /> Back to Home
+          </a>
+        </div>
+      </header>
+      <main>
+        <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
+          <div className="mx-auto max-w-[1240px]">
+            <p className="section-kicker eyebrow text-accent">Testimonials</p>
+            <h1 className="mt-5 max-w-4xl font-display text-4xl leading-tight md:text-6xl">Words From the People We Support.</h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+              Browse the testimonials shared by professionals who have worked with Provisa.
+            </p>
+            {TESTIMONIAL_DEMO_MODE && (
+              <p className="mt-4 text-xs font-semibold text-muted-foreground">Preview only · stored in this browser</p>
+            )}
+          </div>
+        </section>
+        <section id="testimonials" className="scroll-mt-24 px-5 py-14 md:px-10 md:py-20">
+          <div className="mx-auto max-w-[1240px]">
+            {loadError && <p role="alert" className="mb-6 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{loadError}</p>}
+            {loading ? (
+              <p role="status" className="text-sm text-muted-foreground">Loading testimonials…</p>
+            ) : testimonials.length ? (
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {testimonials.map((testimonial, index) => (
+                  <TestimonialCard key={testimonial.id} testimonial={testimonial} index={index} />
+                ))}
+              </div>
+            ) : (
+              <p className="max-w-xl border-y border-border py-8 text-sm leading-7 text-muted-foreground">
+                {TESTIMONIAL_DEMO_MODE
+                  ? 'No testimonials have been saved in this browser yet.'
+                  : 'No testimonials have been published yet.'}
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
+      <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
+        <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-5 border-t border-primary-foreground/15 pt-8 text-xs">
+          <span>© 2026 Provisa Writers Ltd. Company details placeholder.</span>
+          <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to Home</a>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function LegacyAdminPage() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [posts, setPosts] = useState<BlogPost[]>(readPosts);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [form, setForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
+
+  const persist = (nextPosts: BlogPost[]) => {
+    setPosts(nextPosts);
+    window.localStorage.setItem(BLOG_STORAGE_KEY, JSON.stringify(nextPosts));
+  };
+  const resetForm = () => {
+    setEditingId(null);
+    setImagePreview('');
+    setForm({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
+  };
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const error = await requestAdminLogin(username, password);
+    if (error) {
+      setLoginError(error);
+      return;
+    }
+    setAuthenticated(true);
+    setLoginError('');
+  };
+  const savePost = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const next: BlogPost = { id: editingId || `${Date.now()}`, ...form, image: imagePreview || assetPath('/provisa-record.jpg'), createdAt: new Date().toISOString() };
+    persist(editingId ? posts.map((post) => post.id === editingId ? next : post) : [next, ...posts]);
+    resetForm();
+  };
+  const editPost = (post: BlogPost) => {
+    setEditingId(post.id);
+    setImagePreview(post.image);
+    setForm({ title: post.title, excerpt: post.excerpt, body: post.body, publishAt: post.publishAt, expiresAt: post.expiresAt });
+  };
+  const chooseImage = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(String(reader.result));
+    reader.readAsDataURL(file);
+  };
+
+  if (!authenticated) {
+   return <div className="admin-shell grain min-h-[100dvh]"><div className="mx-auto flex min-h-[100dvh] max-w-[560px] items-center px-5 py-12"><form onSubmit={handleLogin} className="w-full rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-2xl md:p-12"><Logo /><p className="eyebrow mt-16 text-accent">Private field notes</p><h1 className="mt-4 font-display text-5xl">Team desk login.</h1><p className="mt-5 text-sm leading-7 text-primary-foreground/70">Sign in to manage Provisa content.</p><div className="mt-10 grid gap-5"><label className="grid gap-2 text-sm font-semibold">Username<input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 outline-none" placeholder="Admin username" /></label><label className="grid gap-2 text-sm font-semibold">Password<input autoComplete="current-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 outline-none" placeholder="Admin password" /></label></div>{loginError && <p className="mt-4 text-sm text-accent">{loginError}</p>}<button className="mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground" type="submit">Enter the desk <ArrowRight size={16} /></button><a href="/" className="mt-6 inline-flex text-sm text-primary-foreground/70 hover:text-primary-foreground">← Return to site</a></form></div></div>;
+  }
+
+  return <div className="admin-shell grain min-h-[100dvh]"><header className="border-b border-border bg-background/90"><div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8"><Logo /><div className="flex items-center gap-4"><span className="hidden font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground sm:inline">Local prototype desk</span><button type="button" onClick={() => setAuthenticated(false)} className="inline-flex items-center gap-2 text-sm font-bold text-primary"><LogOut size={15} /> Sign out</button></div></div></header><main className="mx-auto max-w-[1240px] px-5 py-12 md:px-10 md:py-20"><div className="flex flex-wrap items-end justify-between gap-6"><div><p className="eyebrow text-accent">PW admin / blog publishing</p><h1 className="mt-4 font-display text-5xl md:text-7xl">Field notes desk.</h1><p className="mt-5 max-w-xl leading-7 text-muted-foreground">Create, edit, schedule and remove posts. Changes are saved in this browser until a database is connected.</p></div><div className="flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-xs font-bold text-primary"><Sparkles size={14} /> {posts.length} {posts.length === 1 ? 'post' : 'posts'}</div></div><div className="mt-14 grid gap-8 lg:grid-cols-[.85fr_1.15fr]"><form onSubmit={savePost} className="rounded-[1.75rem] bg-primary p-7 text-primary-foreground md:p-9"><div className="flex items-center justify-between"><h2 className="font-display text-3xl">{editingId ? 'Edit a post' : 'Add a post'}</h2>{editingId && <button type="button" onClick={resetForm} className="text-xs font-bold text-primary-foreground/70 hover:text-primary-foreground">Cancel</button>}</div><div className="mt-8 grid gap-5"><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Title<input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Short excerpt<textarea required rows={3} value={form.excerpt} onChange={(event) => setForm({ ...form, excerpt: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Full note<textarea required rows={6} value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} className="rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label><div className="grid gap-5 sm:grid-cols-2"><label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Publish from</span><input type="datetime-local" value={form.publishAt} onChange={(event) => setForm({ ...form, publishAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-3 text-xs outline-none" /></label><label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Remove after</span><input type="datetime-local" value={form.expiresAt} onChange={(event) => setForm({ ...form, expiresAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-3 text-xs outline-none" /></label></div><label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Feature image</span><input type="file" accept="image/*" onChange={chooseImage} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>{imagePreview && <img src={imagePreview} alt="Selected feature preview" className="aspect-[1.8] w-full rounded-xl object-cover" />}<button type="submit" className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">{editingId ? <Pencil size={16} /> : <Plus size={16} />}{editingId ? 'Save changes' : 'Publish post'}</button></div></form><section><div className="mb-5 flex items-center justify-between"><h2 className="font-display text-3xl">Your posts</h2><span className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">Browser storage</span></div><div className="grid gap-4">{posts.map((post) => <article key={post.id} className="flex gap-4 border-t border-border py-5"><img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="h-24 w-28 shrink-0 rounded-xl object-cover" /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[.1em] text-muted-foreground"><span className={isVisiblePost(post) ? 'text-accent' : 'text-primary'}>{isVisiblePost(post) ? 'Visible' : 'Scheduled / expired'}</span>{post.expiresAt && <span>Until {new Date(post.expiresAt).toLocaleDateString()}</span>}</div><h3 className="mt-2 font-display text-2xl">{post.title}</h3><p className="mt-1 line-clamp-2 text-xs leading-6 text-muted-foreground">{post.excerpt}</p></div><div className="flex shrink-0 items-start gap-2"><button type="button" onClick={() => editPost(post)} className="grid h-9 w-9 place-items-center rounded-full border border-border text-primary hover:bg-secondary" aria-label={`Edit ${post.title}`}><Pencil size={14} /></button><button type="button" onClick={() => persist(posts.filter((item) => item.id !== post.id))} className="grid h-9 w-9 place-items-center rounded-full border border-border text-accent hover:bg-secondary" aria-label={`Delete ${post.title}`}><Trash2 size={14} /></button></div></article>)}</div></section></div><div className="mt-12 grid gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:grid-cols-3"><p className="flex gap-2"><Users size={15} className="shrink-0 text-accent" /> This editor is a visual prototype for the future admin workflow.</p><p className="flex gap-2"><Clock3 size={15} className="shrink-0 text-accent" /> Posts can be set to appear and disappear at specific times.</p><p className="flex gap-2"><Globe2 size={15} className="shrink-0 text-accent" /> The public Blog section only shows currently visible posts.</p></div></main></div>;
+}
+
 function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [contentLoading, setContentLoading] = useState(true);
@@ -966,6 +1171,8 @@ function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  const [imageUploadingFor, setImageUploadingFor] = useState<'post' | 'staff' | 'founder' | null>(null);
+  const [imageUploadError, setImageUploadError] = useState<{ section: 'post' | 'staff' | 'founder'; message: string } | null>(null);
   const [imagePreview, setImagePreview] = useState('');
   const [staffImagePreview, setStaffImagePreview] = useState('');
   const [postForm, setPostForm] = useState({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
@@ -1055,11 +1262,13 @@ function AdminPage() {
   const resetPostForm = () => {
     setEditingId(null);
     setImagePreview('');
+    setImageUploadError((current) => current?.section === 'post' ? null : current);
     setPostForm({ title: '', excerpt: '', body: '', publishAt: '', expiresAt: '' });
   };
   const resetStaffForm = () => {
     setEditingStaffId(null);
     setStaffImagePreview('');
+    setImageUploadError((current) => current?.section === 'staff' ? null : current);
     setStaffForm({ name: '', role: '', bio: '' });
   };
   const resetTestimonialForm = () => {
@@ -1217,12 +1426,43 @@ function AdminPage() {
     setStaffImagePreview(member.image);
     setStaffForm({ name: member.name, role: member.role, bio: member.bio });
   };
-  const chooseImage = (event: ChangeEvent<HTMLInputElement>, kind: 'post' | 'staff') => {
-    const file = event.target.files?.[0];
+  const chooseImage = async (event: ChangeEvent<HTMLInputElement>, kind: 'post' | 'staff' | 'founder') => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = '';
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => kind === 'post' ? setImagePreview(String(reader.result)) : setStaffImagePreview(String(reader.result));
-    reader.readAsDataURL(file);
+
+    setImageUploadError(null);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      setImageUploadError({ section: kind, message: 'Choose a JPG, PNG, WEBP, or GIF image.' });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setImageUploadError({ section: kind, message: 'The image must be 10 MB or smaller.' });
+      return;
+    }
+
+    setImageUploadingFor(kind);
+    try {
+      const folder = kind === 'post' ? 'blog' : kind;
+      const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, '-').slice(-100) || 'image';
+      const blob = await upload(`${folder}/${Date.now()}-${filename}`, file, {
+        access: 'public',
+        handleUploadUrl: '/provisa-api/image-upload',
+        contentType: file.type,
+      });
+      if (kind === 'post') setImagePreview(blob.url);
+      else if (kind === 'staff') setStaffImagePreview(blob.url);
+      else setFounderForm((current) => ({ ...current, image: blob.url }));
+    } catch (error) {
+      setImageUploadError({
+        section: kind,
+        message: error instanceof Error ? error.message : 'Image upload failed. Please try again.',
+      });
+    } finally {
+      setImageUploadingFor(null);
+    }
   };
 
   if (!authenticated) {
@@ -1302,9 +1542,14 @@ function AdminPage() {
                   <label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Publish from</span><input type="datetime-local" value={postForm.publishAt} onChange={(event) => setPostForm({ ...postForm, publishAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-border bg-background px-3 py-3 text-xs outline-none" /></label>
                   <label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Remove after</span><input type="datetime-local" value={postForm.expiresAt} onChange={(event) => setPostForm({ ...postForm, expiresAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-border bg-background px-3 py-3 text-xs outline-none" /></label>
                 </div>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Feature image</span><input type="file" accept="image/*" onChange={(event) => chooseImage(event, 'post')} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>
-                {imagePreview && <img src={imagePreview} alt="Selected feature preview" className="aspect-[1.8] w-full rounded-xl object-cover" />}
-                 <button type="submit" disabled={saving || !contentReady} className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{editingId ? <Pencil size={16} /> : <Plus size={16} />}{saving ? 'Saving…' : editingId ? 'Save changes' : 'Publish post'}</button>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                  <span className="flex items-center gap-2"><ImagePlus size={13} /> {editingId && imagePreview ? 'Replace feature image' : 'Feature image'}</span>
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void chooseImage(event, 'post')} disabled={imageUploadingFor !== null} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground disabled:opacity-50" />
+                </label>
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{imageUploadingFor === 'post' ? 'Uploading feature image…' : 'JPG, PNG, WEBP, or GIF. Maximum file size: 10 MB. Choose a new file to replace the current image.'}</p>
+                {imageUploadError?.section === 'post' && <p role="alert" className="-mt-3 text-xs leading-5 text-accent">{imageUploadError.message}</p>}
+                {imagePreview && <img src={assetPath(imagePreview)} alt="Feature image preview" className="aspect-[1.8] w-full rounded-xl object-cover" />}
+                 <button type="submit" disabled={saving || !contentReady || imageUploadingFor === 'post'} className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{editingId ? <Pencil size={16} /> : <Plus size={16} />}{saving ? 'Saving…' : editingId ? 'Save changes' : 'Publish post'}</button>
               </div>
             </form>
             <section>
@@ -1319,10 +1564,26 @@ function AdminPage() {
               <div className="mt-8 grid gap-5">
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Name<input required value={staffForm.name} onChange={(event) => setStaffForm({ ...staffForm, name: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Team member name" /></label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Role / area of work<input required value={staffForm.role} onChange={(event) => setStaffForm({ ...staffForm, role: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="For example: Research Analyst" /></label>
-                <p className="text-xs leading-5 text-muted-foreground">Public staff cards show the name, role and portrait only.</p>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><ImagePlus size={13} /> Portrait</span><input type="file" accept="image/*" onChange={(event) => chooseImage(event, 'staff')} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground" /></label>
-                {staffImagePreview && <img src={staffImagePreview} alt="Selected staff portrait preview" className="aspect-[.9] w-full rounded-xl object-cover" />}
-                 <button type="submit" disabled={saving || !contentReady} className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{editingStaffId ? <Pencil size={16} /> : <UserPlus size={16} />}{saving ? 'Saving…' : editingStaffId ? 'Save staff changes' : 'Add staff member'}</button>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                  Short write-up (optional)
+                  <textarea
+                    rows={3}
+                    maxLength={240}
+                    value={staffForm.bio}
+                    onChange={(event) => setStaffForm({ ...staffForm, bio: event.target.value })}
+                    className="resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case leading-6 tracking-normal outline-none"
+                    placeholder="A brief description of the member’s work"
+                  />
+                </label>
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground">Shown below the member’s name and role on the public site.</p>
+                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                   <span className="flex items-center gap-2"><ImagePlus size={13} /> {editingStaffId && staffImagePreview ? 'Replace portrait' : 'Portrait'}</span>
+                   <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void chooseImage(event, 'staff')} disabled={imageUploadingFor !== null} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground disabled:opacity-50" />
+                 </label>
+                 <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{imageUploadingFor === 'staff' ? 'Uploading portrait…' : 'JPG, PNG, WEBP, or GIF. Maximum file size: 10 MB. Choose a new file to replace the current portrait.'}</p>
+                 {imageUploadError?.section === 'staff' && <p role="alert" className="-mt-3 text-xs leading-5 text-accent">{imageUploadError.message}</p>}
+                 {staffImagePreview && <img src={assetPath(staffImagePreview)} alt="Staff portrait preview" className="aspect-[.9] w-full rounded-xl object-cover" />}
+                  <button type="submit" disabled={saving || !contentReady || imageUploadingFor === 'staff'} className="mt-2 inline-flex min-h-12 items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{editingStaffId ? <Pencil size={16} /> : <UserPlus size={16} />}{saving ? 'Saving…' : editingStaffId ? 'Save staff changes' : 'Add staff member'}</button>
               </div>
             </form>
             <section>
@@ -1343,7 +1604,7 @@ function AdminPage() {
                   <textarea required rows={5} value={testimonialForm.quote} onChange={(event) => setTestimonialForm({ ...testimonialForm, quote: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" placeholder="Paste the client's words here" />
                 </label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
-                  <span className="flex items-center gap-2"><ImagePlus size={13} /> Upload screenshot</span>
+                   <span className="flex items-center gap-2"><ImagePlus size={13} /> Upload or replace screenshot</span>
                   <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={chooseTestimonialImage} disabled={testimonialImageUploading} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground disabled:opacity-50" />
                 </label>
                 <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{testimonialImageUploading ? 'Uploading screenshot…' : 'PNG, JPG, WEBP, or GIF. Maximum file size: 10 MB.'}</p>
@@ -1371,7 +1632,7 @@ function AdminPage() {
             </section>
           </div>
         ) : (
-           <form onSubmit={(event) => { event.preventDefault(); void saveChanges({ founder: { id: 'founder', ...founderForm, summary: firstParagraph(founderForm.summary) } }, 'founder'); }} className="admin-editor-card mt-8 max-w-3xl rounded-[1.75rem] bg-secondary/80 p-7 text-foreground md:p-9">
+            <form onSubmit={(event) => { event.preventDefault(); void saveChanges({ founder: { id: 'founder', ...founderForm, summary: firstParagraph(founderForm.summary) } }, 'founder'); }} className="admin-editor-card mt-8 max-w-3xl rounded-[1.75rem] bg-secondary/80 p-7 text-foreground md:p-9">
             <h2 className="font-display text-3xl">Founder profile</h2>
             <div className="mt-8 grid gap-5">
               <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Name<input required value={founderForm.name} onChange={(event) => setFounderForm({ ...founderForm, name: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
@@ -1380,9 +1641,15 @@ function AdminPage() {
                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Homepage carousel introduction<textarea required rows={4} value={founderForm.summary} onChange={(event) => setFounderForm({ ...founderForm, summary: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
                <p className="-mt-3 text-xs leading-5 text-muted-foreground">This is the exact paragraph shown on Mercy&apos;s homepage slide. The “Read Mercy&apos;s story” link opens the separate full write-up below.</p>
               <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Founder page full write-up<textarea required rows={10} value={founderForm.fullWriteup} onChange={(event) => setFounderForm({ ...founderForm, fullWriteup: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
-               <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Portrait image URL<input required value={founderForm.image} onChange={(event) => setFounderForm({ ...founderForm, image: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
-               <p className="-mt-3 text-xs leading-5 text-muted-foreground">Shown on both the homepage carousel and founder page.</p>
-               <button type="submit" disabled={saving || !contentReady} className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"><Pencil size={16} /> {saving ? 'Saving…' : 'Save founder profile'}</button>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">
+                  <span className="flex items-center gap-2"><ImagePlus size={13} /> {founderForm.image ? 'Replace founder portrait' : 'Upload founder portrait'}</span>
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void chooseImage(event, 'founder')} disabled={imageUploadingFor !== null} className="block w-full text-xs file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:font-bold file:text-accent-foreground disabled:opacity-50" />
+                </label>
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground" aria-live="polite">{imageUploadingFor === 'founder' ? 'Uploading founder portrait…' : 'JPG, PNG, WEBP, or GIF. Maximum file size: 10 MB. Upload a new file to replace the current portrait.'}</p>
+                {imageUploadError?.section === 'founder' && <p role="alert" className="-mt-3 text-xs leading-5 text-accent">{imageUploadError.message}</p>}
+                {founderForm.image && <img src={assetPath(founderForm.image)} alt="Founder portrait preview" className="aspect-[1.2] w-full max-w-sm rounded-xl object-cover" />}
+                <p className="-mt-3 text-xs leading-5 text-muted-foreground">The founder portrait is shared by the homepage carousel and founder page.</p>
+                <button type="submit" disabled={saving || !contentReady || imageUploadingFor === 'founder'} className="inline-flex min-h-12 w-fit items-center justify-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"><Pencil size={16} /> {saving ? 'Saving…' : 'Save founder profile'}</button>
             </div>
           </form>
         )}
@@ -1398,7 +1665,7 @@ function AdminPage() {
 }
 
 function Router() {
-  return <RoutedErrorBoundary><Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch></RoutedErrorBoundary>;
+  return <RoutedErrorBoundary><Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch></RoutedErrorBoundary>;
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
@@ -1410,6 +1677,10 @@ function App({ initialPath = '/' }: { initialPath?: string }) {
   if (typeof window === 'undefined') {
     if (initialPath === '/founder') {
       return <FounderPage />;
+    }
+
+    if (initialPath === '/testimonials') {
+      return <TestimonialsPage />;
     }
 
     if (initialPath === '/pwadmin' || initialPath === '/admin') {
