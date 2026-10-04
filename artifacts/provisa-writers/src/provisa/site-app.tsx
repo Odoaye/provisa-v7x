@@ -48,6 +48,7 @@ import {
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
+const DEMO_MODE_STORAGE_KEY = 'provisa-site-black-background-demo';
 const TESTIMONIAL_DEMO_MODE =
   process.env.NODE_ENV !== 'production' ||
   process.env.NEXT_PUBLIC_TESTIMONIAL_DEMO_MODE === 'true';
@@ -410,7 +411,6 @@ function FounderPage() {
   useScrollReveals();
   const [staff, setStaff] = useState<StaffMember[]>(readStaff);
   const [profile, setProfile] = useState(founderProfile);
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     void fetch('/provisa-api/content').then((response) => response.ok ? response.json() : null).then((content) => {
@@ -426,10 +426,6 @@ function FounderPage() {
         });
       }
     }).catch(() => undefined);
-    const handleScroll = () => setShowScrollTop(window.scrollY > 520);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -480,7 +476,6 @@ function FounderPage() {
           <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to site</a>
         </div>
       </footer>
-      {showScrollTop && <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-5 right-5 z-30 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1" aria-label="Back to top"><ArrowUp size={18} /></button>}
     </div>
   );
 }
@@ -501,17 +496,9 @@ function Home() {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [questionExpanded, setQuestionExpanded] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [testimonialStorageError, setTestimonialStorageError] = useState('');
-
-  useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 520);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -840,7 +827,6 @@ function Home() {
            </div>
          </div>
       </footer>
-       {showScrollTop && <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-5 right-5 z-30 grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1" aria-label="Back to top"><ArrowUp size={18} /></button>}
     </div>
   );
 }
@@ -1746,40 +1732,116 @@ function AdminPage() {
   );
 }
 
-function Router() {
-  return <RoutedErrorBoundary><Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services" component={ServicesOverviewPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch></RoutedErrorBoundary>;
-}
-
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
 }
 
+function SiteExperienceControls({ isAdminRoute = false }: { isAdminRoute?: boolean }) {
+  const [demoMode, setDemoMode] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    let restoredDemoMode = false;
+    try {
+      restoredDemoMode = window.sessionStorage.getItem(DEMO_MODE_STORAGE_KEY) === 'true';
+    } catch {
+      // The toggle still works for this page if browser storage is unavailable.
+    }
+    document.documentElement.classList.toggle('provisa-demo-mode', restoredDemoMode);
+    setDemoMode(restoredDemoMode);
+
+    const handleScroll = () => setShowScrollTop(window.scrollY > 520);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const toggleDemoMode = () => {
+    const nextDemoMode = !demoMode;
+    document.documentElement.classList.toggle('provisa-demo-mode', nextDemoMode);
+    setDemoMode(nextDemoMode);
+    try {
+      if (nextDemoMode) {
+        window.sessionStorage.setItem(DEMO_MODE_STORAGE_KEY, 'true');
+      } else {
+        window.sessionStorage.removeItem(DEMO_MODE_STORAGE_KEY);
+      }
+    } catch {
+      // The active page remains in the selected mode even if browser storage is unavailable.
+    }
+  };
+
+  if (isAdminRoute) return null;
+
+  return (
+    <div className="fixed bottom-5 right-3 z-50 flex flex-col items-end gap-3 sm:right-5">
+      <button
+        type="button"
+        onClick={toggleDemoMode}
+        aria-pressed={demoMode}
+        aria-label={demoMode ? 'Exit black background demo mode' : 'Preview black background demo mode'}
+        className="provisa-demo-toggle inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-3 text-sm font-bold text-primary-foreground shadow-2xl transition-transform hover:-translate-y-0.5 sm:px-5"
+      >
+        <span className="hidden sm:inline">{demoMode ? 'Exit demo' : 'Demo mode'}</span>
+        <span className="sm:hidden">{demoMode ? 'Exit' : 'Demo'}</span>
+      </button>
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1"
+          aria-label="Back to top"
+        >
+          <ArrowUp size={18} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Router() {
+  const [location] = useLocation();
+
+  return (
+    <>
+      <RoutedErrorBoundary>
+        <Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services" component={ServicesOverviewPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch>
+      </RoutedErrorBoundary>
+      <SiteExperienceControls isAdminRoute={location === '/admin' || location === '/pwadmin'} />
+    </>
+  );
+}
+
 function App({ initialPath = '/' }: { initialPath?: string }) {
   if (typeof window === 'undefined') {
+    let serverPage: ReactNode = <Home />;
+
     if (initialPath === '/founder') {
-      return <FounderPage />;
+      serverPage = <FounderPage />;
+    } else if (initialPath === '/testimonials') {
+      serverPage = <TestimonialsPage />;
+    } else if (initialPath === '/services') {
+      serverPage = <ServicesOverviewPage />;
+    } else if (initialPath === '/pwadmin' || initialPath === '/admin') {
+      serverPage = <AdminPage />;
+    } else {
+      const service = serviceCatalog.find((entry) => initialPath === `/services/${entry.slug}`);
+      const legalDocument = legalDocuments.find((entry) => initialPath === `/legal/${entry.slug}`);
+      if (service) {
+        serverPage = <ServiceDetailPage serviceSlug={service.slug} />;
+      } else if (legalDocument) {
+        serverPage = <LegalPage documentSlug={legalDocument.slug} />;
+      }
     }
 
-    if (initialPath === '/testimonials') {
-      return <TestimonialsPage />;
-    }
-
-    if (initialPath === '/services') {
-      return <ServicesOverviewPage />;
-    }
-
-    if (initialPath === '/pwadmin' || initialPath === '/admin') {
-      return <AdminPage />;
-    }
-
-    const service = serviceCatalog.find((entry) => initialPath === `/services/${entry.slug}`);
-    if (service) return <ServiceDetailPage serviceSlug={service.slug} />;
-
-    const legalDocument = legalDocuments.find((entry) => initialPath === `/legal/${entry.slug}`);
-    if (legalDocument) return <LegalPage documentSlug={legalDocument.slug} />;
-
-    return <Home />;
+    const isAdminRoute = initialPath === '/admin' || initialPath === '/pwadmin';
+    return (
+      <>
+        {serverPage}
+        {!isAdminRoute && <SiteExperienceControls />}
+      </>
+    );
   }
 
   return <WouterRouter base="/"><Router /></WouterRouter>;

@@ -110,6 +110,28 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .section-kicker { font-size: .76rem; font-weight: 700; letter-spacing: .14em; }
 .template-two section h2, .template-two section h3, .template-two section h4 { font-weight: 600; }
 .template-two section h2 { letter-spacing: -.035em; }
+
+html.provisa-demo-mode .template-two :is(.bg-primary, [class*="bg-primary/"], [class~="hover:bg-primary"]:hover, .hero-record-label, .founder-portrait, .visa-card) {
+  background: #000 !important;
+  color: #fff !important;
+}
+html.provisa-demo-mode .template-two :is(.bg-primary, [class*="bg-primary/"], [class~="hover:bg-primary"]:hover, .hero-record-label, .visa-card) :where(*) {
+  color: #fff !important;
+}
+html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground,
+html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground :where(*) {
+  color: hsl(var(--foreground)) !important;
+}
+html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground .bg-primary,
+html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground .bg-primary :where(*) {
+  background: #000 !important;
+  color: #fff !important;
+}
+html.provisa-demo-mode .provisa-demo-toggle,
+html.provisa-demo-mode .provisa-demo-toggle :where(*) {
+  background: #000 !important;
+  color: #fff !important;
+}
 .section-reveal, .reveal { transition: opacity .75s cubic-bezier(.2,.75,.25,1), transform .75s cubic-bezier(.2,.75,.25,1); }
 html.js .section-reveal:not(.is-visible), html.js .reveal:not(.is-visible) { opacity: 0; transform: translateY(22px); }
 .section-reveal.is-visible, .reveal.is-visible { opacity: 1; transform: translateY(0); }
