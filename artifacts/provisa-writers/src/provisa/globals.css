@@ -120,7 +120,21 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .glass-card:hover { background: hsl(var(--primary-foreground) / .12); border-color: hsl(var(--primary-foreground) / .38); }
 .glass-card-light { background: hsl(var(--background) / .48); border: 1px solid hsl(var(--primary) / .14); box-shadow: inset 0 1px 0 hsl(0 0% 100% / .38), 0 18px 38px hsl(var(--primary) / .08); backdrop-filter: blur(14px); transition: transform .25s ease, background-color .25s ease, border-color .25s ease; }
 .glass-card-light:hover { background: hsl(var(--background) / .7); border-color: hsl(var(--primary) / .26); transform: translateY(-3px); }
-.hero-record-frame { position: relative; isolation: isolate; }
+.hero-record-frame {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(.65rem, 1.3vw, 1rem);
+  border: 1px solid hsl(var(--primary) / .12);
+  border-radius: 1.5rem;
+  background: hsl(var(--background));
+  box-shadow: 0 24px 58px hsl(var(--foreground) / .1);
+}
+.hero-record-photo {
+  display: block;
+  aspect-ratio: 1.12;
+  border-radius: 1rem;
+  object-fit: cover;
+}
 .hero-record-label { position: absolute; bottom: 1.25rem; right: 1.25rem; z-index: 2; max-width: 210px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: .85rem 1rem; box-shadow: 0 14px 32px hsl(var(--primary) / .18); }
 .hero-title span { display: inline; }
 .founder-portrait { background: hsl(var(--primary)); }
@@ -128,27 +142,6 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
 .template-two section h2, .template-two section h3, .template-two section h4 { font-weight: 600; }
 .template-two section h2 { letter-spacing: -.035em; }
 
-html.provisa-demo-mode .template-two :is(.bg-primary, [class*="bg-primary/"], [class~="hover:bg-primary"]:hover, .hero-record-label, .founder-portrait, .visa-card) {
-  background: #000 !important;
-  color: #fff !important;
-}
-html.provisa-demo-mode .template-two :is(.bg-primary, [class*="bg-primary/"], [class~="hover:bg-primary"]:hover, .hero-record-label, .visa-card) :where(*) {
-  color: #fff !important;
-}
-html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground,
-html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground :where(*) {
-  color: hsl(var(--foreground)) !important;
-}
-html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground .bg-primary,
-html.provisa-demo-mode .template-two .bg-primary .bg-primary-foreground .bg-primary :where(*) {
-  background: #000 !important;
-  color: #fff !important;
-}
-html.provisa-demo-mode .provisa-demo-toggle,
-html.provisa-demo-mode .provisa-demo-toggle :where(*) {
-  background: #000 !important;
-  color: #fff !important;
-}
 .section-reveal, .reveal { transition: opacity .75s cubic-bezier(.2,.75,.25,1), transform .75s cubic-bezier(.2,.75,.25,1); }
 html.js .section-reveal:not(.is-visible), html.js .reveal:not(.is-visible) { opacity: 0; transform: translateY(22px); }
 .section-reveal.is-visible, .reveal.is-visible { opacity: 1; transform: translateY(0); }

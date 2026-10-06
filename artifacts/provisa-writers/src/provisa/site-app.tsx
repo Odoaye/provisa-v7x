@@ -48,7 +48,6 @@ import {
 
 const BLOG_STORAGE_KEY = 'provisa-template-2-blog-posts';
 const STAFF_STORAGE_KEY = 'provisa-template-2-staff';
-const DEMO_MODE_STORAGE_KEY = 'provisa-site-black-background-demo';
 const TESTIMONIAL_DEMO_MODE =
   process.env.NODE_ENV !== 'production' ||
   process.env.NEXT_PUBLIC_TESTIMONIAL_DEMO_MODE === 'true';
@@ -141,13 +140,13 @@ const MAX_HOME_TESTIMONIALS = 4;
 const services = serviceCatalog;
 
 const people = [
-  { title: 'Healthcare & Life Sciences', text: 'Physicians, dentists, pharmacists, nurses, public health professionals, biomedical professionals and other healthcare specialists.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
-  { title: 'Science, Engineering & Technology', text: 'Scientists, researchers, engineers, software professionals, data scientists, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-generated.webp', imageAlt: 'An engineer studying an electronics prototype in a lab' },
-  { title: 'Academia, Education & Research', text: 'Professors, lecturers, educators, academic researchers, scholars and education professionals.', image: '/stock/who-we-can-help/academia-generated.webp', imageAlt: 'A professor researching in a university library' },
-  { title: 'Business & Finance', text: 'Executives, business leaders, economists, finance professionals and management professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
-  { title: 'Law, Policy & Professional Services', text: 'Lawyers, consultants, analysts, policy professionals, accountants and other specialized professional-services practitioners.', image: '/stock/who-we-can-help/law-policy-generated.webp', imageAlt: 'A lawyer reviewing a professional file in an office' },
-  { title: 'Arts, Media, Communications & Creative Industries', text: 'Writers, journalists, artists, designers, media professionals, communicators and other creative professionals.', image: '/stock/who-we-can-help/arts-media-generated.webp', imageAlt: 'A creative professional with a camera in a studio' },
-  { title: 'Social Sciences & Public Impact', text: 'Social scientists, development professionals, NGO leaders, public-sector professionals, community leaders and specialists whose work creates broader social impact.', image: '/stock/who-we-can-help/social-impact-generated.webp', imageAlt: 'A community development professional listening at a local roundtable' },
+  { title: 'Healthcare & Life Sciences', text: 'Physicians, nurses, researchers and other health professionals.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
+  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-generated.webp', imageAlt: 'A scientist working with samples in a laboratory' },
+  { title: 'Academia, Education & Research', text: 'Educators, academics and research professionals.', image: '/stock/who-we-can-help/academia-generated.webp', imageAlt: 'A professor researching in a university library' },
+  { title: 'Business & Finance', text: 'Business leaders and finance and management professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
+  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists, consultants and advisors.', image: '/stock/who-we-can-help/law-policy-generated.webp', imageAlt: 'A barrister reviewing documents in a traditional wig and gown' },
+  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-media-generated.webp', imageAlt: 'A painter working on a canvas in her studio' },
+  { title: 'Social Sciences & Public Impact', text: 'Social scientists, NGO and public-sector leaders.', image: '/stock/who-we-can-help/social-impact-generated.webp', imageAlt: 'A community researcher listening to participants during a discussion' },
 ];
 
 const founderProfile = {
@@ -609,7 +608,7 @@ function Home() {
     const data = new FormData(event.currentTarget);
     const subject = encodeURIComponent(`Consultation request from ${String(data.get('name') || 'website visitor')}`);
     const body = encodeURIComponent(
-      `Service of interest: ${String(data.get('service') || '')}\nName: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
+      `Name: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\nService of interest: ${String(data.get('service') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
     );
     window.location.href = `mailto:info@provisawriters.com?subject=${subject}&body=${body}`;
     setQuestionExpanded(false);
@@ -649,18 +648,17 @@ function Home() {
 
       <main>
          <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
-          <div className="mx-auto grid max-w-[1240px] items-end gap-12 md:grid-cols-[.95fr_1.05fr]">
+          <div className="mx-auto grid max-w-[1240px] items-center gap-10 md:grid-cols-[.95fr_1.05fr] md:gap-12">
             <div className="reveal">
-              <p className="eyebrow text-accent">Field Note / 01 · A Professional Record</p>
-                <h1 className="hero-title mt-6 max-w-3xl font-display text-[clamp(2.5rem,4.25vw,4.25rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
+                <h1 className="hero-title max-w-3xl font-display text-[clamp(2.75rem,4.65vw,4.65rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
                <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
-                <button type="button" onClick={() => openSidebar('blog')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Open the field guide <ArrowRight size={16} /></button>
+                <a href="#contact" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Book A Call <ArrowRight size={16} /></a>
               </div>
             </div>
-              <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-[560px] md:mx-0 md:ml-auto">
+              <div className="reveal reveal-delay-1 relative mx-auto w-full max-w-[580px] md:mx-0 md:ml-auto">
                <div className="hero-record-frame">
-                    <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="aspect-[1.12] w-full rounded-[1rem] object-cover md:rotate-2" />
+                     <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="hero-record-photo w-full object-cover" />
                </div>
             </div>
           </div>
@@ -669,7 +667,7 @@ function Home() {
             <section id="about" className="scroll-mt-24 mx-auto max-w-[1240px] px-5 py-16 md:px-10 md:py-20">
               <div className="reveal">
                 <p className="section-kicker eyebrow text-accent">About Provisa</p>
-                <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global Opportunities Should Be Easier to See.</h2>
+                <h2 className="mt-4 max-w-3xl font-display text-4xl leading-tight md:text-6xl">Global Opportunities should be easier to see.</h2>
               </div>
              <div className="mt-12 grid gap-10 border-t border-border pt-8 md:grid-cols-2 md:gap-16">
                 <div className="reveal">
@@ -683,68 +681,75 @@ function Home() {
              </div>
            </section>
 
-            <section id="services" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-24">
-          <div className="mx-auto max-w-[1240px]">
-             <div className="flex flex-wrap items-end justify-between gap-8">
-               <div className="reveal">
-                  <p className="section-kicker eyebrow text-accent">Our Services</p>
-                  <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From Opportunity Discovery to Professional Support.</h2>
+          <section id="services" className="scroll-mt-24 bg-background px-5 py-16 md:px-10 md:py-24">
+            <div className="mx-auto max-w-[1240px]">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">Our Services</p>
+                <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From Opportunity Discovery to Professional Support.</h2>
+              </div>
+              <div className="mt-14 grid gap-4 lg:grid-cols-3">
+                {services.map((service, index) => (
+                  <article key={service.slug} id={service.slug} className={`foundation-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-foreground transition-transform hover:-translate-y-1 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                    <span className="font-mono-ui text-xs text-primary">0{index + 1} / Service</span>
+                    <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
+                    <p className="mt-4 text-sm leading-7 text-muted-foreground">{service.description}</p>
+                    {service.offerings.length > 0 && (
+                      <ul className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
+                        {service.offerings.map((offering) => (
+                          <li key={offering} className="flex items-start gap-3">
+                            <Check size={15} className="mt-0.5 shrink-0 text-primary" />
+                            <span>{offering}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="mt-auto pt-7">
+                      <a href={routePath(`/services#${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">Learn More <ArrowRight size={16} /></a>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-7 flex flex-wrap items-end justify-between gap-5 border-l-2 border-accent pl-5 text-foreground reveal">
+                <p className="max-w-3xl text-sm leading-7 text-muted-foreground">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
+                <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary/40 pb-2 text-sm font-bold text-primary transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
               </div>
             </div>
-                <div className="mt-14 grid gap-4 lg:grid-cols-3">
-                  {services.map((service, index) => (
-                      <article key={service.slug} id={service.slug} className={`glass-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-primary-foreground reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                       <span className="font-mono-ui text-xs text-accent">0{index + 1} / Service</span>
-                      <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
-                      <p className="mt-4 text-sm leading-7 text-primary-foreground/70">{service.description}</p>
-                      {service.offerings.length > 0 && (
-                        <ul className="mt-6 space-y-3 border-t border-primary-foreground/15 pt-5 text-sm">
-                          {service.offerings.map((offering) => (
-                            <li key={offering} className="flex items-start gap-3">
-                              <Check size={15} className="mt-0.5 shrink-0 text-accent" />
-                              <span>{offering}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                        <div className="mt-auto pt-7">
-                          <a href={routePath(`/services#${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
-                        </div>
-                    </article>
-                  ))}
-                </div>
-                 <div className="mt-7 flex flex-wrap items-end justify-between gap-5 border-l-2 border-accent pl-5 text-primary-foreground reveal">
-                   <p className="max-w-3xl text-sm leading-7 text-primary-foreground/85">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
-                   <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary-foreground/40 pb-2 text-sm font-bold transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
-                 </div>
-                <div className="mt-16 border-t border-primary-foreground/20 pt-10">
-                     <p className="section-kicker eyebrow text-primary-foreground reveal">Who We Can Help</p>
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                     {people.map(({ title, text, image, imageAlt }, index) => (
-                       <article key={title} className={`grid min-h-[152px] grid-cols-[38%_minmax(0,1fr)] items-stretch overflow-hidden border border-primary-foreground/15 transition-colors hover:border-primary-foreground/40 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                        <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-full min-h-[152px] w-full object-cover" />
-                         <div className="flex min-w-0 flex-col justify-center p-4 text-primary-foreground">
-                           <h3 className="text-sm font-bold leading-snug">{title}</h3>
-                           <p className="mt-2 text-xs leading-5">{text}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                   <p className="mt-6 max-w-3xl text-sm leading-7 text-primary-foreground">
-                    If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
-                  </p>
-                </div>
-             <div className="mt-20 grid gap-8 border-t border-primary-foreground/20 pt-10 md:grid-cols-[.7fr_1.3fr] md:items-center">
-                 <div className="reveal"><p className="section-kicker eyebrow text-accent">How We Begin</p><h3 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h3></div>
-                 <div className="glass-card rounded-[1.75rem] p-7 text-primary-foreground md:p-9 reveal reveal-delay-1">
-                  <ClipboardCheck className="text-accent" size={28} />
-                  <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
-                  <p className="mt-4 max-w-lg leading-7 text-primary-foreground/70">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
-                  <div className="mt-7 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
-               </div>
-             </div>
-          </div>
-        </section>
+          </section>
+
+          <section id="who-we-can-help" className="scroll-mt-24 bg-secondary/30 px-5 py-16 md:px-10 md:py-24">
+            <div className="mx-auto max-w-[1240px]">
+              <h2 className="section-kicker eyebrow text-accent reveal">Who We Can Help</h2>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {people.map(({ title, text, image, imageAlt }, index) => (
+                  <article key={title} className={`foundation-card grid min-h-[152px] grid-cols-[38%_minmax(0,1fr)] items-stretch overflow-hidden rounded-xl bg-background text-foreground transition-transform hover:-translate-y-0.5 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                    <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-full min-h-[152px] w-full object-cover" />
+                    <div className="flex min-w-0 flex-col justify-center p-4">
+                      <h3 className="text-sm font-bold leading-snug">{title}</h3>
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">{text}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <p className="mt-6 max-w-3xl text-sm leading-7 text-muted-foreground">
+                If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
+              </p>
+            </div>
+          </section>
+
+          <section id="how-we-begin" className="scroll-mt-24 bg-background px-5 py-16 md:px-10 md:py-20">
+            <div className="mx-auto grid max-w-[1240px] gap-8 md:grid-cols-[.7fr_1.3fr] md:items-center">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">How We Begin</p>
+                <h2 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h2>
+              </div>
+              <div className="foundation-card rounded-[1.75rem] p-7 text-foreground md:p-9 reveal reveal-delay-1">
+                <ClipboardCheck className="text-primary" size={28} />
+                <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
+                <p className="mt-4 max-w-lg leading-7 text-muted-foreground">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
+                <div className="mt-7 grid gap-3 border-t border-border pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-primary" />{item}</span>)}</div>
+              </div>
+            </div>
+          </section>
 
           <section id="team" className="scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
              <div className="mx-auto max-w-[1240px]">
@@ -799,14 +804,52 @@ function Home() {
             </div>
           </section>
 
-          <section id="contact" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
-          <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
-              <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 opacity-70">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a></div></div>
-            <div className="rounded-[1.75rem] bg-primary-foreground p-7 text-foreground md:p-9 reveal reveal-delay-1">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5"><div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div><div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div><div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div><div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Brief description of what you need." /></div><button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button></form>}
+          <section id="contact" className="scroll-mt-24 bg-secondary/30 px-5 py-16 text-foreground md:px-10 md:py-20">
+            <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">Contact the Team</p>
+                <h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2>
+                <p className="mt-6 max-w-md leading-7 text-muted-foreground">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement.</p>
+                <div className="mt-8 grid gap-4 text-sm font-semibold">
+                  <a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-primary"><Mail size={15} /> info@provisawriters.com</a>
+                  <a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-primary"><MessageCircle size={15} /> +234 816 055 0258</a>
+                  <a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-border pb-2 transition-colors hover:text-primary"><MessageCircle size={15} /> Chat on WhatsApp</a>
+                  <a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-primary" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a>
+                  <a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-primary" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a>
+                </div>
+              </div>
+              <div className="foundation-card rounded-[1.75rem] bg-background p-7 text-foreground md:p-9 reveal reveal-delay-1">
+                {submitted ? (
+                  <div className="flex min-h-[300px] flex-col justify-center">
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span>
+                    <h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3>
+                    <p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p>
+                    <button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button>
+                  </div>
+                ) : (
+                  <form onSubmit={submitContact} className="grid gap-5">
+                    <div>
+                      <label htmlFor="name" className="eyebrow text-primary">Your name</label>
+                      <input id="name" required name="name" autoComplete="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="eyebrow text-primary">Email address</label>
+                      <input id="email" required type="email" name="email" autoComplete="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" />
+                    </div>
+                    <div>
+                      <label htmlFor="service" className="eyebrow text-primary">Service interested in</label>
+                      <input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" />
+                    </div>
+                    <div>
+                      <label htmlFor="question" className="eyebrow text-primary">Question</label>
+                      <textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Briefly describe what you need." />
+                    </div>
+                    <button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button>
+                  </form>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
       </main>
 
        <FieldGuideSidebar open={sidebarOpen} tab={sidebarTab} posts={posts} onClose={() => setSidebarOpen(false)} onTabChange={setSidebarTab} />
@@ -948,22 +991,61 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
             </div>
           </div>
         </section>
-        <section className="px-5 py-16 md:px-10 md:py-24">
-          <div className="mx-auto grid max-w-[1240px] gap-10 md:grid-cols-[.75fr_1.25fr]">
-            <div>
-              <p className="section-kicker eyebrow text-accent">What We Support</p>
-              <h2 className="mt-4 font-display text-3xl leading-tight md:text-4xl">A clear next step for your goals.</h2>
-            </div>
-            <div className="border-y border-border">
-              {service.offerings.map((offering) => (
-                <div key={offering} className="flex items-start gap-4 border-b border-border py-5 last:border-b-0">
-                  <Check size={17} className="mt-1 shrink-0 text-accent" />
-                  <p className="text-base leading-7">{offering}</p>
+        {service.detailSections.map((section, index) => (
+          <section key={section.title} id={`service-focus-${index + 1}`} className="scroll-mt-24 border-b border-border bg-background px-5 py-16 md:px-10 md:py-24">
+            <div className="mx-auto grid max-w-[1240px] items-start gap-10 md:grid-cols-[.9fr_1.1fr] md:gap-16">
+              <div>
+                <p className="section-kicker eyebrow text-accent">{section.title}</p>
+                <h2 className="mt-4 font-display text-3xl leading-tight md:text-5xl">{section.headline}</h2>
+                <div className="mt-6 max-w-2xl space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
+                  {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
                 </div>
-              ))}
+                {section.audience && (
+                  <div className="mt-8 border-l-2 border-primary/35 pl-5">
+                    <h3 className="eyebrow text-primary">Who is it for?</h3>
+                    <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">{section.audience}</p>
+                  </div>
+                )}
+              </div>
+              <div className="foundation-card rounded-[1.5rem] bg-background p-6 md:p-8">
+                {section.items.length > 0 && (
+                  <div>
+                    <h3 className="font-display text-xl">{section.itemsHeading}</h3>
+                    <ul className="mt-5 divide-y divide-border border-y border-border">
+                      {section.items.map((item) => (
+                        <li key={item} className="flex items-start gap-3 py-3 text-sm leading-6">
+                          <Check size={16} className="mt-1 shrink-0 text-primary" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {section.additionalItems.length > 0 && (
+                  <div className="mt-7">
+                    <h3 className="font-display text-xl">{section.additionalHeading}</h3>
+                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {section.additionalItems.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
+                          <Check size={15} className="mt-1 shrink-0 text-primary" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <a href={routePath('/#contact')} className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+                  {section.ctaLabel} <ArrowRight size={16} />
+                </a>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ))}
+        {service.detailNote && (
+          <section className="bg-secondary/30 px-5 py-8 md:px-10">
+            <p className="mx-auto max-w-[1240px] text-xs leading-6 text-muted-foreground">{service.detailNote}</p>
+          </section>
+        )}
       </main>
       <footer className="bg-primary px-5 py-8 text-primary-foreground/80 md:px-10">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
@@ -1737,54 +1819,19 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function SiteExperienceControls({ isAdminRoute = false }: { isAdminRoute?: boolean }) {
-  const [demoMode, setDemoMode] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    let restoredDemoMode = false;
-    try {
-      restoredDemoMode = window.sessionStorage.getItem(DEMO_MODE_STORAGE_KEY) === 'true';
-    } catch {
-      // The toggle still works for this page if browser storage is unavailable.
-    }
-    document.documentElement.classList.toggle('provisa-demo-mode', restoredDemoMode);
-    setDemoMode(restoredDemoMode);
-
     const handleScroll = () => setShowScrollTop(window.scrollY > 520);
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleDemoMode = () => {
-    const nextDemoMode = !demoMode;
-    document.documentElement.classList.toggle('provisa-demo-mode', nextDemoMode);
-    setDemoMode(nextDemoMode);
-    try {
-      if (nextDemoMode) {
-        window.sessionStorage.setItem(DEMO_MODE_STORAGE_KEY, 'true');
-      } else {
-        window.sessionStorage.removeItem(DEMO_MODE_STORAGE_KEY);
-      }
-    } catch {
-      // The active page remains in the selected mode even if browser storage is unavailable.
-    }
-  };
-
   if (isAdminRoute) return null;
 
   return (
     <div className="fixed bottom-5 right-3 z-50 flex flex-col items-end gap-3 sm:right-5">
-      <button
-        type="button"
-        onClick={toggleDemoMode}
-        aria-pressed={demoMode}
-        aria-label={demoMode ? 'Exit black background demo mode' : 'Preview black background demo mode'}
-        className="provisa-demo-toggle inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-3 text-sm font-bold text-primary-foreground shadow-2xl transition-transform hover:-translate-y-0.5 sm:px-5"
-      >
-        <span className="hidden sm:inline">{demoMode ? 'Exit demo' : 'Demo mode'}</span>
-        <span className="sm:hidden">{demoMode ? 'Exit' : 'Demo'}</span>
-      </button>
       {showScrollTop && (
         <button
           type="button"
