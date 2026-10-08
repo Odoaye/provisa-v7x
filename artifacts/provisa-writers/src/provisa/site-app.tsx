@@ -140,13 +140,13 @@ const MAX_HOME_TESTIMONIALS = 4;
 const services = serviceCatalog;
 
 const people = [
-  { title: 'Healthcare & Life Sciences', text: 'Physicians, nurses, researchers and other health professionals.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
-  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-generated.webp', imageAlt: 'A scientist working with samples in a laboratory' },
+  { title: 'Healthcare & Life Sciences', text: 'Healthcare, life-science and public-health professionals.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
+  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-lab-generated.webp', imageAlt: 'A scientist conducting research at a laboratory bench' },
   { title: 'Academia, Education & Research', text: 'Educators, academics and research professionals.', image: '/stock/who-we-can-help/academia-generated.webp', imageAlt: 'A professor researching in a university library' },
-  { title: 'Business & Finance', text: 'Business leaders and finance and management professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
-  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists, consultants and advisors.', image: '/stock/who-we-can-help/law-policy-generated.webp', imageAlt: 'A barrister reviewing documents in a traditional wig and gown' },
-  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-media-generated.webp', imageAlt: 'A painter working on a canvas in her studio' },
-  { title: 'Social Sciences & Public Impact', text: 'Social scientists, NGO and public-sector leaders.', image: '/stock/who-we-can-help/social-impact-generated.webp', imageAlt: 'A community researcher listening to participants during a discussion' },
+  { title: 'Business & Finance', text: 'Business leaders, economists and finance professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
+  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists and professional consultants.', image: '/stock/who-we-can-help/law-barrister-generated.webp', imageAlt: 'A barrister in a traditional wig reviewing case papers at a desk' },
+  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-painter-generated.webp', imageAlt: 'A painter working at an easel in a studio' },
+  { title: 'Social Sciences & Public Impact', text: 'Social researchers and leaders advancing public impact.', image: '/stock/who-we-can-help/social-impact-fieldwork-generated.webp', imageAlt: 'A social-impact researcher taking notes during a community roundtable' },
 ];
 
 const founderProfile = {
@@ -608,7 +608,7 @@ function Home() {
     const data = new FormData(event.currentTarget);
     const subject = encodeURIComponent(`Consultation request from ${String(data.get('name') || 'website visitor')}`);
     const body = encodeURIComponent(
-      `Name: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\nService of interest: ${String(data.get('service') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
+      `Service of interest: ${String(data.get('service') || '')}\nName: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
     );
     window.location.href = `mailto:info@provisawriters.com?subject=${subject}&body=${body}`;
     setQuestionExpanded(false);
@@ -617,7 +617,7 @@ function Home() {
 
   return (
     <div id="top" className="template-two grain min-h-[100dvh]">
-      <div className="bg-primary px-5 py-2.5 text-center text-[10px] font-semibold tracking-[.04em] text-primary-foreground sm:text-[11px]">
+      <div className="bg-secondary/35 px-5 py-2.5 text-center text-[10px] font-semibold tracking-[.04em] text-primary sm:text-[11px]">
         A considered starting point for your next international move <span className="ml-2 text-accent">·</span>
       </div>
 
@@ -648,17 +648,17 @@ function Home() {
 
       <main>
          <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
-          <div className="mx-auto grid max-w-[1240px] items-center gap-10 md:grid-cols-[.95fr_1.05fr] md:gap-12">
+          <div className="mx-auto grid max-w-[1240px] items-center gap-10 md:grid-cols-2 md:gap-16">
             <div className="reveal">
-                <h1 className="hero-title max-w-3xl font-display text-[clamp(2.75rem,4.65vw,4.65rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
-               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground">Discover • Access • Pursue</p>
+              <h1 className="hero-title max-w-3xl font-display text-[clamp(2.65rem,4.6vw,4.5rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
+              <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground md:text-xl">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <a href="#contact" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Book A Call <ArrowRight size={16} /></a>
               </div>
             </div>
-              <div className="reveal reveal-delay-1 relative mx-auto w-full max-w-[580px] md:mx-0 md:ml-auto">
+              <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-[560px] md:mx-0 md:ml-auto">
                <div className="hero-record-frame">
-                     <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="hero-record-photo w-full object-cover" />
+                      <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="aspect-[1.08] w-full rounded-[1rem] object-cover" />
                </div>
             </div>
           </div>
@@ -681,75 +681,68 @@ function Home() {
              </div>
            </section>
 
-          <section id="services" className="scroll-mt-24 bg-background px-5 py-16 md:px-10 md:py-24">
-            <div className="mx-auto max-w-[1240px]">
-              <div className="reveal">
-                <p className="section-kicker eyebrow text-accent">Our Services</p>
-                <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From Opportunity Discovery to Professional Support.</h2>
-              </div>
-              <div className="mt-14 grid gap-4 lg:grid-cols-3">
-                {services.map((service, index) => (
-                  <article key={service.slug} id={service.slug} className={`foundation-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-foreground transition-transform hover:-translate-y-1 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                    <span className="font-mono-ui text-xs text-primary">0{index + 1} / Service</span>
-                    <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
-                    <p className="mt-4 text-sm leading-7 text-muted-foreground">{service.description}</p>
-                    {service.offerings.length > 0 && (
-                      <ul className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
-                        {service.offerings.map((offering) => (
-                          <li key={offering} className="flex items-start gap-3">
-                            <Check size={15} className="mt-0.5 shrink-0 text-primary" />
-                            <span>{offering}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <div className="mt-auto pt-7">
-                      <a href={routePath(`/services#${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">Learn More <ArrowRight size={16} /></a>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-7 flex flex-wrap items-end justify-between gap-5 border-l-2 border-accent pl-5 text-foreground reveal">
-                <p className="max-w-3xl text-sm leading-7 text-muted-foreground">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
-                <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary/40 pb-2 text-sm font-bold text-primary transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
+             <section id="services" className="scroll-mt-24 bg-secondary/25 px-5 py-16 text-foreground md:px-10 md:py-24">
+          <div className="mx-auto max-w-[1240px]">
+             <div className="flex flex-wrap items-end justify-between gap-8">
+               <div className="reveal">
+                  <p className="section-kicker eyebrow text-accent">Our Services</p>
+                  <h2 className="mt-4 max-w-2xl font-display text-4xl leading-tight md:text-6xl">From Opportunity Discovery to Professional Support.</h2>
               </div>
             </div>
-          </section>
-
-          <section id="who-we-can-help" className="scroll-mt-24 bg-secondary/30 px-5 py-16 md:px-10 md:py-24">
-            <div className="mx-auto max-w-[1240px]">
-              <h2 className="section-kicker eyebrow text-accent reveal">Who We Can Help</h2>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {people.map(({ title, text, image, imageAlt }, index) => (
-                  <article key={title} className={`foundation-card grid min-h-[152px] grid-cols-[38%_minmax(0,1fr)] items-stretch overflow-hidden rounded-xl bg-background text-foreground transition-transform hover:-translate-y-0.5 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                    <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-full min-h-[152px] w-full object-cover" />
-                    <div className="flex min-w-0 flex-col justify-center p-4">
-                      <h3 className="text-sm font-bold leading-snug">{title}</h3>
-                      <p className="mt-2 text-xs leading-5 text-muted-foreground">{text}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <p className="mt-6 max-w-3xl text-sm leading-7 text-muted-foreground">
-                If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
-              </p>
-            </div>
-          </section>
-
-          <section id="how-we-begin" className="scroll-mt-24 bg-background px-5 py-16 md:px-10 md:py-20">
-            <div className="mx-auto grid max-w-[1240px] gap-8 md:grid-cols-[.7fr_1.3fr] md:items-center">
-              <div className="reveal">
-                <p className="section-kicker eyebrow text-accent">How We Begin</p>
-                <h2 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h2>
-              </div>
-              <div className="foundation-card rounded-[1.75rem] p-7 text-foreground md:p-9 reveal reveal-delay-1">
-                <ClipboardCheck className="text-primary" size={28} />
-                <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
-                <p className="mt-4 max-w-lg leading-7 text-muted-foreground">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
-                <div className="mt-7 grid gap-3 border-t border-border pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-primary" />{item}</span>)}</div>
-              </div>
-            </div>
-          </section>
+                <div className="mt-14 grid gap-4 lg:grid-cols-3">
+                  {services.map((service, index) => (
+                      <article key={service.slug} id={service.slug} className={`foundation-card flex flex-col scroll-mt-28 rounded-[1.25rem] bg-white p-6 text-foreground reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                       <span className="font-mono-ui text-xs text-primary">0{index + 1} / Service</span>
+                      <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
+                      <p className="mt-4 text-sm leading-7 text-muted-foreground">{service.description}</p>
+                      {service.offerings.length > 0 && (
+                        <ul className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
+                          {service.offerings.map((offering) => (
+                            <li key={offering} className="flex items-start gap-3">
+                              <Check size={15} className="mt-0.5 shrink-0 text-primary" />
+                              <span>{offering}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                        <div className="mt-auto pt-7">
+                          <a href={routePath(`/services/${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">Learn More <ArrowRight size={16} /></a>
+                        </div>
+                    </article>
+                  ))}
+                </div>
+                 <div className="mt-7 flex flex-wrap items-end justify-between gap-5 border-l-2 border-accent pl-5 reveal">
+                   <p className="max-w-3xl text-sm leading-7 text-muted-foreground">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
+                   <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary/40 pb-2 text-sm font-bold text-primary transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
+                 </div>
+                <div className="mt-16 rounded-3xl bg-white p-6 shadow-quiet md:p-9">
+                     <p className="section-kicker eyebrow text-primary reveal">Who We Can Help</p>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                     {people.map(({ title, text, image, imageAlt }, index) => (
+                        <article key={title} className={`grid min-h-[152px] grid-cols-[38%_minmax(0,1fr)] items-stretch overflow-hidden rounded-xl border border-border bg-background transition-colors hover:border-primary/35 reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                        <img src={assetPath(image)} alt={imageAlt} loading="lazy" decoding="async" className="h-full min-h-[152px] w-full object-cover" />
+                          <div className="flex min-w-0 flex-col justify-center p-4 text-foreground">
+                           <h3 className="text-sm font-bold leading-snug">{title}</h3>
+                            <p className="mt-2 text-xs leading-5 text-muted-foreground">{text}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                    <p className="mt-6 max-w-3xl text-sm leading-7 text-muted-foreground">
+                    If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
+                  </p>
+                </div>
+             <div className="mt-16 grid gap-8 rounded-3xl bg-white p-7 shadow-quiet md:grid-cols-[.7fr_1.3fr] md:items-center md:p-10">
+                 <div className="reveal"><p className="section-kicker eyebrow text-accent">How We Begin</p><h3 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h3></div>
+                 <div className="foundation-card rounded-[1.75rem] bg-background p-7 text-foreground md:p-9 reveal reveal-delay-1">
+                  <ClipboardCheck className="text-accent" size={28} />
+                  <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
+                   <p className="mt-4 max-w-lg leading-7 text-muted-foreground">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
+                   <div className="mt-7 grid gap-3 border-t border-border pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
+               </div>
+             </div>
+          </div>
+        </section>
 
           <section id="team" className="scroll-mt-24 bg-secondary/45 px-5 py-16 md:px-10 md:py-24">
              <div className="mx-auto max-w-[1240px]">
@@ -804,65 +797,33 @@ function Home() {
             </div>
           </section>
 
-          <section id="contact" className="scroll-mt-24 bg-secondary/30 px-5 py-16 text-foreground md:px-10 md:py-20">
-            <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
-              <div className="reveal">
-                <p className="section-kicker eyebrow text-accent">Contact the Team</p>
-                <h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2>
-                <p className="mt-6 max-w-md leading-7 text-muted-foreground">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement.</p>
-                <div className="mt-8 grid gap-4 text-sm font-semibold">
-                  <a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 transition-colors hover:text-primary"><Mail size={15} /> info@provisawriters.com</a>
-                  <a href="tel:+2348160550258" className="inline-flex items-center gap-2 transition-colors hover:text-primary"><MessageCircle size={15} /> +234 816 055 0258</a>
-                  <a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-border pb-2 transition-colors hover:text-primary"><MessageCircle size={15} /> Chat on WhatsApp</a>
-                  <a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-primary" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a>
-                  <a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 transition-colors hover:text-primary" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a>
-                </div>
-              </div>
-              <div className="foundation-card rounded-[1.75rem] bg-background p-7 text-foreground md:p-9 reveal reveal-delay-1">
-                {submitted ? (
-                  <div className="flex min-h-[300px] flex-col justify-center">
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span>
-                    <h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3>
-                    <p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p>
-                    <button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button>
-                  </div>
-                ) : (
-                  <form onSubmit={submitContact} className="grid gap-5">
-                    <div>
-                      <label htmlFor="name" className="eyebrow text-primary">Your name</label>
-                      <input id="name" required name="name" autoComplete="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="eyebrow text-primary">Email address</label>
-                      <input id="email" required type="email" name="email" autoComplete="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" />
-                    </div>
-                    <div>
-                      <label htmlFor="service" className="eyebrow text-primary">Service interested in</label>
-                      <input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" />
-                    </div>
-                    <div>
-                      <label htmlFor="question" className="eyebrow text-primary">Question</label>
-                      <textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Briefly describe what you need." />
-                    </div>
-                    <button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button>
-                  </form>
-                )}
-              </div>
+           <section id="contact" className="scroll-mt-24 bg-background px-5 py-16 text-foreground md:px-10 md:py-20">
+          <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
+              <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement.</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary/40 pb-2 text-primary transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a></div></div>
+            <div className="rounded-[1.75rem] bg-white p-7 text-foreground shadow-quiet md:p-9 reveal reveal-delay-1">
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5">
+                <div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div>
+                <div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div>
+                <div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div>
+                <div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Brief description of what you need." /></div>
+                <button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button>
+              </form>}
             </div>
-          </section>
+          </div>
+        </section>
       </main>
 
        <FieldGuideSidebar open={sidebarOpen} tab={sidebarTab} posts={posts} onClose={() => setSidebarOpen(false)} onTabChange={setSidebarTab} />
-       <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
+        <footer className="border-t border-border bg-secondary/25 px-5 pb-10 text-muted-foreground md:px-10">
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. Company details placeholder.</span></div>
-             <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
+              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-muted-foreground">
               {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
-                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
-                : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
-              <span className="font-bold text-primary-foreground">Legal</span>
+                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary">{item.label}</button>
+                : <a key={item.href} href={item.href} className="transition-colors hover:text-primary">{item.label}</a>)}
+              <span className="font-bold text-foreground">Legal</span>
               {legalDocuments.map((document) => (
-                <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">
+                <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary">
                   {document.title === 'Privacy Policy' ? 'Privacy Policy' : document.title === 'Terms of Use' ? 'Terms of Use' : 'Disclaimer'}
                 </a>
               ))}
@@ -908,9 +869,12 @@ function ServicesOverviewPage() {
                 <p className="section-kicker eyebrow text-accent">Service 0{index + 1}</p>
                 <h2 className="mt-4 font-display text-3xl leading-tight md:text-5xl">{service.title}</h2>
                 <p className="mt-5 text-sm leading-7 text-muted-foreground md:text-base">{service.description}</p>
-                <a href={routePath('/#contact')} className="mt-7 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
-                  Ask about this service <ArrowRight size={16} />
-                </a>
+                <div className="mt-7 flex flex-wrap items-center gap-4">
+                  <a href={routePath(`/services/${service.slug}`)} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+                    Learn more <ArrowRight size={16} />
+                  </a>
+                  <a href={routePath('/#contact')} className="text-sm font-bold text-primary transition-colors hover:text-accent">Ask about this service</a>
+                </div>
               </div>
               <div className="reveal reveal-delay-1">
                 <div className="space-y-5 text-sm leading-8 text-muted-foreground md:text-base">
@@ -931,12 +895,12 @@ function ServicesOverviewPage() {
             </div>
           </section>
         ))}
-        <section className="bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
+        <section className="bg-secondary/35 px-5 py-16 text-foreground md:px-10 md:py-20">
           <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-8">
             <div>
               <p className="section-kicker eyebrow text-accent">Start a Conversation</p>
               <h2 className="mt-4 max-w-2xl font-display text-3xl md:text-5xl">Not sure which service fits your goals?</h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/75">Tell us what you are working toward, and we can discuss a suitable next step.</p>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">Tell us what you are working toward, and we can discuss a suitable next step.</p>
             </div>
             <a href={routePath('/#contact')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">
               Contact the team <ArrowRight size={16} />
@@ -944,12 +908,12 @@ function ServicesOverviewPage() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary px-5 py-8 text-primary-foreground/80 md:px-10">
+        <footer className="border-t border-border bg-background px-5 py-8 text-muted-foreground md:px-10">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
           <span>© 2026 Provisa Writers Ltd.</span>
           <nav aria-label="Legal information" className="flex flex-wrap gap-x-5 gap-y-3">
             {legalDocuments.map((document) => (
-              <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">{document.title}</a>
+              <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary">{document.title}</a>
             ))}
           </nav>
         </div>
@@ -979,11 +943,11 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
         <section className="border-b border-border bg-secondary/35 px-5 py-16 md:px-10 md:py-24">
           <div className="mx-auto max-w-[1240px]">
             <p className="section-kicker eyebrow text-accent">Service 0{serviceNumber}</p>
-            <h1 className="mt-5 max-w-4xl font-display text-4xl leading-[1.02] tracking-[-.04em] md:text-6xl">{service.title}</h1>
+            <h1 className="mt-5 max-w-4xl font-display text-4xl leading-[1.02] tracking-[-.04em] md:text-6xl">{service.detailHeadline}</h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">{service.detail}</p>
             <div className="mt-9 flex flex-wrap gap-4">
               <a href={routePath('/#contact')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
-                Discuss this service <ArrowRight size={16} />
+                {service.detailCta} <ArrowRight size={16} />
               </a>
               <a href={routePath('/services')} className="inline-flex min-h-12 items-center gap-2 border-b border-border px-1 text-sm font-bold text-primary transition-colors hover:text-accent">
                 All services
@@ -991,29 +955,68 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
             </div>
           </div>
         </section>
-        {service.detailSections.map((section, index) => (
-          <section key={section.title} id={`service-focus-${index + 1}`} className="scroll-mt-24 border-b border-border bg-background px-5 py-16 md:px-10 md:py-24">
-            <div className="mx-auto grid max-w-[1240px] items-start gap-10 md:grid-cols-[.9fr_1.1fr] md:gap-16">
-              <div>
-                <p className="section-kicker eyebrow text-accent">{section.title}</p>
-                <h2 className="mt-4 font-display text-3xl leading-tight md:text-5xl">{section.headline}</h2>
-                <div className="mt-6 max-w-2xl space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
-                  {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-                </div>
-                {section.audience && (
-                  <div className="mt-8 border-l-2 border-primary/35 pl-5">
-                    <h3 className="eyebrow text-primary">Who is it for?</h3>
-                    <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">{section.audience}</p>
-                  </div>
-                )}
+        <section id="service-details" className="bg-secondary/20 px-5 py-16 md:px-10 md:py-24">
+          {service.subservices.length > 0 ? (
+            <div className="mx-auto max-w-[1240px]">
+              <p className="section-kicker eyebrow text-accent">U.S. Skilled Worker Migration</p>
+              <h2 className="mt-4 max-w-3xl font-display text-3xl leading-tight md:text-4xl">Support for your next professional step.</h2>
+              <div className="mt-9 grid gap-6">
+                {service.subservices.map((subservice, index) => (
+                  <article key={subservice.title} id={`pathway-${index + 1}`} className="foundation-card rounded-3xl bg-white p-6 shadow-quiet md:p-9">
+                    <p className="eyebrow text-primary">0{index + 1} / {subservice.title}</p>
+                    <h3 className="mt-4 font-display text-2xl leading-tight md:text-4xl">{subservice.headline}</h3>
+                    <div className="mt-5 space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
+                      {subservice.overview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                    </div>
+                    <div className="mt-7 grid gap-8 border-t border-border pt-7 md:grid-cols-[1.1fr_.9fr]">
+                      <div>
+                        <h4 className="font-display text-xl">{subservice.listHeading}</h4>
+                        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                          {subservice.listItems.map((item) => (
+                            <li key={item} className="flex items-start gap-3 text-sm leading-6">
+                              <Check size={16} className="mt-1 shrink-0 text-accent" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <aside className="rounded-2xl bg-background p-5">
+                        <h4 className="eyebrow text-primary">{subservice.audienceHeading}</h4>
+                        <p className="mt-3 text-sm leading-7 text-muted-foreground">{subservice.audience}</p>
+                      </aside>
+                    </div>
+                    <a href={routePath('/#contact')} className="mt-7 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+                      {subservice.cta} <ArrowRight size={16} />
+                    </a>
+                  </article>
+                ))}
               </div>
-              <div className="foundation-card rounded-[1.5rem] bg-background p-6 md:p-8">
-                {section.items.length > 0 && (
-                  <div>
-                    <h3 className="font-display text-xl">{section.itemsHeading}</h3>
-                    <ul className="mt-5 divide-y divide-border border-y border-border">
-                      {section.items.map((item) => (
-                        <li key={item} className="flex items-start gap-3 py-3 text-sm leading-6">
+            </div>
+          ) : (
+            <div className="mx-auto grid max-w-[1240px] gap-10 md:grid-cols-[.8fr_1.2fr]">
+              <div className="reveal">
+                <p className="section-kicker eyebrow text-accent">What We Support</p>
+                <h2 className="mt-4 font-display text-3xl leading-tight md:text-4xl">A clear next step for your goals.</h2>
+                <div className="mt-6 space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
+                  {service.overview.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                </div>
+              </div>
+              <article className="foundation-card rounded-3xl bg-white p-6 shadow-quiet md:p-9 reveal reveal-delay-1">
+                <h3 className="font-display text-2xl">Opportunities and application support</h3>
+                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {service.offerings.map((offering) => (
+                    <li key={offering} className="flex items-start gap-3 border-b border-border/70 py-3 text-sm leading-6">
+                      <Check size={16} className="mt-1 shrink-0 text-accent" />
+                      <span>{offering}</span>
+                    </li>
+                  ))}
+                </ul>
+                {service.support.length > 0 && (
+                  <div className="mt-7 border-t border-border pt-6">
+                    <h4 className="font-display text-xl">{service.supportHeading}</h4>
+                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {service.support.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-sm leading-6">
                           <Check size={16} className="mt-1 shrink-0 text-primary" />
                           <span>{item}</span>
                         </li>
@@ -1021,38 +1024,17 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
                     </ul>
                   </div>
                 )}
-                {section.additionalItems.length > 0 && (
-                  <div className="mt-7">
-                    <h3 className="font-display text-xl">{section.additionalHeading}</h3>
-                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                      {section.additionalItems.map((item) => (
-                        <li key={item} className="flex items-start gap-3 text-sm leading-6 text-muted-foreground">
-                          <Check size={15} className="mt-1 shrink-0 text-primary" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <a href={routePath('/#contact')} className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
-                  {section.ctaLabel} <ArrowRight size={16} />
-                </a>
-              </div>
+              </article>
             </div>
-          </section>
-        ))}
-        {service.detailNote && (
-          <section className="bg-secondary/30 px-5 py-8 md:px-10">
-            <p className="mx-auto max-w-[1240px] text-xs leading-6 text-muted-foreground">{service.detailNote}</p>
-          </section>
-        )}
+          )}
+        </section>
       </main>
-      <footer className="bg-primary px-5 py-8 text-primary-foreground/80 md:px-10">
+      <footer className="border-t border-border bg-background px-5 py-8 text-muted-foreground md:px-10">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
           <span>© 2026 Provisa Writers Ltd.</span>
           <nav aria-label="Legal information" className="flex flex-wrap gap-x-5 gap-y-3">
             {legalDocuments.map((document) => (
-              <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">{document.title}</a>
+              <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary">{document.title}</a>
             ))}
           </nav>
         </div>
@@ -1829,19 +1811,18 @@ function SiteExperienceControls({ isAdminRoute = false }: { isAdminRoute?: boole
   }, []);
 
   if (isAdminRoute) return null;
+  if (!showScrollTop) return null;
 
   return (
-    <div className="fixed bottom-5 right-3 z-50 flex flex-col items-end gap-3 sm:right-5">
-      {showScrollTop && (
-        <button
-          type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1"
-          aria-label="Back to top"
-        >
-          <ArrowUp size={18} />
-        </button>
-      )}
+    <div className="fixed bottom-5 right-3 z-50 sm:right-5">
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground shadow-2xl transition-transform hover:-translate-y-1"
+        aria-label="Back to top"
+      >
+        <ArrowUp size={18} />
+      </button>
     </div>
   );
 }
