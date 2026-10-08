@@ -141,12 +141,12 @@ const services = serviceCatalog;
 
 const people = [
   { title: 'Healthcare & Life Sciences', text: 'Healthcare, life-science and public-health professionals.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
-  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-lab-generated.webp', imageAlt: 'A scientist conducting research at a laboratory bench' },
+  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-generated.webp', imageAlt: 'An engineer studying an electronics prototype in a lab' },
   { title: 'Academia, Education & Research', text: 'Educators, academics and research professionals.', image: '/stock/who-we-can-help/academia-generated.webp', imageAlt: 'A professor researching in a university library' },
   { title: 'Business & Finance', text: 'Business leaders, economists and finance professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
-  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists and professional consultants.', image: '/stock/who-we-can-help/law-barrister-generated.webp', imageAlt: 'A barrister in a traditional wig reviewing case papers at a desk' },
-  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-painter-generated.webp', imageAlt: 'A painter working at an easel in a studio' },
-  { title: 'Social Sciences & Public Impact', text: 'Social researchers and leaders advancing public impact.', image: '/stock/who-we-can-help/social-impact-fieldwork-generated.webp', imageAlt: 'A social-impact researcher taking notes during a community roundtable' },
+  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists and professional consultants.', image: '/stock/who-we-can-help/law-policy-generated.webp', imageAlt: 'A lawyer reviewing a professional file in an office' },
+  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-media-generated.webp', imageAlt: 'A creative professional with a camera in a studio' },
+  { title: 'Social Sciences & Public Impact', text: 'Social researchers and leaders advancing public impact.', image: '/stock/who-we-can-help/social-impact-generated.webp', imageAlt: 'A community development professional listening at a local roundtable' },
 ];
 
 const founderProfile = {
