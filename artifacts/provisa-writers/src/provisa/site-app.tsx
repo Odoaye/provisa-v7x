@@ -479,6 +479,47 @@ function FounderPage() {
   );
 }
 
+const visaSlides = [
+  { image: '/provisa-arrivals-hero.webp', alt: 'A professional arriving at an airport holding a passport beside the arrivals sign' },
+  { image: '/provisa-global-opportunities.webp', alt: 'Placeholder image for international professional opportunities' },
+  { image: '/stock/who-we-can-help/business-finance-generated.webp', alt: 'A finance executive reviewing a laptop and reports' },
+];
+
+function VisaSupportSlideshow() {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const showSlide = (direction: number) => setActiveSlide((current) => (
+    (current + direction + visaSlides.length) % visaSlides.length
+  ));
+
+  return (
+    <div className="mb-12 reveal">
+      <div className="overflow-hidden rounded-[1.5rem] bg-background shadow-quiet">
+        <img
+          key={visaSlides[activeSlide].image}
+          src={assetPath(visaSlides[activeSlide].image)}
+          alt={visaSlides[activeSlide].alt}
+          className="h-64 w-full object-cover md:h-[360px]"
+        />
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <p className="section-kicker eyebrow text-primary">Visa Application Support</p>
+        <div className="flex items-center gap-2">
+          <span className="mr-2 text-xs text-muted-foreground" aria-live="polite">
+            {String(activeSlide + 1).padStart(2, '0')} / {String(visaSlides.length).padStart(2, '0')}
+          </span>
+          <button type="button" onClick={() => showSlide(-1)} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-background text-primary transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Previous visa support image"><ChevronLeft size={18} /></button>
+          <button type="button" onClick={() => showSlide(1)} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-background text-primary transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Next visa support image"><ChevronRight size={18} /></button>
+        </div>
+      </div>
+      <div className="mt-3 flex justify-center gap-2" aria-label="Choose a visa support image">
+        {visaSlides.map((slide, index) => (
+          <button key={slide.image} type="button" onClick={() => setActiveSlide(index)} aria-label={`Show visa support image ${index + 1}`} aria-current={activeSlide === index ? 'true' : undefined} className={`h-2.5 rounded-full transition-all ${activeSlide === index ? 'w-8 bg-primary' : 'w-2.5 bg-border hover:bg-primary/50'}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Home() {
   useScrollReveals();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -656,7 +697,7 @@ function Home() {
                 <a href="#contact" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Book A Call <ArrowRight size={16} /></a>
               </div>
             </div>
-              <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-[560px] md:mx-0 md:ml-auto">
+              <div className="reveal reveal-delay-2 relative w-full">
                <div className="hero-record-frame">
                       <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="aspect-[1.08] w-full rounded-[1rem] object-cover" />
                </div>
@@ -715,7 +756,12 @@ function Home() {
                    <p className="max-w-3xl text-sm leading-7 text-muted-foreground">We operate across two connected areas: helping professionals find relevant global opportunities and helping them secure those global opportunities.</p>
                    <a href="#contact" className="inline-flex items-center gap-2 border-b border-primary/40 pb-2 text-sm font-bold text-primary transition-colors hover:text-accent">Start a conversation <ArrowRight size={16} /></a>
                  </div>
-                <div className="mt-16 rounded-3xl bg-white p-6 shadow-quiet md:p-9">
+
+          </div>
+          <div className="-mx-5 mt-16 bg-background px-5 py-14 text-foreground md:-mx-10 md:px-10 md:py-16">
+            <div className="mx-auto max-w-[1240px]">
+              <VisaSupportSlideshow />
+                <div className="border-t border-border pt-10">
                      <p className="section-kicker eyebrow text-primary reveal">Who We Can Help</p>
                   <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                      {people.map(({ title, text, image, imageAlt }, index) => (
@@ -732,15 +778,20 @@ function Home() {
                     If your profession is not listed, get in touch to discuss how Provisa may support your international goals.
                   </p>
                 </div>
-             <div className="mt-16 grid gap-8 rounded-3xl bg-white p-7 shadow-quiet md:grid-cols-[.7fr_1.3fr] md:items-center md:p-10">
+            </div>
+          </div>
+          <div className="-mx-5 bg-primary px-5 py-16 text-primary-foreground md:-mx-10 md:px-10 md:py-20">
+            <div className="mx-auto max-w-[1240px]">
+             <div className="grid gap-8 md:grid-cols-[.7fr_1.3fr] md:items-center">
                  <div className="reveal"><p className="section-kicker eyebrow text-accent">How We Begin</p><h3 className="mt-4 font-display text-4xl">No Grand Promises. Just a Better Next Conversation.</h3></div>
-                 <div className="foundation-card rounded-[1.75rem] bg-background p-7 text-foreground md:p-9 reveal reveal-delay-1">
+                 <div className="glass-card rounded-[1.75rem] p-7 text-primary-foreground md:p-9 reveal reveal-delay-1">
                   <ClipboardCheck className="text-accent" size={28} />
                   <h3 className="mt-6 font-display text-3xl">The Profile Assessment</h3>
-                   <p className="mt-4 max-w-lg leading-7 text-muted-foreground">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
-                   <div className="mt-7 grid gap-3 border-t border-border pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
+                   <p className="mt-4 max-w-lg leading-7 text-primary-foreground/70">A short intake helps us understand your work, recognition, documentation and the question you are really trying to answer.</p>
+                   <div className="mt-7 grid gap-3 border-t border-primary-foreground/15 pt-5 text-sm sm:grid-cols-3">{['Your context', 'Your evidence', 'Your next step'].map((item) => <span key={item} className="flex items-center gap-2 font-semibold"><Check size={15} className="text-accent" />{item}</span>)}</div>
                </div>
              </div>
+            </div>
           </div>
         </section>
 
@@ -797,7 +848,7 @@ function Home() {
             </div>
           </section>
 
-           <section id="contact" className="scroll-mt-24 bg-background px-5 py-16 text-foreground md:px-10 md:py-20">
+           <section id="contact" className="scroll-mt-24 bg-primary px-5 py-16 text-primary-foreground md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
               <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement.</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary/40 pb-2 text-primary transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a><a href="https://www.linkedin.com/company/provisa-writers-ltd-086111367/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a></div></div>
             <div className="rounded-[1.75rem] bg-white p-7 text-foreground shadow-quiet md:p-9 reveal reveal-delay-1">
