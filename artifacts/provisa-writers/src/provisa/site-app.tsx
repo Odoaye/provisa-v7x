@@ -732,22 +732,22 @@ function Home() {
             </div>
                 <div className="mt-14 grid gap-4 lg:grid-cols-3">
                   {services.map((service, index) => (
-                      <article key={service.slug} id={service.slug} className={`foundation-card flex flex-col scroll-mt-28 rounded-[1.25rem] bg-white p-6 text-foreground reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
-                       <span className="font-mono-ui text-xs text-primary">0{index + 1} / Service</span>
+                      <article key={service.slug} id={service.slug} className={`glass-card flex flex-col scroll-mt-28 rounded-[1.25rem] p-6 text-primary-foreground reveal ${index === 1 ? 'reveal-delay-1' : index > 1 ? 'reveal-delay-2' : ''}`}>
+                       <span className="font-mono-ui text-xs text-primary-foreground/65">0{index + 1} / Service</span>
                       <h3 className="mt-8 font-display text-2xl leading-tight">{service.title}</h3>
-                      <p className="mt-4 text-sm leading-7 text-muted-foreground">{service.description}</p>
+                      <p className="mt-4 text-sm leading-7 text-primary-foreground/75">{service.description}</p>
                       {service.offerings.length > 0 && (
-                        <ul className="mt-6 space-y-3 border-t border-border pt-5 text-sm">
+                        <ul className="mt-6 space-y-3 border-t border-primary-foreground/20 pt-5 text-sm">
                           {service.offerings.map((offering) => (
                             <li key={offering} className="flex items-start gap-3">
-                              <Check size={15} className="mt-0.5 shrink-0 text-primary" />
+                              <Check size={15} className="mt-0.5 shrink-0 text-accent" />
                               <span>{offering}</span>
                             </li>
                           ))}
                         </ul>
                       )}
                         <div className="mt-auto pt-7">
-                          <a href={routePath(`/services/${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">Learn More <ArrowRight size={16} /></a>
+                          <a href={routePath(`/services/${service.slug}`)} aria-label={`Learn more about ${service.title}`} className="inline-flex items-center gap-2 text-sm font-bold text-accent transition-colors hover:text-primary-foreground">Learn More <ArrowRight size={16} /></a>
                         </div>
                     </article>
                   ))}
@@ -865,16 +865,16 @@ function Home() {
       </main>
 
        <FieldGuideSidebar open={sidebarOpen} tab={sidebarTab} posts={posts} onClose={() => setSidebarOpen(false)} onTabChange={setSidebarTab} />
-        <footer className="border-t border-border bg-secondary/25 px-5 pb-10 text-muted-foreground md:px-10">
+        <footer className="border-t border-primary-foreground/15 bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. Company details placeholder.</span></div>
-              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-muted-foreground">
+              <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
               {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
-                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary">{item.label}</button>
-                : <a key={item.href} href={item.href} className="transition-colors hover:text-primary">{item.label}</a>)}
-              <span className="font-bold text-foreground">Legal</span>
+                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
+                : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
+              <span className="font-bold text-primary-foreground">Legal</span>
               {legalDocuments.map((document) => (
-                <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary">
+                <a key={document.slug} href={routePath(`/legal/${document.slug}`)} className="transition-colors hover:text-primary-foreground">
                   {document.title === 'Privacy Policy' ? 'Privacy Policy' : document.title === 'Terms of Use' ? 'Terms of Use' : 'Disclaimer'}
                 </a>
               ))}
