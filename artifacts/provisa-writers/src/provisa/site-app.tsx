@@ -710,7 +710,7 @@ function Home() {
          <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
           <div className="mx-auto grid max-w-[1240px] items-center gap-10 md:grid-cols-2 md:gap-16">
             <div className="reveal">
-              <h1 className="hero-title max-w-3xl font-display text-[clamp(2.65rem,4.6vw,4.5rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
+              <h1 className="hero-title max-w-3xl font-display text-[clamp(2.75rem,5vw,5rem)] leading-[.96] tracking-[-.05em]">Connecting <span className="text-accent">Professionals to Global Opportunities</span></h1>
               <p className="mt-8 max-w-lg text-lg font-bold leading-8 text-foreground md:text-xl">Discover • Access • Pursue</p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <a href="#contact" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Book A Call <ArrowRight size={16} /></a>
