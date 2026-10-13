@@ -22,8 +22,10 @@ import {
   LogOut,
   Mail,
   Menu,
+  Pause,
   MessageCircle,
   Pencil,
+  Play,
   Plus,
   Sparkles,
   Trash2,
@@ -480,33 +482,50 @@ function FounderPage() {
 }
 
 const visaSlides = [
-  { image: '/provisa-arrivals-hero.webp', alt: 'A professional arriving at an airport holding a passport beside the arrivals sign' },
-  { image: '/provisa-global-opportunities.webp', alt: 'Placeholder image for international professional opportunities' },
-  { image: '/stock/who-we-can-help/business-finance-generated.webp', alt: 'A finance executive reviewing a laptop and reports' },
+  { image: '/provisa-slide-career-paths.jpg', alt: 'A professional travelling through international education, research, and career opportunities', width: 1280, height: 853 },
+  { image: '/provisa-slide-global-scholarship.jpg', alt: 'Graduate receiving recognition at a global scholarship ceremony', width: 1280, height: 720 },
+  { image: '/provisa-slide-graduate.jpg', alt: 'Graduate holding a diploma with international opportunities in the background', width: 1280, height: 720 },
+  { image: '/provisa-slide-research-grant.jpg', alt: 'Researcher receiving recognition at an international grant event', width: 1280, height: 853 },
+  { image: '/provisa-slide-conference.jpg', alt: 'Professional speaking at an international conference', width: 1280, height: 720 },
 ];
 
 function VisaSupportSlideshow() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [autoplayPaused, setAutoplayPaused] = useState(false);
+  useEffect(() => {
+    if (autoplayPaused) return;
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % visaSlides.length);
+    }, 1500);
+    return () => window.clearInterval(timer);
+  }, [autoplayPaused]);
+
   const showSlide = (direction: number) => setActiveSlide((current) => (
     (current + direction + visaSlides.length) % visaSlides.length
   ));
 
   return (
-    <div className="mb-12 reveal">
+    <div className="mb-12 reveal" role="region" aria-label="Visa support image slideshow" aria-roledescription="carousel">
       <div className="overflow-hidden rounded-[1.5rem] bg-background shadow-quiet">
         <img
           key={visaSlides[activeSlide].image}
           src={assetPath(visaSlides[activeSlide].image)}
           alt={visaSlides[activeSlide].alt}
+          width={visaSlides[activeSlide].width}
+          height={visaSlides[activeSlide].height}
+          loading="lazy"
           className="h-64 w-full object-cover md:h-[360px]"
         />
       </div>
       <div className="mt-4 flex items-center justify-between gap-4">
         <p className="section-kicker eyebrow text-primary">Visa Application Support</p>
         <div className="flex items-center gap-2">
-          <span className="mr-2 text-xs text-muted-foreground" aria-live="polite">
+          <span className="mr-2 text-xs text-muted-foreground" aria-live={autoplayPaused ? 'polite' : 'off'}>
             {String(activeSlide + 1).padStart(2, '0')} / {String(visaSlides.length).padStart(2, '0')}
           </span>
+          <button type="button" onClick={() => setAutoplayPaused((paused) => !paused)} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-background text-primary transition-colors hover:bg-primary hover:text-primary-foreground" aria-label={autoplayPaused ? 'Resume slideshow' : 'Pause slideshow'}>
+            {autoplayPaused ? <Play size={16} /> : <Pause size={16} />}
+          </button>
           <button type="button" onClick={() => showSlide(-1)} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-background text-primary transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Previous visa support image"><ChevronLeft size={18} /></button>
           <button type="button" onClick={() => showSlide(1)} className="grid h-10 w-10 place-items-center rounded-full border border-border bg-background text-primary transition-colors hover:bg-primary hover:text-primary-foreground" aria-label="Next visa support image"><ChevronRight size={18} /></button>
         </div>
@@ -697,7 +716,7 @@ function Home() {
                 <a href="#contact" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">Book A Call <ArrowRight size={16} /></a>
               </div>
             </div>
-              <div className="reveal reveal-delay-2 relative w-full">
+              <div className="reveal reveal-delay-2 relative w-full md:w-[90%] md:justify-self-end">
                <div className="hero-record-frame">
                       <img src={assetPath('/provisa-arrivals-hero.webp')} alt="A professional arriving at an airport holding a passport beside the arrivals sign" className="aspect-[1.08] w-full rounded-[1rem] object-cover" />
                </div>
