@@ -496,7 +496,7 @@ function VisaSupportSlideshow() {
     if (autoplayPaused) return;
     const timer = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % visaSlides.length);
-    }, 1500);
+    }, 3000);
     return () => window.clearInterval(timer);
   }, [autoplayPaused]);
 
