@@ -143,11 +143,11 @@ const services = serviceCatalog;
 
 const people = [
   { title: 'Healthcare & Life Sciences', text: 'Healthcare, life-science and public-health professionals.', image: '/stock/who-we-can-help/healthcare-generated.webp', imageAlt: 'A physician reviewing research notes in a modern clinic' },
-  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-generated.webp', imageAlt: 'An engineer studying an electronics prototype in a lab' },
+  { title: 'Science, Engineering & Technology', text: 'Scientists, engineers, technologists and innovators.', image: '/stock/who-we-can-help/science-technology-client.jpg', imageAlt: 'A scientist in a white lab coat examining conical flasks in a laboratory' },
   { title: 'Academia, Education & Research', text: 'Educators, academics and research professionals.', image: '/stock/who-we-can-help/academia-generated.webp', imageAlt: 'A professor researching in a university library' },
   { title: 'Business & Finance', text: 'Business leaders, economists and finance professionals.', image: '/stock/who-we-can-help/business-finance-generated.webp', imageAlt: 'A finance executive reviewing a laptop and reports' },
-  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists and professional consultants.', image: '/stock/who-we-can-help/law-policy-generated.webp', imageAlt: 'A lawyer reviewing a professional file in an office' },
-  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-media-generated.webp', imageAlt: 'A creative professional with a camera in a studio' },
+  { title: 'Law, Policy & Professional Services', text: 'Lawyers, policy specialists and professional consultants.', image: '/stock/who-we-can-help/law-policy-client.jpg', imageAlt: 'A barrister in a traditional gown and wig' },
+  { title: 'Arts, Media, Communications & Creative Industries', text: 'Artists, writers, designers and media professionals.', image: '/stock/who-we-can-help/arts-media-client.jpg', imageAlt: 'An artist viewing paintings in a contemporary art gallery' },
   { title: 'Social Sciences & Public Impact', text: 'Social researchers and leaders advancing public impact.', image: '/stock/who-we-can-help/social-impact-generated.webp', imageAlt: 'A community development professional listening at a local roundtable' },
 ];
 
@@ -387,6 +387,9 @@ function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; ind
 
   return (
     <article className={`rounded-[1.25rem] border border-border bg-background p-6 md:p-8 reveal ${delayClass}`}>
+      {testimonial.attribution && (
+        <h3 className="mb-4 font-display text-lg leading-snug md:text-xl">{testimonial.attribution}</h3>
+      )}
       {testimonial.image && (
         <img
           src={assetPath(testimonial.image)}
@@ -395,9 +398,6 @@ function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; ind
           decoding="async"
           className="mx-auto mb-5 max-h-48 w-full rounded-lg bg-secondary/30 object-contain"
         />
-      )}
-      {testimonial.attribution && (
-        <h3 className="font-display text-lg leading-snug md:text-xl">{testimonial.attribution}</h3>
       )}
       {testimonial.quote && (
         <blockquote className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground md:text-base">
