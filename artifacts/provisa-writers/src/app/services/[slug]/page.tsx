@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteApp from "@/provisa/site-app";
 import { getServiceBySlug, serviceCatalog } from "@/provisa/service-catalog";
+import { createPageMetadata } from "@/provisa/seo";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,11 +20,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!service) return { title: "Service | Provisa Writers" };
 
   const title = `${service.title} | Provisa Writers`;
-  return {
+  return createPageMetadata({
     title,
     description: service.detail,
-    openGraph: { title, description: service.detail, type: "website" },
-  };
+    path: `/services/${service.slug}`,
+  });
 }
 
 export default async function ServicePage({ params }: PageProps) {

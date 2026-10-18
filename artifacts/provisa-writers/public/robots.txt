@@ -1,2 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /pwadmin
+Disallow: /provisa-api
+
+Sitemap: https://www.provisawriters.com/sitemap.xml

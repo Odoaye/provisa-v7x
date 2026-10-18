@@ -1,15 +1,11 @@
-import type { Metadata } from "next";
 import SiteApp from "@/provisa/site-app";
+import { createPageMetadata } from "@/provisa/seo";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Testimonials | Provisa Writers",
   description: "Read testimonials shared by professionals who have worked with Provisa Writers.",
-  openGraph: {
-    title: "Testimonials | Provisa Writers",
-    description: "Read testimonials shared by professionals who have worked with Provisa Writers.",
-    type: "website",
-  },
-};
+  path: "/testimonials",
+});
 
 export default function TestimonialsPage() {
   return <SiteApp initialPath="/testimonials" />;

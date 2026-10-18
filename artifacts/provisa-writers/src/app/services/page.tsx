@@ -1,15 +1,12 @@
-import type { Metadata } from "next";
 import SiteApp from "@/provisa/site-app";
+import { createPageMetadata } from "@/provisa/seo";
 
-const title = "Our Services | Provisa Writers";
-const description =
-  "Explore Provisa Writers' global opportunities consulting, U.S. skilled worker migration, and visa application support.";
-
-export const metadata: Metadata = {
-  title,
-  description,
-  openGraph: { title, description, type: "website" },
-};
+export const metadata = createPageMetadata({
+  title: "Professional Profile & Visa Services | Provisa Writers",
+  description:
+    "Explore Provisa Writers' global opportunities consulting, U.S. skilled worker migration support, and visa application assistance.",
+  path: "/services",
+});
 
 export default function ServicesPage() {
   return <SiteApp initialPath="/services" />;

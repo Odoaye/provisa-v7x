@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteApp from "@/provisa/site-app";
 import { getLegalDocumentBySlug, legalDocuments } from "@/provisa/legal-content";
+import { createPageMetadata } from "@/provisa/seo";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -19,11 +20,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!document) return { title: "Legal Information | Provisa Writers" };
 
   const title = `${document.title} | Provisa Writers`;
-  return {
+  return createPageMetadata({
     title,
     description: document.summary,
-    openGraph: { title, description: document.summary, type: "website" },
-  };
+    path: `/legal/${document.slug}`,
+  });
 }
 
 export default async function LegalDocumentPage({ params }: PageProps) {
