@@ -25,7 +25,7 @@ export const legalDocuments = [
       {
         heading: "Website operation and service providers",
         paragraphs: [
-          "The site uses an essential session cookie for the protected administrator area. The current site code does not include advertising pixels or analytics tracking.",
+          "The site uses an essential session cookie for the protected administrator area. The site uses Vercel Web Analytics to count page views and visits in aggregate. The current site code does not include advertising pixels.",
           "Vercel provides website hosting and image storage. Supabase stores the site’s published content, such as articles, team profiles, founder information, and testimonials. Google Fonts is used to load the site’s typefaces. These providers may process technical information needed to deliver or secure their services.",
         ],
       },

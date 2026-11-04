@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "@/provisa/globals.css";
 import { siteOrigin } from "@/provisa/seo";
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s",
   },
   description:
-    "Provisa Writers helps professionals prepare clear career profiles and visa application materials for international opportunities.",
+    "Connecting you to international opportunities and pathways that help you grow your career, advance your ambitions, and explore global mobility.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: "/favicon.svg",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Professional Profile & Visa Support | Provisa Writers",
     description:
-      "Provisa Writers helps professionals prepare clear career profiles and visa application materials for international opportunities.",
+      "Connecting you to international opportunities and pathways that help you grow your career, advance your ambitions, and explore global mobility.",
     url: "/",
     siteName: "Provisa Writers",
     type: "website",
@@ -26,10 +27,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Professional Profile & Visa Support | Provisa Writers",
     description:
-      "Provisa Writers helps professionals prepare clear career profiles and visa application materials for international opportunities.",
+      "Connecting you to international opportunities and pathways that help you grow your career, advance your ambitions, and explore global mobility.",
   },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}<Analytics /></body></html>;
 }
