@@ -471,9 +471,9 @@ function FounderPage() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
+      <footer className="bg-primary px-5 pb-24 md:pb-10 text-primary-foreground/70 md:px-10">
         <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-5 border-t border-primary-foreground/15 pt-8 text-xs">
-          <span>© 2026 Provisa Writers Ltd. Company details placeholder.</span>
+          <span>© 2026 Provisa Writers Ltd. RC 8278849.</span>
           <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to site</a>
         </div>
       </footer>
@@ -677,7 +677,7 @@ function Home() {
   return (
     <div id="top" className="template-two grain min-h-[100dvh]">
       <div className="bg-primary px-5 py-2.5 text-center text-[10px] font-semibold tracking-[.04em] text-primary-foreground sm:text-[11px]">
-        A considered starting point for your next international move <span className="ml-2 text-accent">·</span>
+        A considered starting point for your next international move <span className="ml-2 hidden text-accent sm:inline">·</span>
       </div>
 
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
@@ -874,7 +874,7 @@ function Home() {
                 <div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div>
                 <div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div>
                 <div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div>
-                <div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24' : 'h-11'}`} placeholder="Brief description of what you need." /></div>
+                <div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24 overflow-y-auto' : 'h-11 overflow-hidden'}`} placeholder="Brief description of what you need." /></div>
                 <button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button>
               </form>}
             </div>
@@ -883,9 +883,9 @@ function Home() {
       </main>
 
        <FieldGuideSidebar open={sidebarOpen} tab={sidebarTab} posts={posts} onClose={() => setSidebarOpen(false)} onTabChange={setSidebarTab} />
-        <footer className="border-t border-primary-foreground/15 bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
+        <footer className="border-t border-primary-foreground/15 bg-primary px-5 pb-24 md:pb-10 text-primary-foreground/70 md:px-10">
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. Company details placeholder.</span></div>
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. RC 8278849.</span></div>
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
               {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
                 ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
@@ -977,7 +977,7 @@ function ServicesOverviewPage() {
           </div>
         </section>
       </main>
-        <footer className="border-t border-border bg-background px-5 py-8 text-muted-foreground md:px-10">
+        <footer className="border-t border-border bg-background px-5 pt-8 pb-24 md:pb-8 text-muted-foreground md:px-10">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
           <span>© 2026 Provisa Writers Ltd.</span>
           <nav aria-label="Legal information" className="flex flex-wrap gap-x-5 gap-y-3">
@@ -1098,7 +1098,7 @@ function ServiceDetailPage({ serviceSlug }: { serviceSlug: ServiceSlug }) {
           )}
         </section>
       </main>
-      <footer className="border-t border-border bg-background px-5 py-8 text-muted-foreground md:px-10">
+      <footer className="border-t border-border bg-background px-5 pt-8 pb-24 md:pb-8 text-muted-foreground md:px-10">
         <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 text-xs">
           <span>© 2026 Provisa Writers Ltd.</span>
           <nav aria-label="Legal information" className="flex flex-wrap gap-x-5 gap-y-3">
@@ -1293,9 +1293,9 @@ function TestimonialsPage() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary px-5 pb-10 text-primary-foreground/70 md:px-10">
+      <footer className="bg-primary px-5 pb-24 md:pb-10 text-primary-foreground/70 md:px-10">
         <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-5 border-t border-primary-foreground/15 pt-8 text-xs">
-          <span>© 2026 Provisa Writers Ltd. Company details placeholder.</span>
+          <span>© 2026 Provisa Writers Ltd. RC 8278849.</span>
           <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to Home</a>
         </div>
       </footer>
