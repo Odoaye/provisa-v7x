@@ -34,3 +34,5 @@ export function getDb() {
 }
 
 export * from "./schema";
+
+export { sql } from "drizzle-orm";

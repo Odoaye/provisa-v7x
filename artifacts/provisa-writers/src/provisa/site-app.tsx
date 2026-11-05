@@ -552,7 +552,9 @@ function Home() {
     image: '/stock/founder-mercy.jpg',
   }, ...readStaff()]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<false | 'sent' | 'email'>(false);
+  const [sendingContact, setSendingContact] = useState(false);
+  const [contactError, setContactError] = useState('');
   const [questionExpanded, setQuestionExpanded] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -662,16 +664,49 @@ function Home() {
     if (Math.abs(distance) > 40) moveTeam(distance > 0 ? -1 : 1);
     setTouchStartX(null);
   };
-  const submitContact = (event: FormEvent<HTMLFormElement>) => {
+  const submitContact = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const subject = encodeURIComponent(`Consultation request from ${String(data.get('name') || 'website visitor')}`);
+    if (sendingContact) return;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const fields = {
+      name: String(data.get('name') || ''),
+      email: String(data.get('email') || ''),
+      service: String(data.get('service') || ''),
+      question: String(data.get('question') || ''),
+      website: String(data.get('website') || ''),
+    };
+    setSendingContact(true);
+    setContactError('');
+    try {
+      const response = await fetch('/provisa-api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields),
+      });
+      if (response.ok) {
+        form.reset();
+        setQuestionExpanded(false);
+        setSubmitted('sent');
+        return;
+      }
+      const result = await response.json().catch(() => null) as { error?: string } | null;
+      if (response.status === 400 && result?.error) {
+        setContactError(result.error);
+        return;
+      }
+    } catch {
+      // Fall back to the visitor's email app below.
+    } finally {
+      setSendingContact(false);
+    }
+    const subject = encodeURIComponent(`Consultation request from ${fields.name || 'website visitor'}`);
     const body = encodeURIComponent(
-      `Service of interest: ${String(data.get('service') || '')}\nName: ${String(data.get('name') || '')}\nEmail: ${String(data.get('email') || '')}\n\nQuestion:\n${String(data.get('question') || '')}`,
+      `Service of interest: ${fields.service}\nName: ${fields.name}\nEmail: ${fields.email}\n\nQuestion:\n${fields.question}`,
     );
     window.location.href = `mailto:info@provisawriters.com?subject=${subject}&body=${body}`;
     setQuestionExpanded(false);
-    setSubmitted(true);
+    setSubmitted('email');
   };
 
   return (
@@ -870,12 +905,14 @@ function Home() {
           <div className="mx-auto grid max-w-[1240px] gap-14 lg:grid-cols-[.9fr_1.1fr]">
               <div className="reveal"><p className="section-kicker eyebrow text-accent">Contact the Team</p><h2 className="mt-4 max-w-3xl font-display text-4xl md:text-6xl">Take Your Career Global</h2><p className="mt-6 max-w-md leading-7 text-primary-foreground/80">We work with professionals in diverse fields seeking global opportunities, international recognition and further career advancement.</p><div className="mt-8 grid gap-4 text-sm font-semibold"><a href="mailto:info@provisawriters.com" className="inline-flex items-center gap-2 text-primary-foreground transition-colors hover:text-accent"><Mail size={15} /> info@provisawriters.com</a><a href="tel:+2348160550258" className="inline-flex items-center gap-2 text-primary-foreground transition-colors hover:text-accent"><MessageCircle size={15} /> +234 816 055 0258</a><a href="https://wa.me/2348160550258?text=Hello%20Provisa%20Writers%2C%20I%27d%20like%20to%20ask%20a%20question." target="_blank" rel="noreferrer" className="inline-flex w-fit items-center gap-2 border-b border-primary-foreground/40 pb-2 text-primary-foreground transition-colors hover:text-accent"><MessageCircle size={15} /> Chat on WhatsApp</a><a href="https://www.instagram.com/provisa_writers/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary-foreground transition-colors hover:text-accent" aria-label="Provisa Writers on Instagram"><Instagram size={15} /> Instagram</a><a href="https://www.linkedin.com/in/provisa-writers-ltd-52b298367?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-primary-foreground transition-colors hover:text-accent" aria-label="Provisa Writers on LinkedIn"><Linkedin size={15} /> LinkedIn</a></div></div>
             <div className="rounded-[1.75rem] bg-white p-7 text-foreground shadow-quiet md:p-9 reveal reveal-delay-1">
-              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p><button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5">
+              {submitted ? <div className="flex min-h-[300px] flex-col justify-center"><span className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-primary"><Check size={20} /></span>{submitted === 'sent' ? <><h3 className="mt-7 font-display text-3xl">Thank You. Your Message Has Been Sent.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">The Provisa team will reply to the email address you gave us. For anything urgent, email info@provisawriters.com or message us on WhatsApp.</p></> : <><h3 className="mt-7 font-display text-3xl">Your Email Is Ready to Send.</h3><p className="mt-3 max-w-sm leading-7 text-muted-foreground">Your mail app should open with the details filled in. If it did not, email info@provisawriters.com directly.</p></>}<button type="button" onClick={() => setSubmitted(false)} className="mt-7 w-fit text-sm font-bold text-primary underline decoration-accent decoration-2 underline-offset-4">Send another note</button></div> : <form onSubmit={submitContact} className="grid gap-5">
                 <div><label htmlFor="name" className="eyebrow text-primary">Your name</label><input id="name" required name="name" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="How should we address you?" /></div>
                 <div><label htmlFor="email" className="eyebrow text-primary">Email address</label><input id="email" required type="email" name="email" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="example@email.com" /></div>
                 <div><label htmlFor="service" className="eyebrow text-primary">Service interested in</label><input id="service" required name="service" className="mt-2 w-full border-b border-border bg-transparent px-0 py-3 text-sm outline-none placeholder:text-muted-foreground/70" placeholder="What service are you interested in?" /></div>
                 <div><label htmlFor="question" className="eyebrow text-primary">The question</label><textarea id="question" required name="question" rows={questionExpanded ? 3 : 1} onFocus={() => setQuestionExpanded(true)} onBlur={(event) => { if (!event.currentTarget.value.trim()) setQuestionExpanded(false); }} className={`mt-2 w-full resize-none border-b border-border bg-transparent px-0 py-3 text-sm leading-5 outline-none placeholder:text-muted-foreground/70 transition-[height] duration-200 ${questionExpanded ? 'h-24 overflow-y-auto' : 'h-11 overflow-hidden'}`} placeholder="Brief description of what you need." /></div>
-                <button type="submit" className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5">Send an email <ArrowRight size={16} /></button>
+                <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden"><label htmlFor="website">Leave this empty</label><input id="website" name="website" tabIndex={-1} autoComplete="off" /></div>
+                {contactError && <p role="alert" className="text-sm font-semibold text-accent">{contactError}</p>}
+                <button type="submit" disabled={sendingContact} className="mt-3 inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-60">{sendingContact ? 'Sending…' : 'Send message'} <ArrowRight size={16} /></button>
               </form>}
             </div>
           </div>
@@ -1369,7 +1406,7 @@ function AdminPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'posts' | 'staff' | 'founder' | 'testimonials'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'staff' | 'founder' | 'testimonials' | 'enquiries' | 'visitors'>('posts');
   const [posts, setPosts] = useState<BlogPost[]>(readPosts);
   const [staff, setStaff] = useState<StaffMember[]>(readStaff);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -1733,6 +1770,8 @@ function AdminPage() {
            <button type="button" onClick={() => setActiveTab('staff')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'staff' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Users size={15} /> Staff directory</button>
            <button type="button" onClick={() => setActiveTab('founder')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'founder' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Pencil size={15} /> Founder</button>
            <button type="button" onClick={() => setActiveTab('testimonials')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'testimonials' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><MessageCircle size={15} /> Testimonials</button>
+           <button type="button" onClick={() => setActiveTab('enquiries')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'enquiries' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Mail size={15} /> Enquiries</button>
+           <button type="button" onClick={() => setActiveTab('visitors')} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-colors ${activeTab === 'visitors' ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-secondary'}`}><Eye size={15} /> Visitors</button>
         </div>
 
         {activeTab === 'posts' ? (
@@ -1836,6 +1875,10 @@ function AdminPage() {
               </div> : <p className="mt-5 text-sm text-muted-foreground">No testimonials have been added yet.</p>}
             </section>
           </div>
+        ) : activeTab === 'enquiries' ? (
+          <EnquiriesPanel />
+        ) : activeTab === 'visitors' ? (
+          <VisitorsPanel />
         ) : (
             <form onSubmit={(event) => { event.preventDefault(); void saveChanges({ founder: { id: 'founder', ...founderForm, summary: firstParagraph(founderForm.summary) } }, 'founder'); }} className="admin-editor-card mt-8 max-w-3xl rounded-[1.75rem] bg-secondary/80 p-7 text-foreground md:p-9">
             <h2 className="font-display text-3xl">Founder profile</h2>
@@ -1869,6 +1912,124 @@ function AdminPage() {
   );
 }
 
+type Enquiry = { id: string; name: string; email: string; service: string; question: string; createdAt: string };
+
+const adminDateTime = (value: string) =>
+  new Date(value).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+function EnquiriesPanel() {
+  const [enquiries, setEnquiries] = useState<Enquiry[] | null>(null);
+  const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/provisa-api/enquiry')
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('unavailable'))))
+      .then((body: { enquiries: Enquiry[] }) => setEnquiries(body.enquiries))
+      .catch(() => setError('Enquiries could not be loaded. Please reload the page.'));
+  }, []);
+
+  const remove = async (id: string) => {
+    if (deletingId) return;
+    setDeletingId(id);
+    try {
+      const response = await fetch(`/provisa-api/enquiry?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('failed');
+      setEnquiries((current) => (current ?? []).filter((entry) => entry.id !== id));
+    } catch {
+      setError('That enquiry could not be removed. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  return (
+    <section className="mt-8 max-w-4xl">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2 className="font-display text-3xl">Website enquiries</h2>
+        {enquiries && <span className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">{enquiries.length} saved</span>}
+      </div>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Messages sent through the contact form on the home page. Reply by email, then remove an enquiry once it has been dealt with.</p>
+      {error && <p role="alert" className="mt-5 rounded-xl border border-accent/40 bg-accent/10 px-5 py-3 text-sm font-semibold">{error}</p>}
+      {!enquiries && !error && <p className="mt-6 text-sm text-muted-foreground">Loading enquiries…</p>}
+      {enquiries && enquiries.length === 0 && <p className="mt-6 text-sm text-muted-foreground">No enquiries yet. New messages from the contact form will appear here.</p>}
+      <div className="mt-6 grid gap-4">
+        {enquiries?.map((entry) => (
+          <article key={entry.id} className="rounded-[1.25rem] border border-border bg-background p-5 md:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="font-display text-xl">{entry.name}</h3>
+                <a href={`mailto:${entry.email}?subject=${encodeURIComponent('Your enquiry to Provisa Writers')}`} className="break-all text-sm font-bold text-primary underline decoration-accent underline-offset-4">{entry.email}</a>
+              </div>
+              <span className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">{adminDateTime(entry.createdAt)}</span>
+            </div>
+            {entry.service && <p className="mt-4 text-xs font-bold uppercase tracking-[.1em] text-accent">{entry.service}</p>}
+            <p className="mt-2 whitespace-pre-line break-words text-sm leading-7 text-foreground">{entry.question}</p>
+            <button type="button" onClick={() => void remove(entry.id)} disabled={deletingId === entry.id} className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-accent disabled:opacity-50"><Trash2 size={14} /> {deletingId === entry.id ? 'Removing…' : 'Remove'}</button>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+type VisitSummary = { today: number; last7: number; last30: number; total: number; since: string | null; daily: { day: string; visits: number }[] };
+
+function VisitorsPanel() {
+  const [summary, setSummary] = useState<VisitSummary | null>(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/provisa-api/visit')
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error('unavailable'))))
+      .then((body: VisitSummary) => setSummary(body))
+      .catch(() => setError('Visitor numbers could not be loaded. Please reload the page.'));
+  }, []);
+
+  const peak = Math.max(1, ...(summary?.daily.map((entry) => entry.visits) ?? [1]));
+  const tiles = summary ? [
+    { label: 'Today', value: summary.today },
+    { label: 'Last 7 days', value: summary.last7 },
+    { label: 'Last 30 days', value: summary.last30 },
+    { label: 'All time', value: summary.total },
+  ] : [];
+
+  return (
+    <section className="mt-8 max-w-4xl">
+      <h2 className="font-display text-3xl">Website visitors</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Each person is counted once per browsing session. Admin pages and search-engine bots are not counted.{summary?.since ? ` Counting since ${new Date(`${summary.since}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.` : ''}</p>
+      {error && <p role="alert" className="mt-5 rounded-xl border border-accent/40 bg-accent/10 px-5 py-3 text-sm font-semibold">{error}</p>}
+      {!summary && !error && <p className="mt-6 text-sm text-muted-foreground">Loading visitor numbers…</p>}
+      {summary && (
+        <>
+          <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+            {tiles.map((tile) => (
+              <div key={tile.label} className="rounded-[1.25rem] border border-border bg-background p-5">
+                <p className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">{tile.label}</p>
+                <p className="mt-2 font-display text-4xl text-primary">{tile.value.toLocaleString('en-GB')}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 rounded-[1.25rem] border border-border bg-background p-5 md:p-6">
+            <p className="font-mono-ui text-[10px] uppercase tracking-[.13em] text-muted-foreground">Last 14 days</p>
+            {summary.daily.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">No visits recorded yet.</p> : (
+              <ul className="mt-4 grid gap-2">
+                {summary.daily.map((entry) => (
+                  <li key={entry.day} className="grid grid-cols-[5.5rem_1fr_3rem] items-center gap-3 text-xs">
+                    <span className="text-muted-foreground">{new Date(`${entry.day}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                    <span className="h-2.5 rounded-full bg-secondary"><span className="block h-full rounded-full bg-primary" style={{ width: `${Math.max(4, (entry.visits / peak) * 100)}%` }} /></span>
+                    <span className="text-right font-bold text-primary">{entry.visits}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   return <ErrorBoundary resetKey={location}>{children}</ErrorBoundary>;
@@ -1876,6 +2037,17 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 
 function SiteExperienceControls({ isAdminRoute = false }: { isAdminRoute?: boolean }) {
   const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    if (isAdminRoute) return;
+    try {
+      if (window.sessionStorage.getItem('provisa-visit-counted')) return;
+      window.sessionStorage.setItem('provisa-visit-counted', '1');
+    } catch {
+      // Storage can be blocked; count the visit anyway.
+    }
+    void fetch('/provisa-api/visit', { method: 'POST', keepalive: true }).catch(() => undefined);
+  }, [isAdminRoute]);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 520);
