@@ -37,7 +37,7 @@ import { ErrorBoundary } from './error-boundary';
 import NotFound from './not-found-view';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { founderDescriptor, founderIntro, founderStory } from './content-copy';
-import { legalDocuments, legalReviewNote, type LegalDocumentSlug, getLegalDocumentBySlug } from './legal-content';
+import { legalDocuments, legalLastUpdated, type LegalDocumentSlug, getLegalDocumentBySlug } from './legal-content';
 import { serviceCatalog, type ServiceSlug, getServiceBySlug } from './service-catalog';
 import {
   DEMO_TESTIMONIALS_STORAGE_KEY,
@@ -1133,10 +1133,7 @@ function LegalPage({ documentSlug }: { documentSlug: LegalDocumentSlug }) {
             <p className="section-kicker eyebrow text-accent">Legal Information</p>
             <h1 className="mt-5 font-display text-4xl leading-tight tracking-[-.04em] md:text-6xl">{document.title}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">{document.summary}</p>
-            <aside className="mt-8 max-w-3xl border-l-4 border-accent bg-background p-5 text-sm leading-7 text-foreground" role="note">
-              <strong className="block text-primary">Draft for review</strong>
-              <span>{legalReviewNote}</span>
-            </aside>
+            <p className="mt-6 font-mono-ui text-xs uppercase tracking-[.13em] text-muted-foreground">Last updated: {legalLastUpdated}</p>
           </div>
         </section>
         <section className="px-5 py-14 md:px-10 md:py-20">
@@ -1145,7 +1142,15 @@ function LegalPage({ documentSlug }: { documentSlug: LegalDocumentSlug }) {
               <article key={section.heading} className="py-8">
                 <h2 className="font-display text-2xl md:text-3xl">{section.heading}</h2>
                 <div className="mt-4 space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
-                  {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                  {section.blocks.map((block, index) => block.type === 'list' ? (
+                    <ul key={index} className="list-disc space-y-2 pl-6">
+                      {block.items.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  ) : block.type === 'strong' ? (
+                    <p key={index} className="font-semibold text-foreground">{block.text}</p>
+                  ) : (
+                    <p key={index}>{block.text}</p>
+                  ))}
                 </div>
               </article>
             ))}
