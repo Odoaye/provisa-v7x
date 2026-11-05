@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  adminLoginConfigured,
   createSession,
   rateLimited,
   recordFailure,
@@ -7,6 +8,13 @@ import {
 } from "@/server/auth";
 
 export async function POST(request: Request) {
+  if (!adminLoginConfigured()) {
+    return NextResponse.json(
+      { error: "Admin sign-in is not set up yet. Add ADMIN_USERNAME and ADMIN_PASSWORD in Vercel." },
+      { status: 503 },
+    );
+  }
+
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   if (rateLimited(ip)) {

@@ -1,24 +1,46 @@
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 const COOKIE_NAME = "provisa_admin_session";
 const MAX_AGE = 60 * 60 * 8;
 const failures = new Map<string, { count: number; resetAt: number }>();
-const PREVIEW_USERNAME = "pwadmin";
-const PREVIEW_PASSWORD = "client123";
-const PREVIEW_SESSION_SECRET =
-  "provisa-preview-session-signing-key-rotate-before-launch";
+function adminUsername() {
+  return process.env.ADMIN_USERNAME?.trim() || "";
+}
+
+function adminPassword() {
+  return process.env.ADMIN_PASSWORD || "";
+}
+
+export function adminLoginConfigured() {
+  return Boolean(adminUsername() && adminPassword());
+}
 
 function secret() {
-  return PREVIEW_SESSION_SECRET;
+  const configured = process.env.SESSION_SECRET;
+  if (configured && configured.length >= 32) return configured;
+  // Without a dedicated secret, derive one from the private admin settings so
+  // sessions still cannot be forged and end when the password changes.
+  return createHash("sha256")
+    .update(`provisa-admin-session:${adminUsername()}:${adminPassword()}`)
+    .digest("base64url");
 }
 
 function signature(value: string) {
   return createHmac("sha256", secret()).update(value).digest("base64url");
 }
 
+function sameText(a: string, b: string) {
+  const left = createHash("sha256").update(a).digest();
+  const right = createHash("sha256").update(b).digest();
+  return timingSafeEqual(left, right);
+}
+
 export function validCredentials(username: string, password: string) {
-  return username === PREVIEW_USERNAME && password === PREVIEW_PASSWORD;
+  if (!adminLoginConfigured()) return false;
+  const userOk = sameText(username.trim(), adminUsername());
+  const passOk = sameText(password, adminPassword());
+  return userOk && passOk;
 }
 
 export function rateLimited(ip: string) {
@@ -54,6 +76,7 @@ export async function clearSession() {
 }
 
 export async function hasSession() {
+  if (!adminLoginConfigured()) return false;
   const value = (await cookies()).get(COOKIE_NAME)?.value;
   if (!value) return false;
   const parts = value.split(".");
