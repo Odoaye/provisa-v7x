@@ -1,3 +1,4 @@
+// Public list of all field notes (blog posts).
 import SiteApp from "@/provisa/site-app";
 import { createPageMetadata } from "@/provisa/seo";
 
