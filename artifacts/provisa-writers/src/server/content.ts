@@ -7,7 +7,7 @@ import {
   type InsertProvisaFounder,
   type InsertProvisaPost,
   type InsertProvisaStaff,
-  type InsertProvisaTestimonial,
+
 } from "@workspace/db";
 import { founderDescriptor, founderIntro, founderStory } from "../provisa/content-copy";
 
@@ -109,29 +109,98 @@ export async function seedContent() {
   return getContent();
 }
 
-export async function saveContent(payload: { posts?: InsertProvisaPost[]; staff?: InsertProvisaStaff[]; founder?: InsertProvisaFounder; testimonials?: InsertProvisaTestimonial[] }) {
+type Row = Record<string, unknown>;
+
+const str = (value: unknown) => (typeof value === "string" ? value : "");
+
+// The admin page sends dates back as text (and sometimes extra fields).
+// Keep only real columns and turn dates into Date objects, or the database rejects the save.
+function toDate(value: unknown) {
+  if (typeof value !== "string" && !(value instanceof Date)) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function cleanPost(row: Row) {
+  const createdAt = toDate(row.createdAt);
+  return {
+    id: str(row.id) || `post-${Date.now()}`,
+    title: str(row.title),
+    excerpt: str(row.excerpt),
+    body: str(row.body),
+    image: str(row.image),
+    publishAt: str(row.publishAt),
+    expiresAt: str(row.expiresAt),
+    ...(createdAt ? { createdAt } : {}),
+  };
+}
+
+function cleanStaff(row: Row) {
+  const createdAt = toDate(row.createdAt);
+  return {
+    id: str(row.id) || `staff-${Date.now()}`,
+    name: str(row.name),
+    role: str(row.role),
+    bio: str(row.bio),
+    image: str(row.image),
+    ...(createdAt ? { createdAt } : {}),
+  };
+}
+
+function cleanTestimonial(row: Row) {
+  const createdAt = toDate(row.createdAt);
+  return {
+    id: str(row.id) || `testimonial-${Date.now()}`,
+    quote: str(row.quote),
+    image: str(row.image),
+    attribution: str(row.attribution),
+    ...(createdAt ? { createdAt } : {}),
+  };
+}
+
+function cleanFounder(row: Row) {
+  return {
+    id: str(row.id) || "founder",
+    name: str(row.name),
+    role: str(row.role),
+    descriptor: str(row.descriptor),
+    summary: str(row.summary),
+    fullWriteup: str(row.fullWriteup),
+    image: str(row.image),
+  };
+}
+
+const rows = (value: unknown) =>
+  Array.isArray(value) ? value.filter((item): item is Row => !!item && typeof item === "object") : null;
+
+export async function saveContent(payload: { posts?: unknown; staff?: unknown; founder?: unknown; testimonials?: unknown }) {
   const db = getDb();
-  if (payload.posts) {
-    await db.delete(provisaPostsTable);
-    if (payload.posts.length) await db.insert(provisaPostsTable).values(payload.posts);
-  }
-  if (payload.staff) {
-    await db.delete(provisaStaffTable);
-    if (payload.staff.length) await db.insert(provisaStaffTable).values(payload.staff);
-  }
-  if (payload.founder) {
-    await db.insert(provisaFounderTable).values(payload.founder).onConflictDoUpdate({
-      target: provisaFounderTable.id,
-      set: { ...payload.founder, updatedAt: new Date() },
-    });
-  }
-  if (payload.testimonials) {
-    await db.transaction(async (transaction) => {
-      await transaction.delete(provisaTestimonialsTable);
-      if (payload.testimonials!.length) {
-        await transaction.insert(provisaTestimonialsTable).values(payload.testimonials!);
-      }
-    });
-  }
+  const posts = rows(payload.posts)?.map(cleanPost);
+  const staff = rows(payload.staff)?.map(cleanStaff);
+  const testimonials = rows(payload.testimonials)?.map(cleanTestimonial);
+  const founder =
+    payload.founder && typeof payload.founder === "object" ? cleanFounder(payload.founder as Row) : null;
+
+  // One transaction: if any part fails, nothing is deleted.
+  await db.transaction(async (tx) => {
+    if (posts) {
+      await tx.delete(provisaPostsTable);
+      if (posts.length) await tx.insert(provisaPostsTable).values(posts);
+    }
+    if (staff) {
+      await tx.delete(provisaStaffTable);
+      if (staff.length) await tx.insert(provisaStaffTable).values(staff);
+    }
+    if (founder) {
+      await tx.insert(provisaFounderTable).values(founder).onConflictDoUpdate({
+        target: provisaFounderTable.id,
+        set: { ...founder, updatedAt: new Date() },
+      });
+    }
+    if (testimonials) {
+      await tx.delete(provisaTestimonialsTable);
+      if (testimonials.length) await tx.insert(provisaTestimonialsTable).values(testimonials);
+    }
+  });
   return getContent();
 }

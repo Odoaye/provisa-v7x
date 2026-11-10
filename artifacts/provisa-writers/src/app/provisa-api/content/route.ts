@@ -25,7 +25,8 @@ export async function PUT(request: Request) {
 
   try {
     return NextResponse.json(await saveContent(payload));
-  } catch {
+  } catch (error) {
+    console.error("Saving site content failed", error);
     return NextResponse.json(
       { error: "Content storage is unavailable." },
       { status: 503 },
