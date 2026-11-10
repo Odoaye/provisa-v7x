@@ -11,8 +11,6 @@ const oldSiteRedirects = [
   { source: "/contact", destination: "/#contact" },
   { source: "/faq", destination: "/" },
   { source: "/news", destination: "/" },
-  { source: "/blog", destination: "/" },
-  { source: "/blog/:slug*", destination: "/" },
   { source: "/category/:slug*", destination: "/" },
   { source: "/tag/:slug*", destination: "/" },
   { source: "/author/:slug*", destination: "/" },

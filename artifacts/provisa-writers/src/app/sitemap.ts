@@ -7,6 +7,7 @@ const fixedPaths = [
   "/founder",
   "/services",
   "/testimonials",
+  "/blog",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

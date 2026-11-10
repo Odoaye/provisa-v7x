@@ -208,7 +208,7 @@ const navItems = [
     { label: 'Visa Application Support', href: '#visa-application-support' },
   ] },
   { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Blog', href: '#blog' },
+  { label: 'Blog', href: '/blog' },
   { label: 'FAQ', href: '#faq' },
 ];
 
@@ -221,8 +221,8 @@ function NavigationLinks({ mobile = false, onNavigate, onOpenSidebar }: { mobile
     return () => window.removeEventListener('scroll', closeDropdowns);
   }, []);
 
-  return navItems.map((item) => item.href === '#blog' || item.href === '#faq' ? (
-    <button key={item.href} type="button" onClick={() => onOpenSidebar(item.href === '#blog' ? 'blog' : 'faq')} className={`text-left font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'rounded-xl px-3 py-3 text-sm hover:bg-muted' : 'text-[11px]'}`}>
+  return navItems.map((item) => item.href === '#faq' ? (
+    <button key={item.href} type="button" onClick={() => onOpenSidebar('faq')} className={`text-left font-semibold text-foreground transition-colors hover:text-primary ${mobile ? 'rounded-xl px-3 py-3 text-sm hover:bg-muted' : 'text-[11px]'}`}>
       {item.label}
     </button>
   ) : item.children ? (
@@ -330,6 +330,215 @@ function isVisiblePost(post: BlogPost) {
   return Number.isFinite(publish) && publish > now ? false : now < expires;
 }
 
+function postTime(post: BlogPost) {
+  const stamp = Date.parse(post.publishAt || post.createdAt || '');
+  if (Number.isFinite(stamp)) return stamp;
+  const fromId = Number(post.id);
+  return Number.isFinite(fromId) ? fromId : 0;
+}
+
+function sortPostsNewestFirst(posts: BlogPost[]) {
+  return [...posts].sort((a, b) => postTime(b) - postTime(a));
+}
+
+function postDateLabel(post: BlogPost) {
+  const stamp = postTime(post);
+  if (!stamp || stamp < 946684800000) return '';
+  return new Date(stamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function blogPostHref(post: BlogPost) {
+  return routePath(`/blog/${encodeURIComponent(post.id)}`);
+}
+
+// Shows the text the way it was typed: blank lines start a new paragraph,
+// single line breaks stay as line breaks.
+function PostBody({ text, className = '' }: { text: string; className?: string }) {
+  const paragraphs = text.replace(/\r\n/g, '\n').trim().split(/\n[ \t]*\n+/).filter((paragraph) => paragraph.trim());
+  return (
+    <div className={`grid gap-5 ${className}`}>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className="whitespace-pre-line break-words">{paragraph.replace(/^\n+|\n+$/g, '')}</p>
+      ))}
+    </div>
+  );
+}
+
+function usePublishedPosts() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    void fetch('/provisa-api/content')
+      .then((response) => {
+        if (!response.ok) throw new Error('Blog posts could not be loaded. Please try again.');
+        return response.json();
+      })
+      .then((content) => {
+        if (!active) return;
+        const loaded: BlogPost[] = Array.isArray(content?.posts) ? content.posts : [];
+        setPosts(sortPostsNewestFirst(loaded.filter(isVisiblePost)));
+      })
+      .catch((error) => {
+        if (active) setLoadError(error instanceof Error ? error.message : 'Blog posts could not be loaded.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return { posts, loading, loadError };
+}
+
+function SimplePageFrame({ children, backHref = '/', backLabel = 'Back to Home' }: { children: ReactNode; backHref?: string; backLabel?: string }) {
+  return (
+    <div className="template-two grain min-h-[100dvh]">
+      <header className="border-b border-border bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[76px] max-w-[1240px] items-center justify-between px-5 lg:px-8">
+          <Logo />
+          <a href={routePath(backHref)} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">
+            <ArrowRight className="rotate-180" size={16} /> {backLabel}
+          </a>
+        </div>
+      </header>
+      <main>{children}</main>
+      <footer className="bg-primary px-5 pb-24 md:pb-10 text-primary-foreground/70 md:px-10">
+        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-5 border-t border-primary-foreground/15 pt-8 text-xs">
+          <span>© 2026 Provisa Writers Ltd. RC 8278849.</span>
+          <span className="flex gap-5">
+            <a href={routePath('/blog')} className="font-semibold transition-colors hover:text-primary-foreground">All field notes</a>
+            <a href={routePath('/')} className="font-semibold transition-colors hover:text-primary-foreground">Return to Home</a>
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+function BlogCard({ post }: { post: BlogPost }) {
+  const date = postDateLabel(post);
+  return (
+    <article className="group flex flex-col overflow-hidden rounded-[1.25rem] border border-border bg-background reveal">
+      <a href={blogPostHref(post)} className="block overflow-hidden" tabIndex={-1} aria-hidden="true">
+        <img src={assetPath(post.image || '/provisa-record.jpg')} alt="" loading="lazy" decoding="async" className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+      </a>
+      <div className="flex flex-1 flex-col p-6">
+        <p className="flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.12em] text-accent"><CalendarDays size={13} /> {date || 'Field note'}</p>
+        <h2 className="mt-4 font-display text-2xl leading-snug"><a href={blogPostHref(post)} className="transition-colors hover:text-accent">{post.title}</a></h2>
+        {post.excerpt && <p className="mt-3 line-clamp-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>}
+        <a href={blogPostHref(post)} className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-bold text-primary transition-colors hover:text-accent">
+          Read the full note <ArrowRight size={15} />
+        </a>
+      </div>
+    </article>
+  );
+}
+
+function BlogPage() {
+  useScrollReveals();
+  const { posts, loading, loadError } = usePublishedPosts();
+
+  return (
+    <SimplePageFrame>
+      <section className="border-b border-border bg-secondary/35 px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-[1240px]">
+          <p className="section-kicker eyebrow text-accent">From the Field Notes</p>
+          <h1 className="mt-5 max-w-4xl font-display text-4xl leading-tight md:text-6xl">Notes for the Next Move.</h1>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+            Practical notes on global opportunities, professional profiles and preparing for your next step.
+          </p>
+        </div>
+      </section>
+      <section className="px-5 py-14 md:px-10 md:py-20">
+        <div className="mx-auto max-w-[1240px]">
+          {loadError && <p role="alert" className="mb-6 rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{loadError}</p>}
+          {loading ? (
+            <p role="status" className="text-sm text-muted-foreground">Loading field notes…</p>
+          ) : posts.length ? (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {posts.map((post) => <BlogCard key={post.id} post={post} />)}
+            </div>
+          ) : !loadError ? (
+            <p className="max-w-xl border-y border-border py-8 text-sm leading-7 text-muted-foreground">New field notes are being prepared.</p>
+          ) : null}
+        </div>
+      </section>
+    </SimplePageFrame>
+  );
+}
+
+function BlogPostPage({ postId }: { postId: string }) {
+  useScrollReveals();
+  const { posts, loading, loadError } = usePublishedPosts();
+  const post = posts.find((entry) => entry.id === postId);
+  const others = posts.filter((entry) => entry.id !== postId).slice(0, 3);
+
+  useEffect(() => {
+    if (post) document.title = `${post.title.trim()} | Provisa Writers`;
+  }, [post]);
+
+  if (!loading && !post) {
+    return (
+      <SimplePageFrame backHref="/blog" backLabel="All field notes">
+        <section className="px-5 py-20 md:px-10">
+          <div className="mx-auto max-w-[760px]">
+            {loadError
+              ? <p role="alert" className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">{loadError}</p>
+              : <>
+                  <h1 className="font-display text-3xl md:text-5xl">This note is no longer available.</h1>
+                  <p className="mt-5 text-sm leading-7 text-muted-foreground">It may have been moved or removed.</p>
+                </>}
+            <a href={routePath('/blog')} className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground">See all field notes <ArrowRight size={16} /></a>
+          </div>
+        </section>
+      </SimplePageFrame>
+    );
+  }
+
+  return (
+    <SimplePageFrame backHref="/blog" backLabel="All field notes">
+      {loading || !post ? (
+        <p role="status" className="mx-auto max-w-[760px] px-5 py-20 text-sm text-muted-foreground">Loading the note…</p>
+      ) : (
+        <article>
+          <header className="border-b border-border bg-secondary/35 px-5 pb-12 pt-14 md:px-10 md:pb-16 md:pt-20">
+            <div className="mx-auto max-w-[760px]">
+              <p className="flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.12em] text-accent"><CalendarDays size={13} /> Field note{postDateLabel(post) ? ` · ${postDateLabel(post)}` : ''}</p>
+              <h1 className="mt-5 font-display text-4xl leading-tight md:text-6xl">{post.title}</h1>
+              {post.excerpt && <p className="mt-6 whitespace-pre-line text-base leading-8 text-muted-foreground md:text-lg">{post.excerpt}</p>}
+            </div>
+          </header>
+          <div className="px-5 py-12 md:px-10 md:py-16">
+            <div className="mx-auto max-w-[760px]">
+              <img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[16/9] w-full rounded-[1.25rem] object-cover" />
+              <PostBody text={post.body} className="mt-10 text-base leading-8 text-foreground md:text-[17px]" />
+              <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-8">
+                <a href={routePath('/blog')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent"><ArrowRight className="rotate-180" size={15} /> All field notes</a>
+                <a href={routePath('/#contact')} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-accent px-6 text-sm font-bold text-accent-foreground">Talk to the Team <ArrowRight size={16} /></a>
+              </div>
+            </div>
+          </div>
+          {others.length > 0 && (
+            <section className="border-t border-border bg-secondary/25 px-5 py-14 md:px-10 md:py-16">
+              <div className="mx-auto max-w-[1240px]">
+                <h2 className="font-display text-3xl">More field notes</h2>
+                <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {others.map((entry) => <BlogCard key={entry.id} post={entry} />)}
+                </div>
+              </div>
+            </section>
+          )}
+        </article>
+      )}
+    </SimplePageFrame>
+  );
+}
+
 function Logo() {
   return (
     <a href={routePath('/')} className="flex items-center gap-3 text-primary" aria-label="Provisa Writers home">
@@ -346,7 +555,7 @@ function Logo() {
 
 function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: boolean; tab: 'blog' | 'faq'; posts: BlogPost[]; onClose: () => void; onTabChange: (tab: 'blog' | 'faq') => void }) {
   if (!open) return null;
-  const visiblePosts = posts.filter(isVisiblePost);
+  const visiblePosts = sortPostsNewestFirst(posts.filter(isVisiblePost));
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Blog and FAQ field guide">
       <button type="button" onClick={onClose} className="absolute inset-0 cursor-default bg-primary/35 backdrop-blur-sm" aria-label="Close field guide" />
@@ -363,7 +572,7 @@ function FieldGuideSidebar({ open, tab, posts, onClose, onTabChange }: { open: b
           <div className="mt-9">
             <p className="eyebrow text-accent">From the Field Notes</p>
             <h2 className="mt-4 font-display text-4xl leading-tight">Notes for the Next Move.</h2>
-            {visiblePosts.length ? <div className="mt-8 grid gap-5">{visiblePosts.map((post) => <article key={post.id} className="overflow-hidden border border-border bg-secondary/40"><img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[1.7] w-full object-cover" /><div className="p-5"><div className="flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.12em] text-accent"><CalendarDays size={13} /> Field note</div><h3 className="mt-4 font-display text-2xl">{post.title}</h3><p className="mt-2 text-sm leading-7 text-muted-foreground">{post.excerpt}</p><details className="mt-4 border-t border-border pt-4"><summary className="cursor-pointer text-sm font-bold">Read the note</summary><p className="mt-4 text-sm leading-7 text-muted-foreground">{post.body}</p></details></div></article>)}</div> : <p className="mt-8 border-y border-border py-8 text-sm text-muted-foreground">New field notes are being prepared.</p>}
+            {visiblePosts.length ? <div className="mt-8 grid gap-5">{visiblePosts.map((post) => <article key={post.id} className="overflow-hidden border border-border bg-secondary/40"><img src={assetPath(post.image || '/provisa-record.jpg')} alt="" className="aspect-[1.7] w-full object-cover" /><div className="p-5"><div className="flex items-center gap-2 font-mono-ui text-[10px] uppercase tracking-[.12em] text-accent"><CalendarDays size={13} /> {postDateLabel(post) || 'Field note'}</div><h3 className="mt-4 font-display text-2xl"><a href={blogPostHref(post)} className="transition-colors hover:text-accent">{post.title}</a></h3><p className="mt-2 line-clamp-3 text-sm leading-7 text-muted-foreground">{post.excerpt}</p><a href={blogPostHref(post)} className="mt-4 inline-flex items-center gap-2 border-t border-border pt-4 text-sm font-bold text-primary transition-colors hover:text-accent">Read the full note <ArrowRight size={15} /></a></div></article>)}<a href={routePath('/blog')} className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-accent">See all field notes <ArrowRight size={15} /></a></div> : <p className="mt-8 border-y border-border py-8 text-sm text-muted-foreground">New field notes are being prepared.</p>}
           </div>
         ) : (
           <div className="mt-9">
@@ -924,8 +1133,8 @@ function Home() {
           <div className="mx-auto max-w-[1240px] border-t border-primary-foreground/15 pt-8 text-xs">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center"><span>© 2026 Provisa Writers Ltd. RC 8278849.</span></div>
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 text-primary-foreground/80">
-              {navItems.map((item) => item.href === '#blog' || item.href === '#faq'
-                ? <button key={item.href} type="button" onClick={() => openSidebar(item.href === '#blog' ? 'blog' : 'faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
+              {navItems.map((item) => item.href === '#faq'
+                ? <button key={item.href} type="button" onClick={() => openSidebar('faq')} className="transition-colors hover:text-primary-foreground">{item.label}</button>
                 : <a key={item.href} href={item.href} className="transition-colors hover:text-primary-foreground">{item.label}</a>)}
               <span className="font-bold text-primary-foreground">Legal</span>
               {legalDocuments.map((document) => (
@@ -1781,7 +1990,7 @@ function AdminPage() {
               <div className="mt-8 grid gap-5">
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Title<input required value={postForm.title} onChange={(event) => setPostForm({ ...postForm, title: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
                 <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Short excerpt<textarea required rows={3} value={postForm.excerpt} onChange={(event) => setPostForm({ ...postForm, excerpt: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
-                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Full note<textarea required rows={6} value={postForm.body} onChange={(event) => setPostForm({ ...postForm, body: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
+                <label className="grid gap-2 text-xs font-bold uppercase tracking-[.1em]">Full note<span className="font-normal normal-case tracking-normal text-muted-foreground">Leave an empty line between paragraphs. Line breaks show on the site exactly as typed.</span><textarea required rows={14} value={postForm.body} onChange={(event) => setPostForm({ ...postForm, body: event.target.value })} className="rounded-xl border border-border bg-background px-4 py-3 text-sm normal-case tracking-normal outline-none" /></label>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Publish from</span><input type="datetime-local" value={postForm.publishAt} onChange={(event) => setPostForm({ ...postForm, publishAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-border bg-background px-3 py-3 text-xs outline-none" /></label>
                   <label className="grid min-w-0 gap-2 text-xs font-bold uppercase tracking-[.1em]"><span className="flex items-center gap-2"><Clock3 size={13} /> Remove after</span><input type="datetime-local" value={postForm.expiresAt} onChange={(event) => setPostForm({ ...postForm, expiresAt: event.target.value })} className="min-w-0 w-full rounded-xl border border-border bg-background px-3 py-3 text-xs outline-none" /></label>
@@ -2079,7 +2288,7 @@ function Router() {
   return (
     <>
       <RoutedErrorBoundary>
-        <Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services" component={ServicesOverviewPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch>
+        <Switch><Route path="/" component={Home} /><Route path="/founder" component={FounderPage} /><Route path="/services" component={ServicesOverviewPage} /><Route path="/services/global-opportunities-consulting" component={GlobalOpportunitiesServiceRoute} /><Route path="/services/us-skilled-worker-migration" component={SkilledWorkerServiceRoute} /><Route path="/services/visa-application-support" component={VisaSupportServiceRoute} /><Route path="/legal/privacy-policy" component={PrivacyPolicyRoute} /><Route path="/legal/terms-of-use" component={TermsOfUseRoute} /><Route path="/legal/disclaimer" component={DisclaimerRoute} /><Route path="/testimonials" component={TestimonialsPage} /><Route path="/blog" component={BlogPage} /><Route path="/blog/:id">{(params) => <BlogPostPage postId={decodeURIComponent(params.id)} />}</Route><Route path="/admin" component={AdminPage} /><Route path="/pwadmin" component={AdminPage} /><Route component={NotFound} /></Switch>
       </RoutedErrorBoundary>
       <SiteExperienceControls isAdminRoute={location === '/admin' || location === '/pwadmin'} />
     </>
@@ -2096,6 +2305,10 @@ function App({ initialPath = '/' }: { initialPath?: string }) {
       serverPage = <TestimonialsPage />;
     } else if (initialPath === '/services') {
       serverPage = <ServicesOverviewPage />;
+    } else if (initialPath === '/blog') {
+      serverPage = <BlogPage />;
+    } else if (initialPath.startsWith('/blog/')) {
+      serverPage = <BlogPostPage postId={decodeURIComponent(initialPath.slice('/blog/'.length))} />;
     } else if (initialPath === '/pwadmin' || initialPath === '/admin') {
       serverPage = <AdminPage />;
     } else {
