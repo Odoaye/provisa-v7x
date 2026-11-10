@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       path: `/blog/${id}`,
     });
-    const image = post.image && /^https?:///.test(post.image) ? post.image : null;
+    const image = post.image && (post.image.startsWith("https://") || post.image.startsWith("http://")) ? post.image : null;
     if (!image) return metadata;
     return {
       ...metadata,
