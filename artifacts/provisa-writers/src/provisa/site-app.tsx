@@ -351,17 +351,39 @@ function blogPostHref(post: BlogPost) {
   return routePath(`/blog/${encodeURIComponent(post.id)}`);
 }
 
-// Shows the text the way it was typed: blank lines start a new paragraph,
-// single line breaks stay as line breaks.
-function PostBody({ text, className = '' }: { text: string; className?: string }) {
-  const paragraphs = text.replace(/\r\n/g, '\n').trim().split(/\n[ \t]*\n+/).filter((paragraph) => paragraph.trim());
-  return (
-    <div className={`grid gap-5 ${className}`}>
-      {paragraphs.map((paragraph, index) => (
-        <p key={index} className="whitespace-pre-line break-words">{paragraph.replace(/^\n+|\n+$/g, '')}</p>
-      ))}
-    </div>
-  );
+// Shows the text the way it was typed: blank lines start a new paragraph and
+// single line breaks stay. Lines starting with "-", "*" or "•" become bullet
+// points, and short stand-alone lines without end punctuation become headings.
+const BULLET_LINE = /^\s*(?:[-*•]|\d+[.)])\s+/;
+
+function PostBody({ text, className = "" }: { text: string; className?: string }) {
+  const blocks = text.replace(/\r\n/g, "\n").trim().split(/\n[ \t]*\n+/).map((block) => block.replace(/^\n+|\n+$/g, "")).filter((block) => block.trim());
+  const items: ReactNode[] = [];
+  let bullets: string[] = [];
+  const flushBullets = () => {
+    if (!bullets.length) return;
+    items.push(
+      <ul key={`list-${items.length}`} className="grid list-disc gap-2 pl-6 marker:text-accent">
+        {bullets.map((bullet, index) => <li key={index} className="whitespace-pre-line break-words pl-1">{bullet}</li>)}
+      </ul>,
+    );
+    bullets = [];
+  };
+  blocks.forEach((block) => {
+    const lines = block.split("\n");
+    if (lines.every((line) => BULLET_LINE.test(line))) {
+      bullets.push(...lines.map((line) => line.replace(BULLET_LINE, "").trim()));
+      return;
+    }
+    flushBullets();
+    const single = block.trim();
+    const isHeading = lines.length === 1 && single.length <= 80 && !/[.,;:!]$/.test(single);
+    items.push(isHeading
+      ? <h2 key={`h-${items.length}`} className="mt-4 font-display text-2xl leading-snug text-foreground md:text-[1.7rem]">{single}</h2>
+      : <p key={`p-${items.length}`} className="whitespace-pre-line break-words">{block}</p>);
+  });
+  flushBullets();
+  return <div className={`grid gap-5 ${className}`}>{items}</div>;
 }
 
 function usePublishedPosts() {
