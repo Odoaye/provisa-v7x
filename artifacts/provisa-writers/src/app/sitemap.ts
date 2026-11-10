@@ -7,9 +7,6 @@ const fixedPaths = [
   "/founder",
   "/services",
   "/testimonials",
-  "/legal/privacy-policy",
-  "/legal/terms-of-use",
-  "/legal/disclaimer",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

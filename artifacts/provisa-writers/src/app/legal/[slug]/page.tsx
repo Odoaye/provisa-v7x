@@ -20,11 +20,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!document) return { title: "Legal Information | Provisa Writers" };
 
   const title = `${document.title} | Provisa Writers`;
-  return createPageMetadata({
-    title,
-    description: document.summary,
-    path: `/legal/${document.slug}`,
-  });
+  // Keep legal pages out of Google results; they stay linked in the footer.
+  return {
+    ...createPageMetadata({
+      title,
+      description: document.summary,
+      path: `/legal/${document.slug}`,
+    }),
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function LegalDocumentPage({ params }: PageProps) {
