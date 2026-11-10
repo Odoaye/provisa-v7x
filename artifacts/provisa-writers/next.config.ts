@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 // Pages from the old website that Google still lists. Send visitors to the
 // closest page on the current site instead of a "page not found" error.
 const oldSiteRedirects = [
-  { source: "/about", destination: "/founder" },
+  { source: "/about", destination: "/#about" },
   { source: "/service", destination: "/services" },
   { source: "/service/:slug*", destination: "/services" },
   { source: "/services/immigration-writing", destination: "/services/visa-application-support" },
